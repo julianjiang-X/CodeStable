@@ -233,7 +233,8 @@ def test_quarantine_refuses_untracked_secret_like_files(tmp_path: Path) -> None:
 
 
 def test_runtime_tool_paths_are_documented() -> None:
-    tools_doc = (Path(__file__).resolve().parents[1] / "cs-onboard/reference/tools.md").read_text(encoding="utf-8")
+    reference_dir = Path(__file__).resolve().parents[1] / "cs-onboard/reference"
+    tools_doc = "\n".join(path.read_text(encoding="utf-8") for path in sorted(reference_dir.glob("tools*.md")))
 
     assert "python3 .codestable/tools/codestable-doctor.py --root . --json" in tools_doc
     assert "python3 .codestable/tools/codestable-worktree-gate.py --root . --json start" in tools_doc

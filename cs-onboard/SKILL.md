@@ -57,7 +57,8 @@ description: 把新仓库或有零散文档的仓库接入 CodeStable 体系，�
     ├── shared-conventions.md
     ├── execution-conventions.md
     ├── goal-conventions.md
-    ├── tools.md
+    ├── tools.md                  工具参考索引，完整内容在 tools-part*.md
+    ├── tools-part*.md
     ├── branch-guard-hooks.md
     ├── spec-governance-tools.md
     └── maintainer-notes.md

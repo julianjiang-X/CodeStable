@@ -144,5 +144,5 @@ python3 .codestable/tools/codestable-worktree-gate.py --root . --json commit --u
 ## 相关
 
 - `cs-refactor/SKILL.md` — 完整 refactor 流程
-- `cs-refactor/reference/methods.md` — 完整方法库
+- `cs-refactor/reference/methods.md` + `methods-part*.md` — 完整方法库
 - `.codestable/reference/system-overview.md` — CodeStable 体系总览

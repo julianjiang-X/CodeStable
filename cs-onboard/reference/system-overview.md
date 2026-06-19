@@ -108,7 +108,7 @@ AI 最常见的问题是一口气铺几百行代码才让人看——等发现�
 - `.codestable/reference/shared-conventions.md` — 目录结构、YAML frontmatter 口径、`{slug}-checklist.yaml` 生命周期、收尾 commit 约定、归档类共享规则
 - `.codestable/reference/execution-conventions.md` — worktree、review、finish、commit 和 handoff 执行约定
 - `.codestable/reference/goal-conventions.md` — goal 状态模型、双语报告和 owner-stop 约定
-- `.codestable/reference/tools.md` — 常用共享工具用法
+- `.codestable/reference/tools.md` + `tools-part*.md` — 常用共享工具用法
 - `.codestable/reference/spec-governance-tools.md` — spec routing、clarification、req delta、inventory、analyze 工具用法
 - `.codestable/reference/maintainer-notes.md` — 断点恢复、新增子工作流的登记
 

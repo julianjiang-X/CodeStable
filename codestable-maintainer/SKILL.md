@@ -11,10 +11,10 @@ local CodeStable repository.
 
 ## Source Of Truth
 
-- Source repo: `/Users/qiyuanzhan/code/CodeStable`
+- Source repo: `/Users/john/Code/Github/CodeStable`
 - Installed skill roots commonly used on this machine:
-  - `/Users/qiyuanzhan/.agents/skills`
-  - `/Users/qiyuanzhan/.codex/skills`
+  - `/Users/john/.agents/skills`
+  - `/Users/john/.codex/skills`
 - Fresh-clone verification root: create a temporary directory under `/tmp` or
   the system temp directory.
 
@@ -28,8 +28,8 @@ validator, harness tool, or README, switch to the source repo before editing.
 2. Create or use a focused linked worktree on a `codex/...` branch unless the
    user explicitly requires another branch. Do not `git switch` / `git checkout`
    the stable source checkout for AI development.
-3. Edit only source repo files. Do not patch `/Users/qiyuanzhan/.agents/skills/*` or
-   `/Users/qiyuanzhan/.codex/skills/*` until after the source change is committed and
+3. Edit only source repo files. Do not patch `/Users/john/.agents/skills/*` or
+   `/Users/john/.codex/skills/*` until after the source change is committed and
    verified.
 4. If the change creates or updates a skill, use the active skill-creator
    workflow when it is available. In all cases, validate frontmatter, keep
@@ -37,7 +37,7 @@ validator, harness tool, or README, switch to the source repo before editing.
    useful.
 5. Run relevant local validation:
    - Discover the active skill-creator validator with
-     `find /Users/qiyuanzhan/.codex /Users/qiyuanzhan/.agents -name quick_validate.py -print`
+     `find /Users/john/.codex /Users/john/.agents -name quick_validate.py -print`
      and run `uvx --with PyYAML python <quick_validate.py> <skill-dir>` for
      changed skills.
    - `pytest` or focused tests for changed harness scripts when tests exist.
@@ -59,7 +59,7 @@ validator, harness tool, or README, switch to the source repo before editing.
 10. Do not sync real installed roots from a feature branch. To make a CodeStable
     change globally available, merge it to `main`, push `origin/main`, then run
     the verifier from a clean `main` checkout:
-    `python3 codestable-maintainer/tools/verify.py --repo . --branch main --remote origin --installed-root /Users/qiyuanzhan/.agents/skills --sync-installed --json`.
+    `python3 codestable-maintainer/tools/verify.py --repo . --branch main --remote origin --installed-root /Users/john/.agents/skills --sync-installed --json`.
     Real installed roots are synchronized only from remote `main`.
 11. For changed source files that are not installed directly, record
     `not installed: N/A` in the final report with the reason from verifier
@@ -78,7 +78,7 @@ python3 codestable-maintainer/tools/verify.py --repo . --branch <branch> --remot
 For real installed-copy deployment, first merge and push `origin/main`, then run:
 
 ```bash
-python3 codestable-maintainer/tools/verify.py --repo . --branch main --remote origin --installed-root /Users/qiyuanzhan/.agents/skills --sync-installed --json
+python3 codestable-maintainer/tools/verify.py --repo . --branch main --remote origin --installed-root /Users/john/.agents/skills --sync-installed --json
 ```
 
 Use the manual branch-aware clone flow only when the verifier itself is broken:
@@ -87,7 +87,7 @@ Use the manual branch-aware clone flow only when the verifier itself is broken:
 tmpdir="$(mktemp -d)"
 git clone --branch <branch> --single-branch <remote-url> "$tmpdir/CodeStable"
 cd "$tmpdir/CodeStable"
-validator="$(find /Users/qiyuanzhan/.codex /Users/qiyuanzhan/.agents -name quick_validate.py -print -quit)"
+validator="$(find /Users/john/.codex /Users/john/.agents -name quick_validate.py -print -quit)"
 uvx --with PyYAML python "$validator" <skill-dir>
 ```
 
@@ -108,14 +108,17 @@ skill diff as proof that all installable CodeStable changes were deployed.
 ## Harness Improvement Planning
 
 For CodeStable harness roadmap or design work, read
-`references/harness-improvement-plan.md` first, then
-`references/harness-implementation-plan.md` when the task asks what to build
+`references/harness-improvement-plan.md` first and then the relevant
+`harness-improvement-plan-part*.md` file. Read
+`references/harness-implementation-plan.md` and relevant
+`harness-implementation-plan-part*.md` files when the task asks what to build
 next. For the implemented behavior runner, read
 `references/behavior-harness-tool.md`. For global `cs` routing, owner-review context, owner-judgment context,
 context levels, owner-stop/skip rules, finish-time checks, or harness coverage
 across routed workflows, also read `references/global-route-governance.md`. For
 spec drift, requirement delta, clarification, or human-readable spec governance
-work, read `references/spec-governance-roadmap.md`. Together they capture the
+work, read `references/spec-governance-roadmap.md` and the relevant
+`spec-governance-roadmap-part*.md` file. Together they capture the
 current proposal derived from GammaSource, BetaSoul, and CodeStable workflow
 failures:
 
@@ -137,6 +140,6 @@ failures:
   verification.
 - Do not claim installed global behavior is updated until the installed copy
   was synced from remote `main` and diff-checked.
-- Do not sync `/Users/qiyuanzhan/.agents/skills` or `/Users/qiyuanzhan/.codex/skills`
+- Do not sync `/Users/john/.agents/skills` or `/Users/john/.codex/skills`
   from feature branches, sibling worktrees, or hand-copied patches.
 - Do not push directly to `main` unless the user explicitly asks for that.
