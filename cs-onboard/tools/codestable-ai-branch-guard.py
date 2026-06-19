@@ -51,6 +51,9 @@ GIT_OPTIONS_WITH_VALUE = {
     "--work-tree",
 }
 PROTECTED_WRITE_COMMANDS = {"add", "commit", "merge", "rebase", "cherry-pick", "revert", "apply", "am", "reset", "stash", "rm", "mv", "push"}
+SHELL_NAMES = {"bash", "dash", "fish", "ksh", "sh", "zsh"}
+SHELL_OPTIONS_WITH_VALUE = {"-o", "-O"}
+SHELL_LONG_OPTIONS_WITH_VALUE = {"--init-file", "--rcfile"}
 HOOK_MARKER = "# CodeStable AI branch guard"
 
 
@@ -147,7 +150,40 @@ def shell_tokens(command: str) -> list[str]:
         return command.split()
 
 
-def git_invocations(command: str) -> list[tuple[str, list[str]]]:
+def is_shell_token(token: str) -> bool:
+    return Path(token).name in SHELL_NAMES
+
+
+def shell_option_runs_command(option: str) -> bool:
+    return option == "-c" or (option.startswith("-") and not option.startswith("--") and "c" in option[1:])
+
+
+def shell_option_takes_value(option: str) -> bool:
+    if option in SHELL_OPTIONS_WITH_VALUE or option in SHELL_LONG_OPTIONS_WITH_VALUE:
+        return True
+    return option.startswith("-") and not option.startswith("--") and any(flag in option[1:] for flag in ("o", "O"))
+
+
+def nested_shell_commands(tokens: list[str]) -> list[str]:
+    commands: list[str] = []
+    for index, token in enumerate(tokens):
+        if not is_shell_token(token):
+            continue
+        cursor = index + 1
+        while cursor < len(tokens) and tokens[cursor].startswith("-"):
+            option = tokens[cursor]
+            if shell_option_runs_command(option):
+                if cursor + 1 < len(tokens):
+                    commands.append(tokens[cursor + 1])
+                break
+            if shell_option_takes_value(option) and cursor + 1 < len(tokens):
+                cursor += 2
+            else:
+                cursor += 1
+    return commands
+
+
+def git_invocations(command: str, depth: int = 0) -> list[tuple[str, list[str]]]:
     invocations: list[tuple[str, list[str]]] = []
     tokens = shell_tokens(command)
     for index, token in enumerate(tokens):
@@ -162,6 +198,9 @@ def git_invocations(command: str) -> list[tuple[str, list[str]]]:
                 cursor += 1
         if cursor < len(tokens):
             invocations.append((tokens[cursor], tokens[cursor + 1 :]))
+    if depth < 3:
+        for nested in nested_shell_commands(tokens):
+            invocations.extend(git_invocations(nested, depth + 1))
     return invocations
 
 

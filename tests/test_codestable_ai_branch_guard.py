@@ -66,6 +66,26 @@ def test_blocks_git_switch_with_global_options(tmp_path: Path) -> None:
     assert result.reason == "branch_switch_command"
 
 
+def test_blocks_nested_shell_git_switch_command(tmp_path: Path) -> None:
+    repo = init_repo(tmp_path)
+    payload = {"tool_name": "Bash", "tool_input": {"command": "sh -lc 'git switch codex/demo'"}}
+
+    result = guard.guard_payload(payload, repo, {"main", "master"})
+
+    assert not result.ok
+    assert result.reason == "branch_switch_command"
+
+
+def test_blocks_nested_shell_git_switch_after_bash_pipefail_options(tmp_path: Path) -> None:
+    repo = init_repo(tmp_path)
+    payload = {"tool_name": "Bash", "tool_input": {"command": "bash -euo pipefail -c 'git switch codex/demo'"}}
+
+    result = guard.guard_payload(payload, repo, {"main", "master"})
+
+    assert not result.ok
+    assert result.reason == "branch_switch_command"
+
+
 def test_allows_git_worktree_add_command(tmp_path: Path) -> None:
     repo = init_repo(tmp_path)
     payload = {
@@ -111,6 +131,32 @@ def test_pre_commit_blocks_staged_implementation_on_main(tmp_path: Path) -> None
 
     assert not result.ok
     assert result.reason == "pre_commit_implementation_on_protected_branch"
+    assert result.paths == ("src/app.py",)
+
+
+def test_blocks_nested_shell_git_add_all_implementation_on_main(tmp_path: Path) -> None:
+    repo = init_repo(tmp_path)
+    (repo / "src").mkdir()
+    (repo / "src/app.py").write_text("print('x')\n", encoding="utf-8")
+    payload = {"tool_name": "Bash", "tool_input": {"command": "bash -lc 'git add .'"}}
+
+    result = guard.guard_payload(payload, repo, {"main", "master"})
+
+    assert not result.ok
+    assert result.reason == "git_add_implementation_on_protected_branch"
+    assert result.paths == ("src/app.py",)
+
+
+def test_blocks_nested_shell_git_add_after_bash_long_options(tmp_path: Path) -> None:
+    repo = init_repo(tmp_path)
+    (repo / "src").mkdir()
+    (repo / "src/app.py").write_text("print('x')\n", encoding="utf-8")
+    payload = {"tool_name": "Bash", "tool_input": {"command": "bash --noprofile --norc -lc 'git add .'"}}
+
+    result = guard.guard_payload(payload, repo, {"main", "master"})
+
+    assert not result.ok
+    assert result.reason == "git_add_implementation_on_protected_branch"
     assert result.paths == ("src/app.py",)
 
 
