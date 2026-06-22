@@ -155,9 +155,10 @@ The current critical suite covers:
   unverified surfaces;
 - handoff context packets carry full working detail while the default response
   stays concise;
-- interview / grill interaction modes route lightly, distinguish standalone
-  pressure-testing from bounded goal delivery, and cover Chinese trigger
-  aliases;
+- interview / grill interaction modes route correctly, allow explicit `grill me`
+  to relentlessly pressure-test every relevant plan branch, distinguish
+  standalone pressure-testing from bounded goal delivery, and cover Chinese
+  trigger aliases;
 - review packets redact secrets;
 - verification packets reject blank validation evidence;
 - owner-judgment checkpoints write approval reports with decision context;

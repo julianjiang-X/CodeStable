@@ -15,6 +15,12 @@ Use goals when the request says "reach this result", "run until accepted",
 "self-iterate", "AI implements autonomously", or "grill me first, then
 implement" with a bounded done signal.
 
+If the owner explicitly says `grill me` or a grill alias in a bounded goal
+request, goal alignment may be relentless: walk every relevant objective,
+acceptance, risk, and non-goal branch one question at a time, provide your
+recommended answer, and inspect code or existing CodeStable docs instead of
+asking questions those sources can answer.
+
 Do not route standalone "grill me" prompts here unless a bounded destination is
 known. Without a start/end objective or observable acceptance, use the global
 interaction modes in `.codestable/reference/interaction-modes.md`, usually via

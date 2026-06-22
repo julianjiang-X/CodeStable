@@ -19,7 +19,7 @@ conversation.
 | Mode | Trigger examples | Intent | Default exit |
 |---|---|---|---|
 | `interview` | "interview me", "采访我", "先问我", "问清楚再说" | Elicit context gently: problem, background, constraints, success signal. | Route once enough context exists. |
-| `grill` | "grill me", "拷问我", "追问我", "多问几轮" | Pressure-test assumptions: boundary, acceptance, non-goals, risks, failure modes. | Route or stop with clear open questions. |
+| `grill` | "grill me", "拷问我", "追问我", "多问几轮" | Relentlessly pressure-test every relevant aspect of the plan or design: boundary, acceptance, non-goals, risks, hidden coupling, and dependent decisions. | Route or stop with clear open questions. |
 
 ## Routing
 
@@ -39,7 +39,9 @@ Without a bounded destination, route to `cs-brainstorm` instead.
 
 ## Question Shape
 
-Both modes ask one question per turn.
+Both modes ask one question per turn. If a question can be answered by reading
+the codebase or existing CodeStable docs, inspect those sources instead of
+asking the owner.
 
 Interview mode:
 
@@ -51,8 +53,12 @@ Interview mode:
 Grill mode:
 
 - sharper and assumption-seeking;
-- at most 3-5 focused rounds;
+- when the owner explicitly says `grill me` or a grill alias while using
+  CodeStable, may walk every relevant branch of the plan or design tree until
+  shared understanding is reached;
 - each round uses one question plus 2-4 meaningfully different choices;
+- include your recommended answer for the current question when useful, marking
+  uncertainty if the recommendation depends on missing evidence;
 - challenge scope, acceptance, non-goals, risk, and hidden coupling;
 - stop when no new information appears, the owner says "先这样", or the next
   answer can only be learned by implementation or a spike.

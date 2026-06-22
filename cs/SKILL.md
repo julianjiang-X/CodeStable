@@ -66,7 +66,7 @@ CodeStable 把开发活动建模成一组**核心实体 + 4 个流程**，所有
 - **修 bug**：`cs-issue-report` → `cs-issue-analyze` → `cs-issue-fix`
 - **重构**（beta）：`cs-refactor` / `cs-refactor-ff`
 - **目标达成**：`cs-goal` 先轻量 grill 并写起点报告，再自主实现 / 验证 / 迭代，完成前做功能验收
-- **全局对话模式**：`interview me` 先轻量采访收集上下文；`grill me` 先压力测试边界和验收，再路由到具体流程
+- **全局对话模式**：`interview me` 先轻量采访收集上下文；`grill me` 可以深入压测计划 / 设计的每个相关分支，再路由到具体流程
 
 **横切**：流程跑完发现"值得记下来" → `cs-learn` / `cs-trick` / `cs-decide` / `cs-explore` 沉淀到 `compound/`。
 
@@ -125,7 +125,7 @@ chat-only route-choice brief。
 |---|---|
 | 仓库还没有 `.codestable/` | **先 `cs-onboard`**——所有其他 cs-* 都依赖这个目录 |
 | "interview me" / "采访我" / "先问我" / "问清楚再说" | `cs` interaction mode（先一问一答收集上下文，再路由；不新建 `cs-interview`） |
-| "grill me" / "拷问我" / "追问我" / "多问几轮" 且没有明确验收终点 | `cs-brainstorm` 的 grill mode（压测想法边界，不误当成 goal） |
+| "grill me" / "拷问我" / "追问我" / "多问几轮" 且没有明确验收终点 | `cs-brainstorm` 的 grill mode（深入压测计划 / 设计边界，不误当成 goal） |
 | 限定起点和终点 / 明确验收结果 / "帮我达成这个 goal" / "自主迭代直到完成" / "grill me 后开干" | `cs-goal`（起点 / iteration 报告；报告语言由 attention 决定；实现细节由 AI 自主推进；完成前做功能验收） |
 | 想法还模糊 / "有想法没想清楚" / "先聊聊" / "不知道是不是新功能" | `cs-brainstorm`（分诊后路由到 design / feature-brainstorm 落盘 / roadmap） |
 | 新功能 / "加个 X" / "实现 XX" | `cs-feat`（路由 design / ff / impl / accept） |
@@ -190,7 +190,7 @@ chat-only route-choice brief。
 
 ### interview / grill 被误当成独立流程
 
-`interview me` 和 `grill me` 是 interaction modes，不是新的生命周期实体。`interview me` 默认只是轻量采访：一次一个问题，收集目的、背景、约束、成功信号，问到足够路由就停。`grill me` 是更强的压力测试：最多 3-5 轮，围绕边界、验收、非目标、风险和隐藏假设追问。
+`interview me` 和 `grill me` 是 interaction modes，不是新的生命周期实体。`interview me` 默认只是轻量采访：一次一个问题，收集目的、背景、约束、成功信号，问到足够路由就停。用户在 CodeStable 场景里显式说 `grill me` 或 grill alias 时，允许 relentless：沿计划 / 设计树的相关分支逐个追问到共同理解为止；每轮只问一个问题，给 2-4 个候选和你的推荐答案；能从代码或既有 CodeStable 文档查到的问题先查再问。
 
 不要因为用户只说 `grill me` 就路由到 `cs-goal`。只有同时出现限定起点 / 终点 / 验收结果，并希望 AI 自主实现或"grill me 后开干"时，才走 `cs-goal`；没有 bounded destination 时走 `cs-brainstorm`。如果用户说的是真实访谈 / 复盘前准备上下文，才考虑 context packet 的 `interviewee` audience。
 

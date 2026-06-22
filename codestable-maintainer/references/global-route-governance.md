@@ -28,7 +28,7 @@ Behavior harness 必须测试这套矩阵本身，而不是只测试某个 roadm
 - 模糊任务在 route choice 前写 `approval-report.md`。
 - fast path 一旦发现 capability boundary 或 spec drift，升级到 L3。
 - goal path 先把 interview / grill 落成起点报告，再默认自主迭代；完成前必须有 subagent 功能性验收。验收冲突、spec/public contract 变化或重复 blocker 会 owner-stop。
-- `interview me` / `grill me` 是全局 interaction modes：前者轻量采访，后者压力测试；都先帮助路由，不自动生成重型产物。
+- `interview me` / `grill me` 是全局 interaction modes：前者轻量采访，后者可深入压测计划 / 设计的每个相关分支；都先帮助路由，不自动生成重型产物。
 - implementation / fix / refactor 过程中发现长期文档错误时，停止直接改 spec。
 - finish worktree 检查 learner/context report、`covered_head` 和 inbox 状态。
 - clean / compacted actor 能从 artifacts 和 tools 恢复同样的 next action。
@@ -132,7 +132,7 @@ accept risk, or defer unresolved findings must upgrade to L2 or higher.
 
 | Route | Default level | Required behavior |
 |---|---|---|
-| `cs` | L1/L2 | Explain route, nearby exclusions when ambiguous, context level, and escalation trigger. If the owner says `interview me` or `grill me`, run the shared interaction mode before final routing. If route choice itself needs owner approval before any unit exists, write `.codestable/brainstorms/{slug}/approval-report.md` and owner-stop. |
+| `cs` | L1/L2 | Explain route, nearby exclusions when ambiguous, context level, and escalation trigger. If the owner says `interview me` or `grill me`, run the shared interaction mode before final routing; explicit `grill me` may relentlessly walk every relevant plan / design branch one question at a time. If route choice itself needs owner approval before any unit exists, write `.codestable/brainstorms/{slug}/approval-report.md` and owner-stop. |
 | `cs-onboard` | L2/L4 | Empty repos can stay L1. Existing docs require inventory, mapping, trusted/stale classification, and owner approval before migration. |
 | `cs-goal` | L1/L2 | Grill bounded start/end goals, create dated `goals/YYYY-MM-DD-{slug}/` with `state.yaml` plus start/iteration reports before implementation, follow the report language policy from `.codestable/attention.md`, autonomously iterate, and require subagent functional acceptance before completion. Acceptance conflicts, spec/public-contract changes, repeated blockers, budget exhaustion, unavailable subagent acceptance, or risk acceptance trigger owner-stop with `approval-report.md` if the iteration report is insufficient. |
 | `cs-brainstorm` | L1 -> L2 | Freeform discussion stays light. When interview / grill / route choice needs owner approval context, write `approval-report.md` before asking. |
@@ -193,8 +193,8 @@ explicit non-goal. Core scenarios:
 | `codestable-freshness-warning` | A stale installed CodeStable copy produces an update prompt before lifecycle routing. |
 | `cs-root-route-choice-approval-report` | Root route ambiguity writes intake `approval-report.md` under `brainstorms/` before owner choice. |
 | `global-interview-mode-routes-lightly` | `interview me` asks one gentle context question, does not create artifacts, and proceeds toward route selection. |
-| `global-grill-mode-does-not-overroute-goal` | Standalone `grill me` without bounded acceptance pressure-tests the idea but does not create goal artifacts or route to `cs-goal`. |
-| `global-grill-bounded-routes-goal` | `grill me first, then implement` with observable acceptance routes to `cs-goal`, not generic brainstorm. |
+| `global-grill-mode-does-not-overroute-goal` | Standalone `grill me` without bounded acceptance may relentlessly pressure-test the idea but does not create goal artifacts or route to `cs-goal`. |
+| `global-grill-bounded-routes-goal` | `grill me first, then implement` with observable acceptance routes to `cs-goal`, not generic brainstorm, while allowing a deeper goal-boundary grill. |
 | `global-interaction-mode-chinese-triggers` | Chinese trigger phrases map to interview / grill modes without creating lifecycle artifacts. |
 | `goal-autonomous-iteration-docs` | Bounded goal creates a dated goal directory, machine state, start docs, iteration docs, follows attention report language policy, and does not ask owner for routine technical choices. |
 | `goal-start-report-before-code` | Interview / grill creates a start report in a dated goal directory before implementation and does not edit code first. |

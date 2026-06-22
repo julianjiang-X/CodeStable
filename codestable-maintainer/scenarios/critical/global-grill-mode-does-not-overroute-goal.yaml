@@ -9,13 +9,13 @@
       {"action": "read_interaction_modes"},
       {"action": "grill_mode"},
       {
-        "say": "Route: cs-brainstorm\nContext: L1\nReason: owner asked `grill me`, but did not give a bounded start/end goal or observable acceptance signal.\nNot routing to: cs-goal, because standalone grill is pressure-testing an idea, not an autonomous goal wrapper.\nEscalation: bounded acceptance plus autonomous implementation intent would route to cs-goal.\nQuestion: What would make this idea fail: unclear user, fuzzy acceptance, too-large scope, or hidden dependency?\nNext: pressure-test the idea for up to 3-5 focused rounds, then route."
+        "say": "Route: cs-brainstorm\nContext: L1\nReason: owner asked `grill me`, but did not give a bounded start/end goal or observable acceptance signal.\nNot routing to: cs-goal, because standalone grill is pressure-testing an idea, not an autonomous goal wrapper.\nEscalation: bounded acceptance plus autonomous implementation intent would route to cs-goal.\nQuestion: What would make this idea fail: unclear user, fuzzy acceptance, too-large scope, or hidden dependency?\nRecommended answer: start with fuzzy acceptance, because it determines whether this remains brainstorm or becomes a bounded goal.\nNext: relentlessly pressure-test every relevant branch of the plan or design one question at a time, then route when shared understanding is reached."
       }
     ]
   },
   "expect": {
     "transcript": {
-      "contains": ["Route: cs-brainstorm", "Not routing to: cs-goal", "3-5 focused rounds"],
+      "contains": ["Route: cs-brainstorm", "Not routing to: cs-goal", "relentlessly pressure-test every relevant branch", "Recommended answer"],
       "forbidden_regex": ["(?m)^Route:\\s*cs-goal\\b"]
     },
     "trajectory": {

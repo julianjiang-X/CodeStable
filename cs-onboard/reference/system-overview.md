@@ -12,7 +12,7 @@ CodeStable 把这几类场景各配一套子技能，产物放进统一的目录
 **根入口**——开放式诉求 / 不知道走哪个时的统一入口:
 
 - `cs` — 介绍体系全貌 + 把诉求路由到正确的 cs-* 子技能。本技能不做事,只做分诊和提示
-- 全局 interaction modes — 用户显式说 `interview me` / "采访我" 时轻量采访收集上下文；说 `grill me` / "拷问我" 时压力测试边界和验收，再路由到具体子技能
+- 全局 interaction modes — 用户显式说 `interview me` / "采访我" 时轻量采访收集上下文；说 `grill me` / "拷问我" 时可深入压测计划 / 设计的每个相关分支，再路由到具体子技能
 
 **做事**——从一段模糊想法走到上线的功能、从一份错误报告走到修好的 bug，或者从限定目标走到验收结果:
 
@@ -54,7 +54,7 @@ CodeStable 把这几类场景各配一套子技能，产物放进统一的目录
 | 场景 | 子技能 |
 |---|---|
 | "interview me" / "采访我" / "先问我" | 先用 interview mode 问清上下文，再由 `cs` 路由 |
-| "grill me" / "拷问我" / "追问我" | 先用 grill mode 压测边界；有明确验收和自主执行诉求则 `cs-goal`，否则多半 `cs-brainstorm` |
+| "grill me" / "拷问我" / "追问我" | 先用 grill mode 深入压测边界、验收、风险和依赖决策；有明确验收和自主执行诉求则 `cs-goal`，否则多半 `cs-brainstorm` |
 | 限定起点 / 终点 / 验收结果，想让 AI 自主迭代到完成 | `cs-goal` |
 | 想法还模糊 / "有个想法没想清楚" / "先聊聊" | `cs-brainstorm`(分诊后路由到 design / feature-brainstorm 落盘 / roadmap) |
 | 新功能 / 新能力 | `cs-feat` |

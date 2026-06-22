@@ -102,14 +102,17 @@ owner。case 2 用 feature 目录；case 4 和无既有 unit 的路由选择用
 
    默认走轻问——一次复述对上就推进。下面任一信号出现切到 grill 档加深：
 
-   - **显式请求**：用户说"多问几轮 / 帮我问清楚再开始 / grill 我"
+   - **显式请求**：用户说"多问几轮 / 帮我问清楚再开始 / grill me / grill 我 / 拷问我 / 追问我"
    - **隐式信号**：连续两次复述被"差不多但不太对"驳回；同一概念用不同词反复互指（"权限 / 角色 / 租户"换着说指同一件事）；用户自己也说不清楚
-   - **只在 case 2 / case 4 启动**——case 1 已清楚硬 grill 反人性，case 3 用户已 ready 拆解不需要 grill
+   - **隐式 grill 只在 case 2 / case 4 启动**——case 1 已清楚、case 3 已 ready 拆解时不主动拖慢；但用户显式说 `grill me` 或 grill alias 时可以在最终路由前启动
 
    grill 档硬约束（防止没完没了）：
 
-   - 最多 3-5 轮重点问题，一轮没拿到新增信息就退到发散
+   - 用户显式说 `grill me` 或 grill alias 时，允许 relentless：沿计划 / 设计树每个相关分支追问，直到双方形成共同理解
+   - 不是显式 `grill me` / grill alias 的隐式 grill，默认 3-5 轮重点问题；一轮没拿到新增信息就退到发散
    - 每轮**一个问题 + 2-4 个有区别度的候选**让用户挑，不让 TA 自由作文
+   - 每轮给出你的推荐答案；如果推荐依赖缺失证据，就明确标成暂定
+   - 某问题能从代码或既有 CodeStable 文档回答 → 先读代码 / 文档，再把证据带回对话
    - 优先追问边界、验收、非目标、风险和隐藏假设，不问 routine 技术实现选择
    - 遇到"得写起来才知道"的问题：标成 open question 直接跳过，不死磕
    - 用户开始敷衍 / 说"先这样吧 / 差不多了" → 立刻退到收敛，别再追问
@@ -211,7 +214,7 @@ case 1 / case 3 也能借这个动作（不强求落 brainstorm note），逻辑
 - 聊着发现其实一个 feature 能装下 → case 2
 - 聊着发现已经全清楚 → case 1
 
-**落盘**：用户说"先这样"/"差不多了"/"存一下"，或 AI 判断 grill 已到 3-5 轮上限，主动说"这块我先帮你落到 brainstorms 里，之后 roadmap 会读到"。
+**落盘**：用户说"先这样"/"差不多了"/"存一下"，或 AI 判断 grill 已经没有新增信息、剩余问题只能靠实现 / spike 学到，主动说"这块我先帮你落到 brainstorms 里，之后 roadmap 会读到"。
 
 路径：`.codestable/brainstorms/{slug}/`
 
@@ -241,7 +244,7 @@ case 1 / case 3 也能借这个动作（不强求落 brainstorm note），逻辑
 3. **不落盘非 case 2 / case 4 产物**——case 1 / 3 不写文件
 4. **不处理 bug / 重构**
 5. **不处理 bounded goal**——有明确起点、终点 / 验收、AI 自主迭代诉求时转 `cs-goal`
-6. **不在 case 1 / 3 启动 grill 档**——case 1 已清楚硬 grill 反人性，case 3 用户已 ready 拆解不需要 grill
+6. **不主动在 case 1 / 3 启动隐式 grill 档**——case 1 已清楚、case 3 已 ready 拆解时不要拖慢；但用户显式说 `grill me` 或 grill alias 就尊重请求，在最终路由前深入压测
 7. **不把 interview mode 当 context packet**——`interviewee` audience 是真实访谈 / 复盘前报告，不是普通 `interview me` 对话
 8. **别自己顺手开始写 design 或 roadmap**——阶段间的人工 checkpoint 是 CodeStable 整套流程的硬约束
 

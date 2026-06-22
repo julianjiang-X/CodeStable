@@ -83,7 +83,7 @@ CodeStable 的判断是：严肃软件工程的混乱，很多时候不是 agent
 | 问题修改 | `cs-issue` -> `cs-issue-report` -> `cs-issue-analyze` -> `cs-issue-fix` | 先记录现象，再找根因，最后定点修复 |
 | 代码重构 | `cs-refactor` / `cs-refactor-ff` | 行为不变、结构变；完整流程分 scan / design / apply |
 
-`interview me` / `grill me` 是全局对话模式：前者轻量采访收集上下文，后者压力测试边界和验收；它们先帮助路由，不是新的生命周期实体。`cs-brainstorm` 是模糊想法的讨论入口，`cs-roadmap` 承接单个 feature 吃不下的大需求，`cs-audit` 用来主动发现风险但不直接修。
+`interview me` / `grill me` 是全局对话模式：前者轻量采访收集上下文，后者可深入压测计划 / 设计的每个相关分支；它们先帮助路由，不是新的生命周期实体。`cs-brainstorm` 是模糊想法的讨论入口，`cs-roadmap` 承接单个 feature 吃不下的大需求，`cs-audit` 用来主动发现风险但不直接修。
 
 ---
 

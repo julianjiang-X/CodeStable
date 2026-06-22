@@ -98,9 +98,16 @@ explicitly requires multiple language copies.
 Always grill before creating a new goal. This is goal grill alignment: keep it
 short, owner-level, and limited to the goal boundary.
 
-Ask at most 3-5 focused questions. Each round uses one question plus 2-4
-meaningfully different choices. Avoid asking for implementation details unless
-the answer changes the goal boundary.
+If the owner explicitly said `grill me` or a grill alias, allow a relentless
+pass across every relevant goal, acceptance, risk, and non-goal branch before
+creating the goal. Otherwise keep alignment short.
+
+Each round uses one question plus 2-4 meaningfully different choices. Include
+your recommended answer when useful, marking uncertainty if the recommendation
+depends on missing evidence. If a question can be answered by reading the
+codebase or existing CodeStable docs, inspect those sources instead of asking
+the owner. Avoid asking for implementation details unless the answer changes the
+goal boundary.
 
 Collect only:
 

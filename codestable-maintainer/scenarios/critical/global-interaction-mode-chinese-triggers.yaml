@@ -13,13 +13,13 @@
       {"action": "interview_mode_chinese_trigger"},
       {"action": "grill_mode_chinese_trigger"},
       {
-        "say": "Route: interaction-mode/chinese-triggers\nContext: L1\nReason: Chinese trigger phrases are global aliases for interview and grill modes.\nQuestion: `采访我` / `先问我` should start interview mode; `拷问我` / `追问我` / `多问几轮` should start grill mode before final routing.\nNext: ask one focused question, then route when lifecycle intent is clear."
+        "say": "Route: interaction-mode/chinese-triggers\nContext: L1\nReason: Chinese trigger phrases are global aliases for interview and grill modes.\nQuestion: `采访我` / `先问我` should start interview mode; `拷问我` / `追问我` / `多问几轮` should start grill mode before final routing.\nNext: for grill aliases, relentlessly pressure-test the relevant plan branches one question at a time, then route when lifecycle intent is clear."
       }
     ]
   },
   "expect": {
     "transcript": {
-      "contains": ["Route: interaction-mode/chinese-triggers", "采访我", "拷问我", "then route"],
+      "contains": ["Route: interaction-mode/chinese-triggers", "采访我", "拷问我", "relentlessly pressure-test"],
       "forbidden_regex": ["(?m)^Route:\\s*cs-goal\\b"]
     },
     "trajectory": {

@@ -83,7 +83,7 @@ CodeStable's bet is simple: in serious software work, chaos often comes not from
 | Issue fixing | `cs-issue` -> `cs-issue-report` -> `cs-issue-analyze` -> `cs-issue-fix` | Record symptoms, find the root cause, then fix precisely |
 | Refactoring | `cs-refactor` / `cs-refactor-ff` | Behavior stays the same; structure changes; full flow is scan / design / apply |
 
-`interview me` / `grill me` are global interaction modes: the former gently elicits context, while the latter pressure-tests boundaries and acceptance. They help route the work; they are not new lifecycle entities. `cs-brainstorm` handles fuzzy ideas, `cs-roadmap` handles needs too large for one feature, and `cs-audit` proactively finds risks without fixing them directly.
+`interview me` / `grill me` are global interaction modes: the former gently elicits context, while the latter can relentlessly pressure-test every relevant branch of the plan or design. They help route the work; they are not new lifecycle entities. `cs-brainstorm` handles fuzzy ideas, `cs-roadmap` handles needs too large for one feature, and `cs-audit` proactively finds risks without fixing them directly.
 
 ---
 
