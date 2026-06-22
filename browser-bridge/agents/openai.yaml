@@ -1,0 +1,4 @@
+interface:
+  display_name: "Browser Bridge"
+  short_description: "通过 Chrome 扩展控制页面并提取渲染证据用于网页自动化"
+  default_prompt: "使用 $browser-bridge 通过真实 Chrome 页面操作、抽取数据和收集组件证据。"

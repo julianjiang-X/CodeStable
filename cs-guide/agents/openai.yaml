@@ -1,0 +1,4 @@
+interface:
+  display_name: "CodeStable Guide"
+  short_description: "编写 CodeStable 外部开发者指南和用户指南"
+  default_prompt: "使用 $cs-guide 编写或更新面向外部读者的开发者指南或用户指南。"

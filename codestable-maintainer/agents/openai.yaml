@@ -1,4 +1,4 @@
 interface:
   display_name: "CodeStable Maintainer"
-  short_description: "Maintain CodeStable from source."
-  default_prompt: "Use $codestable-maintainer before changing CodeStable, harness tools, or making pushed changes available locally."
+  short_description: "维护 CodeStable 源码、harness、验证器和安装同步"
+  default_prompt: "使用 $codestable-maintainer 维护 CodeStable 技能、harness、验证器或安装同步。"

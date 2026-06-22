@@ -1,0 +1,4 @@
+interface:
+  display_name: "CodeStable Feature Acceptance"
+  short_description: "对照 CodeStable 设计验收实现并归并架构和需求状态"
+  default_prompt: "使用 $cs-feat-accept 对照设计做功能验收并归并长期状态。"

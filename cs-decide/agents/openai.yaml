@@ -1,0 +1,4 @@
+interface:
+  display_name: "CodeStable Decision"
+  short_description: "归档 CodeStable 已拍板的技术选型、架构决定和长期规约"
+  default_prompt: "使用 $cs-decide 记录已拍板的技术选型、架构决定或长期约束。"

@@ -1,0 +1,4 @@
+interface:
+  display_name: "CodeStable Issue"
+  short_description: "路由 CodeStable bug 从报告到根因分析和定点修复"
+  default_prompt: "使用 $cs-issue 路由 bug 修复流程，并决定 report、analyze 或 fix。"

@@ -1,0 +1,4 @@
+interface:
+  display_name: "CodeStable Roadmap"
+  short_description: "拆解大需求为 CodeStable roadmap、接口契约和子 feature"
+  default_prompt: "使用 $cs-roadmap 把大需求拆成 roadmap、接口契约和子 feature。"

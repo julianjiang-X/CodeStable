@@ -1,0 +1,4 @@
+interface:
+  display_name: "CodeStable Audit"
+  short_description: "主动扫描 CodeStable bug、安全、性能、维护债和架构偏离"
+  default_prompt: "使用 $cs-audit 对仓库做风险审计，只产出发现清单和建议动作。"

@@ -1,3 +1,4 @@
 interface:
   display_name: "Using CodeStable"
-  short_description: "Automatically route onboarded repositories through CodeStable workflows"
+  short_description: "自动检测 onboard 仓库并路由到 CodeStable 流程"
+  default_prompt: "使用 $using-codestable 在编码任务开始时检测仓库并路由 CodeStable 流程。"

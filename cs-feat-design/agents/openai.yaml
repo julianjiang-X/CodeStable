@@ -1,0 +1,4 @@
+interface:
+  display_name: "CodeStable Feature Design"
+  short_description: "起草 CodeStable 新功能设计并抽出后续实现 checklist"
+  default_prompt: "使用 $cs-feat-design 为明确的新功能起草设计和实现 checklist。"

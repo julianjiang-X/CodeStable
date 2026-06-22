@@ -1,0 +1,4 @@
+interface:
+  display_name: "CodeStable Explore"
+  short_description: "定向探索 CodeStable 仓库实现并沉淀可检索证据"
+  default_prompt: "使用 $cs-explore 调研仓库实现，并把结论沉淀成可检索证据。"
