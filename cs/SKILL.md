@@ -22,11 +22,11 @@ description: CodeStable 工作流根入口，介绍体系全貌并把诉求路�
 
 ## 全局安装边界
 
-`/Users/john/.agents/skills` 是 CodeStable 的本机运行时部署面，不是功能分支的试验场。任何让 CodeStable 技能"本地可用"的诉求都必须走 `codestable-maintainer`，且真实 installed root 只能从远端 `main` 同步：
+`${HOME}/.agents/skills` 和 `${CODEX_HOME:-$HOME/.codex}/skills` 是 CodeStable 的本机运行时部署面，不是功能分支的试验场。任何让 CodeStable 技能"本地可用"的诉求都必须走 `codestable-maintainer`，且真实 installed root 只能从远端 `main` 同步：
 
 1. 功能分支只做 fresh-clone 验证，必要时同步到临时 installed root。
-2. 只有分支合入并推送到 `origin/main` 后，才允许把 `origin/main` 同步到 `/Users/john/.agents/skills`。
-3. 不要把功能分支、 sibling worktree 或手工 patch 直接覆盖到 `/Users/john/.agents/skills`，否则会互相覆盖并制造安装态冲突。
+2. 只有分支合入并推送到 `origin/main` 后，才允许把 `origin/main` 同步到真实 installed root。
+3. 不要把功能分支、 sibling worktree 或手工 patch 直接覆盖到 installed root，否则会互相覆盖并制造安装态冲突。
 
 ---
 
@@ -123,7 +123,7 @@ Context level 只用于说明轻重，不在 `cs` 阶段生成重型产物：
 | 补 / 更新需求文档 | `cs-req` |
 | 补 / 更新 / 检查架构文档 / "刷新架构 doc" / "做架构体检" | `cs-arch` |
 | 大需求拆解 / "我想要一个 X 系统" / 排期规划 / 模块拆分 + 接口契约 | `cs-roadmap` |
-| CodeStable 自身技能 / harness / verifier / installed copy 更新 | `codestable-maintainer`（源码分支验证；真实 `/Users/john/.agents/skills` 只从 `origin/main` 同步） |
+| CodeStable 自身技能 / harness / verifier / installed copy 更新 | `codestable-maintainer`（源码分支验证；真实 installed root 只从 `origin/main` 同步） |
 | 技术选型 / 长期约束 / 编码规约 | `cs-decide` |
 | 踩坑回顾 / 经验总结 / "值得记下来" | `cs-learn` |
 | 可复用编程模式 / 库用法 / "以后做 X 就该这样" | `cs-trick` |

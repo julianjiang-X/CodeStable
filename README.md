@@ -179,7 +179,7 @@ your-project/
 
 ## Maintainer 与 Harness
 
-CodeStable 自身变更走 `codestable-maintainer`。源仓是 `/Users/john/Code/Github/CodeStable`，installed copies 只是部署产物，不能先改 installed copy。
+CodeStable 自身变更走 `codestable-maintainer`。在当前 CodeStable 源码 checkout 中修改；installed copies 只是部署产物，不能先改 installed copy。
 
 分支变更推送后，用 verifier 做 fresh clone、技能校验、临时 installed copy 同步和 diff-check：
 
@@ -188,10 +188,10 @@ tmp_installed="$(mktemp -d)/skills"
 python3 codestable-maintainer/tools/verify.py --repo . --branch <branch> --remote origin --installed-root "$tmp_installed" --sync-installed --json
 ```
 
-真实 `/Users/john/.agents/skills` 只从远端 `main` 更新。分支合入并推送到 `origin/main` 后再运行：
+真实 installed root（如 `${HOME}/.agents/skills` 或 `${CODEX_HOME:-$HOME/.codex}/skills`）只从远端 `main` 更新。分支合入并推送到 `origin/main` 后再运行：
 
 ```bash
-python3 codestable-maintainer/tools/verify.py --repo . --branch main --remote origin --installed-root /Users/john/.agents/skills --sync-installed --json
+python3 codestable-maintainer/tools/verify.py --repo . --branch main --remote origin --installed-root "${CODEX_HOME:-$HOME/.codex}/skills" --sync-installed --json
 ```
 
 行为回归由 maintainer harness 覆盖：

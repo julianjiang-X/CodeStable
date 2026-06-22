@@ -20,7 +20,7 @@ CodeStable maintenance work:
   can disappear after a final report;
 - CodeStable source changes can be pushed while installed global skill copies
   remain stale;
-- agents can forget to start from `/Users/john/Code/Github/CodeStable` for
+- agents can forget to start from the CodeStable source checkout for
   CodeStable changes;
 - workflow prompt changes can appear correct in the original high-context
   conversation but fail when a fresh or compacted agent receives the same user
@@ -38,7 +38,7 @@ python3 .codestable/tools/codestable-doctor.py --root . --json
 
 Skills and project docs must reference the runtime `.codestable/tools/...`
 path, not the CodeStable source-tree path, unless they are explicitly describing
-work inside `/Users/john/Code/Github/CodeStable`.
+work inside the CodeStable source checkout.
 
 Responsibilities:
 
@@ -195,4 +195,3 @@ Acceptance:
 
 - agents can produce separate logical commits without relying on memory;
 - data/log churn no longer gets hidden inside code commits.
-
