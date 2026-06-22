@@ -1,6 +1,6 @@
 ---
 name: cs-goal
-description: Goal-driven autonomous workflow for bounded start/end tasks. Use when the owner gives a desired outcome, acceptance result, budget, or asks AI to "reach this goal", "run until accepted", "self-iterate", "autonomous iteration", or "grill me" before implementation. Creates bilingual goal and iteration artifacts under `.codestable/goals/`.
+description: 目标达成工作流——处理有明确起点/终点、验收结果或预算边界的自主迭代任务。触发：用户给出 desired outcome / acceptance result / budget，或说"帮我达成这个 goal"、"run until accepted"、"self-iterate"、"autonomous iteration"、"先 grill me 再开干"。产物写入 `.codestable/goals/`，包含中英文目标和 iteration 报告。
 ---
 
 # cs-goal
