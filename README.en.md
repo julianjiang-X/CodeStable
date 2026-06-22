@@ -179,7 +179,7 @@ Hard constraints:
 
 ## Maintainer And Harness
 
-CodeStable itself is maintained through `codestable-maintainer`. The source repository is `/Users/john/Code/Github/CodeStable`; installed copies are deployment artifacts and must not be edited first.
+CodeStable itself is maintained through `codestable-maintainer`. Make changes in the current CodeStable source checkout; installed copies are deployment artifacts and must not be edited first.
 
 After pushing a branch, run the verifier for fresh-clone checks, skill validation, temporary installed-copy sync, and diff-check:
 
@@ -188,10 +188,10 @@ tmp_installed="$(mktemp -d)/skills"
 python3 codestable-maintainer/tools/verify.py --repo . --branch <branch> --remote origin --installed-root "$tmp_installed" --sync-installed --json
 ```
 
-The real `/Users/john/.agents/skills` root is updated only from remote `main`. After merging and pushing `origin/main`, run:
+Real installed roots, such as `${HOME}/.agents/skills` or `${CODEX_HOME:-$HOME/.codex}/skills`, are updated only from remote `main`. After merging and pushing `origin/main`, run:
 
 ```bash
-python3 codestable-maintainer/tools/verify.py --repo . --branch main --remote origin --installed-root /Users/john/.agents/skills --sync-installed --json
+python3 codestable-maintainer/tools/verify.py --repo . --branch main --remote origin --installed-root "${CODEX_HOME:-$HOME/.codex}/skills" --sync-installed --json
 ```
 
 Behavior regression coverage lives in the maintainer harness:

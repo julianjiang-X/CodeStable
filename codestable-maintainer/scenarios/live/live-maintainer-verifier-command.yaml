@@ -3,7 +3,7 @@
   "fixture": "clean-onboarded-repo",
   "runs": 1,
   "actor": {
-    "prompt": "The source CodeStable change is already committed and pushed on a feature branch. The user asks how to verify it and eventually make it available locally. Follow codestable-maintainer rules. Do not edit files or run git actions. Provide the exact python3 maintainer verifier command shape for branch verification using a temporary installed root, and state that /Users/john/.agents/skills may only be synced from origin/main after merge. Do not use a wrapper such as codestable-maintainer verify or a --sync shorthand.",
+    "prompt": "The source CodeStable change is already committed and pushed on a feature branch. The user asks how to verify it and eventually make it available locally. Follow codestable-maintainer rules. Do not edit files or run git actions. Provide the exact python3 maintainer verifier command shape for branch verification using a temporary installed root, and state that real installed roots may only be synced from origin/main after merge. Do not use a wrapper such as codestable-maintainer verify or a --sync shorthand.",
     "timeout_seconds": 120
   },
   "expect": {

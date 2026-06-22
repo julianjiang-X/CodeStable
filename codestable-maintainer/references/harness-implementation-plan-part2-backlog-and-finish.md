@@ -37,7 +37,7 @@ python3 codestable-maintainer/tools/verify.py --branch <branch> --remote origin
 
 Responsibilities:
 
-- assert current checkout is `/Users/john/Code/Github/CodeStable` or an approved
+- assert current checkout is the CodeStable source checkout or an approved
   CodeStable source clone;
 - assert branch is pushed to remote;
 - fresh-clone the branch;
@@ -242,4 +242,3 @@ Acceptance:
   or stale;
 - the system reminds the owner to merge, snooze, abandon, or clean up without
   ever merging automatically.
-

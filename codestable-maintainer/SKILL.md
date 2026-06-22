@@ -5,16 +5,16 @@ description: Maintain the CodeStable skill library and harness. Use when changin
 
 # CodeStable Maintainer
 
-Use this skill for any CodeStable library change. Do not edit installed copies
-first. Installed copies are deployment artifacts; the source of truth is the
-local CodeStable repository.
+Use this skill for any CodeStable library change. Work from the current
+CodeStable source checkout, not from an installed skill copy. Installed copies
+are deployment artifacts.
 
 ## Source Of Truth
 
-- Source repo: `/Users/john/Code/Github/CodeStable`
-- Installed skill roots commonly used on this machine:
-  - `/Users/john/.agents/skills`
-  - `/Users/john/.codex/skills`
+- Source repo: the current CodeStable source checkout; commands below assume
+  they are run from the repository root and use `--repo .`.
+- Installed skill roots are machine-local deployment artifacts, commonly
+  `${HOME}/.agents/skills` and `${CODEX_HOME:-$HOME/.codex}/skills`.
 - Fresh-clone verification root: create a temporary directory under `/tmp` or
   the system temp directory.
 
@@ -28,16 +28,16 @@ validator, harness tool, or README, switch to the source repo before editing.
 2. Create or use a focused linked worktree on a `codex/...` branch unless the
    user explicitly requires another branch. Do not `git switch` / `git checkout`
    the stable source checkout for AI development.
-3. Edit only source repo files. Do not patch `/Users/john/.agents/skills/*` or
-   `/Users/john/.codex/skills/*` until after the source change is committed and
-   verified.
+3. Edit only source repo files. Do not patch installed roots such as
+   `${HOME}/.agents/skills/*` or `${CODEX_HOME:-$HOME/.codex}/skills/*` until
+   after the source change is committed and verified.
 4. If the change creates or updates a skill, use the active skill-creator
    workflow when it is available. In all cases, validate frontmatter, keep
    `SKILL.md` concise, and place detailed material in `references/` when
    useful.
 5. Run relevant local validation:
-   - Discover the active skill-creator validator with
-     `find /Users/john/.codex /Users/john/.agents -name quick_validate.py -print`
+   - Discover the active skill-creator validator with a home-relative search:
+     `find "${CODEX_HOME:-$HOME/.codex}" "$HOME/.agents" -name quick_validate.py -print`
      and run `uvx --with PyYAML python <quick_validate.py> <skill-dir>` for
      changed skills.
    - `pytest` or focused tests for changed harness scripts when tests exist.
@@ -59,7 +59,7 @@ validator, harness tool, or README, switch to the source repo before editing.
 10. Do not sync real installed roots from a feature branch. To make a CodeStable
     change globally available, merge it to `main`, push `origin/main`, then run
     the verifier from a clean `main` checkout:
-    `python3 codestable-maintainer/tools/verify.py --repo . --branch main --remote origin --installed-root /Users/john/.agents/skills --sync-installed --json`.
+    `python3 codestable-maintainer/tools/verify.py --repo . --branch main --remote origin --installed-root "${CODEX_HOME:-$HOME/.codex}/skills" --sync-installed --json`.
     Real installed roots are synchronized only from remote `main`.
 11. For changed source files that are not installed directly, record
     `not installed: N/A` in the final report with the reason from verifier
@@ -78,7 +78,7 @@ python3 codestable-maintainer/tools/verify.py --repo . --branch <branch> --remot
 For real installed-copy deployment, first merge and push `origin/main`, then run:
 
 ```bash
-python3 codestable-maintainer/tools/verify.py --repo . --branch main --remote origin --installed-root /Users/john/.agents/skills --sync-installed --json
+python3 codestable-maintainer/tools/verify.py --repo . --branch main --remote origin --installed-root "${CODEX_HOME:-$HOME/.codex}/skills" --sync-installed --json
 ```
 
 Use the manual branch-aware clone flow only when the verifier itself is broken:
@@ -87,7 +87,7 @@ Use the manual branch-aware clone flow only when the verifier itself is broken:
 tmpdir="$(mktemp -d)"
 git clone --branch <branch> --single-branch <remote-url> "$tmpdir/CodeStable"
 cd "$tmpdir/CodeStable"
-validator="$(find /Users/john/.codex /Users/john/.agents -name quick_validate.py -print -quit)"
+validator="$(find "${CODEX_HOME:-$HOME/.codex}" "$HOME/.agents" -name quick_validate.py -print -quit)"
 uvx --with PyYAML python "$validator" <skill-dir>
 ```
 
@@ -140,6 +140,6 @@ failures:
   verification.
 - Do not claim installed global behavior is updated until the installed copy
   was synced from remote `main` and diff-checked.
-- Do not sync `/Users/john/.agents/skills` or `/Users/john/.codex/skills`
+- Do not sync `${HOME}/.agents/skills` or `${CODEX_HOME:-$HOME/.codex}/skills`
   from feature branches, sibling worktrees, or hand-copied patches.
 - Do not push directly to `main` unless the user explicitly asks for that.
