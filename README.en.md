@@ -83,7 +83,7 @@ CodeStable's bet is simple: in serious software work, chaos often comes not from
 | Issue fixing | `cs-issue` -> `cs-issue-report` -> `cs-issue-analyze` -> `cs-issue-fix` | Record symptoms, find the root cause, then fix precisely |
 | Refactoring | `cs-refactor` / `cs-refactor-ff` | Behavior stays the same; structure changes; full flow is scan / design / apply |
 
-`cs-brainstorm` handles fuzzy ideas, `cs-roadmap` handles needs too large for one feature, and `cs-audit` proactively finds risks without fixing them directly.
+`interview me` / `grill me` are global interaction modes: the former gently elicits context, while the latter pressure-tests boundaries and acceptance. They help route the work; they are not new lifecycle entities. `cs-brainstorm` handles fuzzy ideas, `cs-roadmap` handles needs too large for one feature, and `cs-audit` proactively finds risks without fixing them directly.
 
 ---
 
@@ -92,7 +92,7 @@ CodeStable's bet is simple: in serious software work, chaos often comes not from
 <table>
 <tr><th>Group</th><th>Skill</th><th>Purpose</th></tr>
 <tr><td><b>Auto entry</b></td><td><code>using-codestable</code></td><td>Routes lifecycle tasks to <code>cs</code> in onboarded repositories</td></tr>
-<tr><td><b>Root entry</b></td><td><code>cs</code></td><td>Introduces the system and routes open-ended intents to the right cs sub-skill</td></tr>
+<tr><td><b>Root entry</b></td><td><code>cs</code></td><td>Introduces the system, handles interview / grill interaction modes, and routes open-ended intents to the right cs sub-skill</td></tr>
 <tr><td><b>Onboard</b></td><td><code>cs-onboard</code></td><td>Create or migrate the CodeStable skeleton for a repository</td></tr>
 <tr><td rowspan="2"><b>Requirements & architecture</b></td><td><code>cs-req</code></td><td>Maintain capability-intent docs with draft / current / outdated states</td></tr>
 <tr><td><code>cs-arch</code></td><td>Maintain the current architecture map; no future planning</td></tr>
@@ -166,7 +166,7 @@ Hard constraints:
 | `codestable-worktree-gate.py` | Check correct worktree usage at start / commit / quarantine |
 | `validate-implementation-review.py` | Confirm implementation changes have review evidence |
 | `build-review-packet.py` | Build review inputs for implementation / spec / quality review |
-| `build-context-packet.py` | Build handoff, human-reviewer, and owner-judgment context packets |
+| `build-context-packet.py` | Build handoff, human-reviewer, owner-judgment, interviewee, and other context packets |
 | `check-context-sufficiency.py` | Reject empty or insufficient context packets |
 | `codestable-finish-worktree.py` | Produce learning and merge-readiness records when worktree work finishes |
 | `codestable-worktree-inbox.py` | Surface ready / stale / blocked work branches from main |

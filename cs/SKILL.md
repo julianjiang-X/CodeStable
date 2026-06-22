@@ -35,7 +35,7 @@ description: CodeStable 工作流根入口，介绍体系全貌并把诉求路�
 回应前每次都做（几个 tool 调用就够）：
 
 1. **看仓库有没有接入 CodeStable**——`Glob .codestable/` 看顶层目录
-2. **存在**——必须先 `Read .codestable/attention.md`（如果缺失提示骨架不完整，先补齐或重跑 `cs-onboard`）；再 `Read .codestable/reference/system-overview.md`（如果有）；`Glob` 一下 `goals/` `features/` `issues/` `roadmap/` 看进行中的工作（拿目录名就够，不逐份读）
+2. **存在**——必须先 `Read .codestable/attention.md`（如果缺失提示骨架不完整，先补齐或重跑 `cs-onboard`）；再 `Read .codestable/reference/system-overview.md`（如果有）；用户提到 `interview me` / `grill me` / "采访我" / "拷问我" 时再读 `.codestable/reference/interaction-modes.md`（如果有）；`Glob` 一下 `goals/` `features/` `issues/` `roadmap/` 看进行中的工作（拿目录名就够，不逐份读）
 3. **不存在**——后面提示用户先走 `cs-onboard`
 4. **看用户原话**——开放式还是带具体诉求？带诉求匹配路由表，没诉求给体系介绍
 
@@ -66,6 +66,7 @@ CodeStable 把开发活动建模成一组**核心实体 + 4 个流程**，所有
 - **修 bug**：`cs-issue-report` → `cs-issue-analyze` → `cs-issue-fix`
 - **重构**（beta）：`cs-refactor` / `cs-refactor-ff`
 - **目标达成**：`cs-goal` 先轻量 grill，再自主实现 / 验证 / 迭代并写双语报告
+- **全局对话模式**：`interview me` 先轻量采访收集上下文；`grill me` 先压力测试边界和验收，再路由到具体流程
 
 **横切**：流程跑完发现"值得记下来" → `cs-learn` / `cs-trick` / `cs-decide` / `cs-explore` 沉淀到 `compound/`。
 
@@ -113,6 +114,8 @@ Context level 只用于说明轻重，不在 `cs` 阶段生成重型产物：
 | 用户说什么 / 想做什么 | 路由到 |
 |---|---|
 | 仓库还没有 `.codestable/` | **先 `cs-onboard`**——所有其他 cs-* 都依赖这个目录 |
+| "interview me" / "采访我" / "先问我" / "问清楚再说" | `cs` interaction mode（先一问一答收集上下文，再路由；不新建 `cs-interview`） |
+| "grill me" / "拷问我" / "追问我" / "多问几轮" 且没有明确验收终点 | `cs-brainstorm` 的 grill mode（压测想法边界，不误当成 goal） |
 | 限定起点和终点 / 明确验收结果 / "帮我达成这个 goal" / "自主迭代直到完成" / "grill me 后开干" | `cs-goal`（目标状态 + 双语 iteration 报告；实现细节由 AI 自主推进） |
 | 想法还模糊 / "有想法没想清楚" / "先聊聊" / "不知道是不是新功能" | `cs-brainstorm`（分诊后路由到 design / feature-brainstorm 落盘 / roadmap） |
 | 新功能 / "加个 X" / "实现 XX" | `cs-feat`（路由 design / ff / impl / accept） |
@@ -175,6 +178,12 @@ Context level 只用于说明轻重，不在 `cs` 阶段生成重型产物：
 
 用户同时给出**起点、终点 / 验收结果**，并希望 AI 自主实现、自我迭代或每轮写报告 → 优先路由 `cs-goal`。`cs-goal` 可以在内部引用 feature / issue / refactor，但状态和迭代报告归 `.codestable/goals/{slug}/`。
 
+### interview / grill 被误当成独立流程
+
+`interview me` 和 `grill me` 是 interaction modes，不是新的生命周期实体。`interview me` 默认只是轻量采访：一次一个问题，收集目的、背景、约束、成功信号，问到足够路由就停。`grill me` 是更强的压力测试：最多 3-5 轮，围绕边界、验收、非目标、风险和隐藏假设追问。
+
+不要因为用户只说 `grill me` 就路由到 `cs-goal`。只有同时出现限定起点 / 终点 / 验收结果，并希望 AI 自主实现或"grill me 后开干"时，才走 `cs-goal`；没有 bounded destination 时走 `cs-brainstorm`。如果用户说的是真实访谈 / 复盘前准备上下文，才考虑 context packet 的 `interviewee` audience。
+
 ### "改一下 X" 但 X 是已有功能
 
 先问这是 **bug 修复**（X 现在表现错了）还是 **需求变更**（X 现在表现没错，但策略变了）：
@@ -209,6 +218,7 @@ Context level 只用于说明轻重，不在 `cs` 阶段生成重型产物：
 3. 问用户"你现在最想从哪儿开始？"，给四个引子：
    - "我有个新功能想做" → cs-feat
    - "我有个明确目标想让 AI 自主达成" → cs-goal
+   - "先 interview / grill 我，把想法问清楚" → interaction mode 后再路由
    - "代码里有个 bug" → cs-issue
    - "项目还没接入 CodeStable" → cs-onboard
 

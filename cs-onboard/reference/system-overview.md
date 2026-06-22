@@ -12,6 +12,7 @@ CodeStable 把这几类场景各配一套子技能，产物放进统一的目录
 **根入口**——开放式诉求 / 不知道走哪个时的统一入口:
 
 - `cs` — 介绍体系全貌 + 把诉求路由到正确的 cs-* 子技能。本技能不做事,只做分诊和提示
+- 全局 interaction modes — 用户显式说 `interview me` / "采访我" 时轻量采访收集上下文；说 `grill me` / "拷问我" 时压力测试边界和验收，再路由到具体子技能
 
 **做事**——从一段模糊想法走到上线的功能、从一份错误报告走到修好的 bug，或者从限定目标走到验收结果:
 
@@ -52,6 +53,8 @@ CodeStable 把这几类场景各配一套子技能，产物放进统一的目录
 
 | 场景 | 子技能 |
 |---|---|
+| "interview me" / "采访我" / "先问我" | 先用 interview mode 问清上下文，再由 `cs` 路由 |
+| "grill me" / "拷问我" / "追问我" | 先用 grill mode 压测边界；有明确验收和自主执行诉求则 `cs-goal`，否则多半 `cs-brainstorm` |
 | 限定起点 / 终点 / 验收结果，想让 AI 自主迭代到完成 | `cs-goal` |
 | 想法还模糊 / "有个想法没想清楚" / "先聊聊" | `cs-brainstorm`(分诊后路由到 design / feature-brainstorm 落盘 / roadmap) |
 | 新功能 / 新能力 | `cs-feat` |
@@ -108,6 +111,7 @@ AI 最常见的问题是一口气铺几百行代码才让人看——等发现�
 - `.codestable/reference/shared-conventions.md` — 目录结构、YAML frontmatter 口径、`{slug}-checklist.yaml` 生命周期、收尾 commit 约定、归档类共享规则
 - `.codestable/reference/execution-conventions.md` — worktree、review、finish、commit 和 handoff 执行约定
 - `.codestable/reference/goal-conventions.md` — goal 状态模型、双语报告和 owner-stop 约定
+- `.codestable/reference/interaction-modes.md` — `interview me` / `grill me` 的全局对话模式约定
 - `.codestable/reference/tools.md` + `tools-part*.md` — 常用共享工具用法
 - `.codestable/reference/spec-governance-tools.md` — spec routing、clarification、req delta、inventory、analyze 工具用法
 - `.codestable/reference/maintainer-notes.md` — 断点恢复、新增子工作流的登记

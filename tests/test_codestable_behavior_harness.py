@@ -45,6 +45,8 @@ CRITICAL_SCENARIO_IDS = {
     "feat-design-clarify",
     "finish-inbox-ready",
     "finish-inbox-stale-report",
+    "global-grill-mode-does-not-overroute-goal",
+    "global-interview-mode-routes-lightly",
     "guide-user-contract-review",
     "goal-autonomous-iteration-docs",
     "goal-code-edits-use-execution-gate",

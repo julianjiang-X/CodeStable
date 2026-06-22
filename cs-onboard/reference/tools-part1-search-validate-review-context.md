@@ -260,7 +260,7 @@ audience:
 - `owner-decision`：给 owner 拍板风险 / 后续事项的决策简报。
 - `owner-judgment`：给 owner 或 human checkpoint 做判断前的上下文，覆盖 route、授权、acceptance、finish / merge 等非访谈场景。
 - `learner`：学习报告，解释为什么改、改了什么、如何验证。
-- `interviewee`：真实访谈 / 复盘前的上下文提纲；不要把普通判断 checkpoint 都归到这个 audience。
+- `interviewee`：真实访谈 / 复盘前的上下文提纲；不要把普通判断 checkpoint 都归到这个 audience，也不要把普通 `interview me` 对话模式误路由到这里。
 
 `owner-judgment` 还应传入判断专用上下文，strict check 会要求这些字段非空：
 
@@ -289,4 +289,3 @@ handoff 固定输出：
 非 handoff audience 输出 `Decision Brief` / `Working Context` / `Evidence Appendix` 三层结构；`--language zh` 会输出中文标题和说明。未显式传 `--file` 时，工具会列当前 changed files；secret-like 路径会标记为 redacted，文本中的 token / secret / api key 会被脱敏。handoff 目标长度是 10-20 行，适合在创建下一阶段 subagent 前阅读；受众报告可以更长，但仍只放可验证结论和证据索引。
 
 ---
-

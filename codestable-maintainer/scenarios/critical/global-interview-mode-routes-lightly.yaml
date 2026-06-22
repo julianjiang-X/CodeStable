@@ -1,0 +1,33 @@
+{
+  "id": "global-interview-mode-routes-lightly",
+  "fixture": "clean-onboarded-repo",
+  "runs": 1,
+  "actor": {
+    "context": "sterile",
+    "script": [
+      {"action": "read_attention"},
+      {"action": "read_interaction_modes"},
+      {"action": "interview_mode"},
+      {
+        "say": "Route: interaction-mode/interview\nContext: L1\nReason: owner explicitly asked `interview me`, so collect lightweight context before final routing.\nEscalation: if the answer asks for approval, spec changes, or autonomous execution, route to the matching cs-* workflow.\nQuestion: Which context should I clarify first: problem, audience, constraints, or success signal?\nNext: answer this question, then route once the lifecycle intent is clear."
+      }
+    ]
+  },
+  "expect": {
+    "transcript": {
+      "contains": ["Route: interaction-mode/interview", "Question:", "then route"],
+      "forbidden": ["Route: cs-goal"]
+    },
+    "trajectory": {
+      "required_actions": ["read_attention", "read_interaction_modes", "interview_mode"],
+      "forbidden_actions": ["grill_goal", "commit", "merge"]
+    },
+    "artifacts": {
+      "must_not_create": [
+        ".codestable/goals/**",
+        ".codestable/features/**",
+        ".codestable/interviews/**"
+      ]
+    }
+  }
+}

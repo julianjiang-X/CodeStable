@@ -1,6 +1,6 @@
 ---
 name: cs-goal
-description: Goal-driven autonomous workflow for bounded start/end tasks. Use when the owner gives a desired outcome, acceptance result, budget, or asks AI to "reach this goal", "run until accepted", "self-iterate", "autonomous iteration", or "grill me" before implementation. Creates bilingual goal and iteration artifacts under `.codestable/goals/`.
+description: Goal-driven autonomous workflow for bounded start/end tasks. Use when the owner gives a desired outcome, acceptance result, budget, or asks AI to "reach this goal", "run until accepted", "self-iterate", "autonomous iteration", or "grill me" before implementation with a bounded done signal. Creates bilingual goal and iteration artifacts under `.codestable/goals/`.
 ---
 
 # cs-goal
@@ -27,10 +27,12 @@ Before acting:
 2. Read `.codestable/reference/system-overview.md` if present.
 3. Read this skill's `reference.md`.
 4. Read `.codestable/reference/goal-conventions.md` if present.
-5. Before code edits, review, commit, finish, or merge work, read
+5. Read `.codestable/reference/interaction-modes.md` if present and the prompt
+   mentions `interview me`, `grill me`, "采访我", or "拷问我".
+6. Before code edits, review, commit, finish, or merge work, read
    `.codestable/reference/execution-conventions.md` if present.
-6. Inspect `.codestable/goals/` for an active matching goal.
-7. Search `.codestable/compound/` and relevant feature / issue / refactor docs
+7. Inspect `.codestable/goals/` for an active matching goal.
+8. Search `.codestable/compound/` and relevant feature / issue / refactor docs
    when the goal names an existing area.
 
 If `.codestable/` is missing, route to `cs-onboard`.
@@ -52,6 +54,7 @@ Do not use it for:
 
 - pure design, roadmap, or discussion requests with no implementation goal;
 - open-ended brainstorming where the owner does not yet know the end state;
+- standalone "grill me" prompts that do not include a bounded destination;
 - status checks or audits that do not ask the AI to drive toward completion.
 
 ---
@@ -78,7 +81,8 @@ has a clear value.
 
 ## Phase 1: Grill Alignment
 
-Always grill before creating a new goal. Keep it short and owner-level.
+Always grill before creating a new goal. This is goal grill alignment: keep it
+short, owner-level, and limited to the goal boundary.
 
 Ask at most 3-5 focused questions. Each round uses one question plus 2-4
 meaningfully different choices. Avoid asking for implementation details unless

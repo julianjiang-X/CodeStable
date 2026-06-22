@@ -11,7 +11,13 @@ acceptance signal; AI grills briefly, implements, verifies, self-iterates, and
 writes bilingual reports.
 
 Use goals when the request says "reach this result", "run until accepted",
-"self-iterate", "AI implements autonomously", or "grill me first".
+"self-iterate", "AI implements autonomously", or "grill me first, then
+implement" with a bounded done signal.
+
+Do not route standalone "grill me" prompts here unless a bounded destination is
+known. Without a start/end objective or observable acceptance, use the global
+interaction modes in `.codestable/reference/interaction-modes.md`, usually via
+`cs-brainstorm`.
 
 ## Directory
 
