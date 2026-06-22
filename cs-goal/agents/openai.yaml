@@ -1,4 +1,4 @@
 interface:
-  display_name: "CodeStable Goal"
-  short_description: "Run bounded goals through grill, autonomous iterations, and bilingual reports."
-  default_prompt: "Use cs-goal for a bounded start/end objective. Grill lightly, create goal artifacts, iterate autonomously, and write bilingual iteration reports."
+  display_name: "Cs Goal"
+  short_description: "处理限定起点/终点的目标达成、自主迭代和双语报告"
+  default_prompt: "使用 $cs-goal 处理有明确起点/终点和验收结果的目标，先轻量 grill，再自主迭代并写双语报告。"
