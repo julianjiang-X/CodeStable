@@ -35,7 +35,7 @@ description: CodeStable 工作流根入口，介绍体系全貌并把诉求路�
 回应前每次都做（几个 tool 调用就够）：
 
 1. **看仓库有没有接入 CodeStable**——`Glob .codestable/` 看顶层目录
-2. **存在**——必须先 `Read .codestable/attention.md`（如果缺失提示骨架不完整，先补齐或重跑 `cs-onboard`）；再 `Read .codestable/reference/system-overview.md`（如果有）；用户提到 `interview me` / `grill me` / "采访我" / "拷问我" 时再读 `.codestable/reference/interaction-modes.md`（如果有）；`Glob` 一下 `goals/` `features/` `issues/` `roadmap/` 看进行中的工作（拿目录名就够，不逐份读）
+2. **存在**——必须先 `Read .codestable/attention.md`（如果缺失提示骨架不完整，先补齐或重跑 `cs-onboard`）；再运行 `.codestable/tools/codestable-freshness-check.py --json`（如果存在）检查 installed CodeStable 是否落后，`should_prompt_update: true` 时先提示 owner 更新再继续；再 `Read .codestable/reference/system-overview.md`（如果有）；用户提到 `interview me` / `grill me` / "采访我" / "拷问我" 时再读 `.codestable/reference/interaction-modes.md`（如果有）；`Glob` 一下 `goals/` `features/` `issues/` `roadmap/` 看进行中的工作（拿目录名就够，不逐份读）
 3. **不存在**——后面提示用户先走 `cs-onboard`
 4. **看用户原话**——开放式还是带具体诉求？带诉求匹配路由表，没诉求给体系介绍
 

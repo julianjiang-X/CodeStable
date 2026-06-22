@@ -172,6 +172,7 @@ Hard constraints:
 | `check-context-sufficiency.py` | Reject empty or insufficient context packets |
 | `codestable-finish-worktree.py` | Produce learning and merge-readiness records when worktree work finishes |
 | `codestable-worktree-inbox.py` | Surface ready / stale / blocked work branches from main |
+| `codestable-freshness-check.py` | Check whether installed CodeStable skill copies lag remote `main` |
 | `plan-commits.py` | Plan grouped commits by CodeStable unit and file ownership |
 | `codestable-backlog.py` | Scan unresolved follow-ups, human-review items, P2s, and attention candidates |
 | `codestable-spec-governance.py` | Route specs, generate deltas / clarifications, inventory drift, and check acceptance |

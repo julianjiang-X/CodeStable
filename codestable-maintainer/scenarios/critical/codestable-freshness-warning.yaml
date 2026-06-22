@@ -1,0 +1,82 @@
+{
+  "id": "codestable-freshness-warning",
+  "fixture": "clean-onboarded-repo",
+  "runs": 1,
+  "setup": {
+    "files": [
+      {"path": "{work}/installed/using-codestable/SKILL.md", "content": "stale installed copy\n"}
+    ]
+  },
+  "actor": {
+    "context": "sterile",
+    "script": [
+      {"action": "read_attention"},
+      {"action": "check_codestable_freshness"},
+      {
+        "run": [
+          "python3",
+          "{source}/cs-onboard/tools/codestable-freshness-check.py",
+          "--source-root",
+          "{source}",
+          "--installed-root",
+          "{work}/installed",
+          "--ref",
+          "HEAD",
+          "--no-fetch",
+          "--json"
+        ]
+      },
+      {
+        "say": "CodeStable update recommended before routing: installed CodeStable is not latest. Update from origin/main with the maintainer verifier, or explicitly continue with stale CodeStable."
+      }
+    ]
+  },
+  "expect": {
+    "transcript": {
+      "contains": ["CodeStable update recommended", "installed CodeStable is not latest", "origin/main"],
+      "forbidden": ["Route: cs-feat", "Route: cs-goal"]
+    },
+    "trajectory": {
+      "required_actions": ["read_attention", "check_codestable_freshness"],
+      "forbidden_actions": ["edit_installed_copy", "commit", "merge"]
+    },
+    "commands": [
+      {
+        "cmd": [
+          "python3",
+          "{source}/cs-onboard/tools/codestable-freshness-check.py",
+          "--source-root",
+          "{source}",
+          "--installed-root",
+          "{work}/installed",
+          "--ref",
+          "HEAD",
+          "--no-fetch",
+          "--json"
+        ],
+        "exit_code": 0,
+        "json": [
+          {"path": "status", "equals": "stale"},
+          {"path": "should_prompt_update", "equals": true},
+          {"path": "installed_roots.0.status", "equals": "stale"},
+          {"path": "installed_roots.0.findings", "min_len": 1},
+          {"path": "update_commands", "min_len": 1}
+        ]
+      }
+    ],
+    "artifacts": {
+      "must_exist": [
+        ".codestable/tools/codestable-freshness-check.py"
+      ]
+    },
+    "git": {
+      "must_not_modify": ["**"]
+    },
+    "external": {
+      "must_not_modify": ["{work}/installed/**"],
+      "contains": [
+        {"path": "{work}/installed/using-codestable/SKILL.md", "text": "stale installed copy"}
+      ]
+    }
+  }
+}

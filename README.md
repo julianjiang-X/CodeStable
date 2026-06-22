@@ -172,6 +172,7 @@ your-project/
 | `check-context-sufficiency.py` | 检查上下文包是否足够，不允许空洞 review |
 | `codestable-finish-worktree.py` | 完成 worktree 时生成 learning / merge readiness 记录 |
 | `codestable-worktree-inbox.py` | 在主分支可见地提醒哪些工作分支 ready / stale / blocked |
+| `codestable-freshness-check.py` | 检查 installed CodeStable skill copy 是否落后于远端 `main` |
 | `plan-commits.py` | 按 CodeStable 单元和文件归属规划分组提交 |
 | `codestable-backlog.py` | 扫描 unresolved follow-up、human-review、P2 和 attention candidates |
 | `codestable-spec-governance.py` | 做 spec 路由、delta、clarification、drift inventory 和 acceptance 检查 |

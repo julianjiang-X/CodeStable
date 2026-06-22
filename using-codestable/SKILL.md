@@ -23,6 +23,18 @@ If it exists, CodeStable is active. For lifecycle tasks, route through `cs` befo
 
 If the platform has explicit skill invocation, invoke `cs`. If it does not, follow the `cs` skill's routing rules directly: read `.codestable/attention.md`, inspect the CodeStable workspace, then choose the right `cs-*` workflow.
 
+Before routing, run a best-effort freshness check when available:
+
+```bash
+python3 .codestable/tools/codestable-freshness-check.py --json
+```
+
+If the command reports `should_prompt_update: true`, tell the owner that the
+current installed CodeStable copy is not latest, show the suggested update
+command from the report, and ask whether to update before continuing. If the
+tool is missing or reports `status: unknown`, continue normally and do not block
+the lifecycle task.
+
 ---
 
 ## Lifecycle Tasks
@@ -65,7 +77,8 @@ If the user explicitly asks to onboard CodeStable in a repository without `.code
 Be low-noise. This skill should not add a ceremony layer to every response.
 
 - If CodeStable is inactive, continue normally.
-- If CodeStable is active and the task is a lifecycle task, say briefly: `Using cs because this repo is onboarded with CodeStable.`
+- If CodeStable is active and freshness is current or unknown, say briefly: `Using cs because this repo is onboarded with CodeStable.`
+- If CodeStable is active but freshness is stale, say briefly: `CodeStable update recommended before routing; installed CodeStable is not latest.`
 - Then route to `cs` and follow its output.
 
 ---

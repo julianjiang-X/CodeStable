@@ -165,3 +165,30 @@ python3 .codestable/tools/codestable-main-publish.py --root . --json end
 - `--branch` 会 fetch 并记录允许 merge 的 remote ref
 - guard 只允许声明过的 merge ref 和目标 main push
 - force push、branch switch、未声明 branch merge 仍会被拦截
+
+---
+
+## 14. codestable-freshness-check.py
+
+installed CodeStable skill copy 新鲜度检查工具。入口技能启动时可以运行它；如果
+`should_prompt_update: true`，先提示 owner 当前 CodeStable 不是最新，并展示
+JSON 里的 `update_commands`。
+
+```bash
+python3 .codestable/tools/codestable-freshness-check.py --json
+```
+
+常见显式用法：
+
+```bash
+python3 .codestable/tools/codestable-freshness-check.py \
+  --source-root /path/to/CodeStable \
+  --installed-root "$HOME/.agents/skills" \
+  --json
+```
+
+状态：
+
+- `current`：installed skill copy 与远端 `main` 对齐
+- `stale`：发现 installed copy 落后或有多余旧文件，应该提示更新
+- `unknown`：找不到 source checkout / installed root / remote ref；不阻断当前流程

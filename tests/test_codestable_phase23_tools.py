@@ -30,6 +30,7 @@ context_packet = load_tool("build_context_packet", TOOLS_DIR / "build-context-pa
 context_sufficiency = load_tool("check_context_sufficiency", TOOLS_DIR / "check-context-sufficiency.py")
 commit_planner = load_tool("plan_commits", TOOLS_DIR / "plan-commits.py")
 backlog_tool = load_tool("codestable_backlog", TOOLS_DIR / "codestable-backlog.py")
+freshness_check = load_tool("codestable_freshness_check", TOOLS_DIR / "codestable-freshness-check.py")
 maintainer_verify = load_tool("codestable_maintainer_verify", MAINTAINER_TOOLS_DIR / "verify.py")
 search_yaml = load_tool("search_yaml", TOOLS_DIR / "search-yaml.py")
 
@@ -811,6 +812,75 @@ def make_codestable_source_repo(tmp_path: Path, runner_code: str | None = None) 
     validator = tmp_path / "fake_validator.py"
     validator.write_text("import sys\nsys.exit(0)\n", encoding="utf-8")
     return repo, remote, validator
+
+
+def make_freshness_source_repo(tmp_path: Path, text: str = "latest\n") -> tuple[Path, Path]:
+    remote = tmp_path / "freshness-remote.git"
+    subprocess.run(["git", "init", "--bare", remote.as_posix()], check=True, stdout=subprocess.PIPE)
+    repo = tmp_path / "freshness-source"
+    repo.mkdir()
+    run(repo, "init", "-b", "main")
+    run(repo, "config", "user.email", "test@example.com")
+    run(repo, "config", "user.name", "Test User")
+    run(repo, "remote", "add", "origin", remote.as_posix())
+    write_file(repo / "README.md", "base\n")
+    write_file(repo / "cs-onboard/SKILL.md", "---\nname: cs-onboard\ndescription: test\n---\n")
+    write_file(repo / "using-codestable/SKILL.md", text)
+    run(repo, "add", ".")
+    run(repo, "commit", "-m", "init")
+    run(repo, "push", "-u", "origin", "main")
+    return repo, remote
+
+
+def test_freshness_check_reports_current_installed_copy(tmp_path: Path) -> None:
+    repo, _remote = make_freshness_source_repo(tmp_path, "latest\n")
+    installed = tmp_path / "installed"
+    write_file(installed / "using-codestable/SKILL.md", "latest\n")
+
+    payload = freshness_check.check_freshness(
+        source_root=repo.as_posix(),
+        installed_roots=[installed.as_posix()],
+        remote="origin",
+        branch="main",
+        fetch=True,
+    )
+
+    assert payload["ok"] is True
+    assert payload["status"] == "current"
+    assert payload["should_prompt_update"] is False
+
+
+def test_freshness_check_prompts_when_installed_copy_is_stale(tmp_path: Path) -> None:
+    repo, _remote = make_freshness_source_repo(tmp_path, "latest\n")
+    installed = tmp_path / "installed"
+    write_file(installed / "using-codestable/SKILL.md", "stale\n")
+
+    payload = freshness_check.check_freshness(
+        source_root=repo.as_posix(),
+        installed_roots=[installed.as_posix()],
+        remote="origin",
+        branch="main",
+        fetch=True,
+    )
+
+    assert payload["ok"] is False
+    assert payload["status"] == "stale"
+    assert payload["should_prompt_update"] is True
+    assert "Installed CodeStable skill copies differ" in payload["summary"]
+    assert "verify.py" in payload["update_commands"][0]
+    assert payload["installed_roots"][0]["findings"][0]["path"] == "using-codestable/SKILL.md"
+
+
+def test_freshness_check_unknown_when_source_repo_missing(tmp_path: Path) -> None:
+    payload = freshness_check.check_freshness(
+        source_root=(tmp_path / "missing").as_posix(),
+        installed_roots=[(tmp_path / "installed").as_posix()],
+        fetch=False,
+    )
+
+    assert payload["ok"] is True
+    assert payload["status"] == "unknown"
+    assert payload["should_prompt_update"] is False
 
 
 def test_maintainer_verify_fails_unpushed_branch(tmp_path: Path) -> None:

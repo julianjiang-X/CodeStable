@@ -147,6 +147,8 @@ The current critical suite covers:
   authorization;
 - CodeStable maintainer work starts in the source repo, then commits, pushes,
   fresh-clone verifies, and syncs installed copies;
+- CodeStable entry checks can warn when installed skills lag latest source
+  before routing lifecycle work;
 - mature onboarded repositories keep existing `docs/` contracts instead of
   migrating or rewriting them by default;
 - capability-status answers distinguish shipped surfaces from planned or

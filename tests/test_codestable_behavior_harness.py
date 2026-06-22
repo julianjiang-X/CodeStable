@@ -39,6 +39,7 @@ CRITICAL_SCENARIO_IDS = {
     "capability-status-answer",
     "compact-resume-next-action",
     "compacted-worktree-start-gate",
+    "codestable-freshness-warning",
     "cs-root-route-choice-approval-report",
     "cs-route-brief-minimal",
     "doctor-preexisting-findings-separated",

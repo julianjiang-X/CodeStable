@@ -39,6 +39,7 @@ description: 把新仓库或有零散文档的仓库接入 CodeStable 体系，�
 ├── compound/                   沉淀类统一目录（learning / trick / decision / explore）
 ├── tools/                      跨工作流共享脚本（onboard 释放）
 │   ├── codestable-doctor.py
+│   ├── codestable-freshness-check.py
 │   ├── codestable-ai-branch-guard.py
 │   ├── codestable-main-publish.py
 │   ├── codestable-worktree-gate.py
@@ -220,6 +221,7 @@ Copy-Item -Recurse -Force <技能包路径>\cs-onboard\reference\*  .codestable\
 - `.codestable/reference/approval-conventions.md` — owner 审批报告和 `approval-report.md` 约定
 - `.codestable/reference/goal-conventions.md` — goal 状态模型、报告和 owner-stop 约定
 - `.codestable/reference/interaction-modes.md` — `interview me` / `grill me` 的全局对话模式约定
+- `.codestable/tools/codestable-freshness-check.py` — 检查 installed CodeStable skill copy 是否落后于远端 `main`
 - `.codestable/reference/branch-guard-hooks.md` — 禁止 AI 切主检出分支 / 在 main 或 master 上实现的 hook 配置
 - `.codestable/attention.md` — CodeStable 技能启动必读的项目注意事项
 - `.codestable/architecture/ARCHITECTURE.md` — 架构总入口骨架
