@@ -190,6 +190,7 @@ explicit non-goal. Core scenarios:
 | Scenario | Expected proof |
 |---|---|
 | `cs-route-brief-minimal` | A short prompt routes to the correct skill, emits L1 context, and does not create heavy artifacts. |
+| `cs-route-language-switch-chinese` | A Chinese language request keeps canonical route keys while rendering route explanations in Chinese. |
 | `cs-root-route-choice-approval-report` | Root route ambiguity writes intake `approval-report.md` under `brainstorms/` before owner choice. |
 | `global-interview-mode-routes-lightly` | `interview me` asks one gentle context question, does not create artifacts, and proceeds toward route selection. |
 | `global-grill-mode-does-not-overroute-goal` | Standalone `grill me` without bounded acceptance pressure-tests the idea but does not create goal artifacts or route to `cs-goal`. |

@@ -30,6 +30,25 @@ description: CodeStable 工作流根入口，介绍体系全貌并把诉求路�
 
 ---
 
+## 语言切换
+
+`cs` 支持会话级输出语言切换，包含中文。路由前先确定 active language：
+
+1. 用户显式要求优先：例如 "中文"、"用中文"、"Chinese"、`zh`、"英文"、"English"、`en`、"switch language"。
+2. 没有显式要求时，跟随 owner 当前消息的主要语言。
+3. `.codestable/attention.md` 的报告语言策略只约束子流程写入的人读报告；它不强制 `cs` 当前 route brief 改用另一种语言，除非用户明确要求。
+4. skill 名、文件路径、命令、YAML/JSON 字段、context level（如 `L1`）和 `cs-*` 标识保持原文，不翻译。
+
+中文模式下，route brief 的说明文字用中文，保持短、直接、可执行。默认保留
+`Route` / `Context` / `Reason` / `Not routing to` / `Escalation` / `Next`
+这些 canonical 键名；如果用户明确要求全中文标签，可以写成 `路径（Route）`
+这类双标签。不要因为语言切换额外创建多语言 artifact。
+
+人类 review-facing artifact 的双语或 English-first 规则由对应子流程和
+attention 决定；本节只约束 `cs` 的聊天输出和路由说明。
+
+---
+
 ## 收到调用先做的扫描
 
 回应前每次都做（几个 tool 调用就够）：
@@ -37,7 +56,7 @@ description: CodeStable 工作流根入口，介绍体系全貌并把诉求路�
 1. **看仓库有没有接入 CodeStable**——`Glob .codestable/` 看顶层目录
 2. **存在**——必须先 `Read .codestable/attention.md`（如果缺失提示骨架不完整，先补齐或重跑 `cs-onboard`）；再 `Read .codestable/reference/system-overview.md`（如果有）；用户提到 `interview me` / `grill me` / "采访我" / "拷问我" 时再读 `.codestable/reference/interaction-modes.md`（如果有）；`Glob` 一下 `goals/` `features/` `issues/` `roadmap/` 看进行中的工作（拿目录名就够，不逐份读）
 3. **不存在**——后面提示用户先走 `cs-onboard`
-4. **看用户原话**——开放式还是带具体诉求？带诉求匹配路由表，没诉求给体系介绍
+4. **看用户原话和语言要求**——先按"语言切换"确定 active language；再判断开放式还是带具体诉求？带诉求匹配路由表，没诉求给体系介绍
 
 扫完才回应。让用户感觉你心里有数。
 
