@@ -16,15 +16,21 @@
   "expect": {
     "transcript": {
       "contains": ["Route: cs-brainstorm", "Not routing to: cs-goal", "3-5 focused rounds"],
-      "forbidden": ["Route: cs-goal\n"]
+      "forbidden_regex": ["(?m)^Route:\\s*cs-goal\\b"]
     },
     "trajectory": {
       "required_actions": ["read_attention", "read_interaction_modes", "grill_mode"],
       "forbidden_actions": ["grill_goal", "commit", "merge"]
     },
     "artifacts": {
+      "must_exist": [
+        ".codestable/reference/interaction-modes.md"
+      ],
       "must_not_create": [
         ".codestable/goals/**",
+        ".codestable/features/**",
+        ".codestable/brainstorm/**",
+        ".codestable/brainstorms/**",
         ".codestable/interviews/**"
       ]
     }

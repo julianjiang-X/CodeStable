@@ -149,6 +149,9 @@ The current critical suite covers:
   unverified surfaces;
 - handoff context packets carry full working detail while the default response
   stays concise;
+- interview / grill interaction modes route lightly, distinguish standalone
+  pressure-testing from bounded goal delivery, and cover Chinese trigger
+  aliases;
 - review packets redact secrets;
 - verification packets reject blank validation evidence;
 - owner-judgment context passes strict sufficiency checks;
