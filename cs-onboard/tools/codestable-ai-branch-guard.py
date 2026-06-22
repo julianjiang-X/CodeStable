@@ -16,6 +16,7 @@ import shlex
 import stat
 import subprocess
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -55,6 +56,8 @@ SHELL_NAMES = {"bash", "dash", "fish", "ksh", "sh", "zsh"}
 SHELL_OPTIONS_WITH_VALUE = {"-o", "-O"}
 SHELL_LONG_OPTIONS_WITH_VALUE = {"--init-file", "--rcfile"}
 HOOK_MARKER = "# CodeStable AI branch guard"
+PUBLISH_INTENT_FILENAME = "codestable-main-publish-intent.json"
+PUSH_BLOCKED_OPTIONS = {"-d", "--delete", "--mirror", "--all", "--tags", "--prune"}
 
 
 @dataclass(frozen=True)
@@ -217,9 +220,136 @@ def staged_implementation_paths(root: Path) -> list[str]:
     return sorted(item.path for item in staged_files(root) if is_implementation_path(item.path))
 
 
-def command_write_block(root: Path, command: str) -> tuple[str, tuple[str, ...]] | None:
+def git_common_dir(root: Path) -> Path:
+    result = run_git(root, "rev-parse", "--path-format=absolute", "--git-common-dir")
+    if result.returncode == 0 and result.stdout.strip():
+        return Path(result.stdout.strip()).resolve()
+    return root / ".git"
+
+
+def publish_intent_path(root: Path) -> Path:
+    return git_common_dir(root) / PUBLISH_INTENT_FILENAME
+
+
+def merge_in_progress(root: Path) -> bool:
+    result = run_git(root, "rev-parse", "--git-path", "MERGE_HEAD")
+    path = (root / result.stdout.strip()).resolve() if result.returncode == 0 and result.stdout.strip() else root / ".git/MERGE_HEAD"
+    return path.exists()
+
+
+def active_publish_intent(root: Path, protected: set[str]) -> dict[str, Any] | None:
+    path = publish_intent_path(root)
+    if not path.exists():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+
+    branch = current_branch(root)
+    if branch not in protected:
+        return None
+    if payload.get("target_branch") != branch:
+        return None
+    root_value = payload.get("root")
+    if not isinstance(root_value, str) or not root_value.strip():
+        return None
+    if Path(root_value).expanduser().resolve() != root.resolve():
+        return None
+    try:
+        expires_at = float(payload.get("expires_at", 0))
+    except (TypeError, ValueError):
+        return None
+    if expires_at <= time.time():
+        return None
+    if not str(payload.get("owner_intent", "")).strip():
+        return None
+    return payload
+
+
+def command_refs(args: list[str]) -> list[str]:
+    return [arg for arg in args if arg and not arg.startswith("-")]
+
+
+def merge_allowed(args: list[str], intent: dict[str, Any]) -> bool:
+    refs = set(command_refs(args))
+    allowed = {str(item) for item in intent.get("branches", []) if str(item)}
+    return bool(refs) and refs.issubset(allowed)
+
+
+def push_allowed(args: list[str], intent: dict[str, Any]) -> bool:
+    if any(arg == "-f" or arg.startswith(("--force", "--force-with-lease", "--force-if-includes")) for arg in args):
+        return False
+    if any(arg in PUSH_BLOCKED_OPTIONS or arg.startswith("--delete=") for arg in args):
+        return False
+    refs = command_refs(args)
+    remote = str(intent.get("remote", "origin"))
+    target = str(intent.get("target_branch", "main"))
+    if not refs:
+        return False
+    if refs[0] != remote:
+        return False
+    if len(refs) == 1:
+        return False
+    targets = {target, f"HEAD:{target}", f"refs/heads/{target}", f"HEAD:refs/heads/{target}"}
+    return all(ref in targets for ref in refs[1:])
+
+
+def zero_oid(value: str) -> bool:
+    return bool(value) and set(value) == {"0"}
+
+
+def pre_push_updates(stdin_text: str) -> list[tuple[str, str, str, str]]:
+    updates: list[tuple[str, str, str, str]] = []
+    for raw_line in stdin_text.splitlines():
+        fields = raw_line.split()
+        if len(fields) >= 4:
+            updates.append((fields[0], fields[1], fields[2], fields[3]))
+    return updates
+
+
+def pre_push_allowed(root: Path, hook_args: list[str], stdin_text: str, intent: dict[str, Any]) -> bool:
+    remote = str(intent.get("remote", "origin"))
+    target = str(intent.get("target_branch", "main"))
+    target_ref = f"refs/heads/{target}"
+    allowed_local_refs = {target_ref, "HEAD"}
+    args = [arg for arg in hook_args if arg != "--"]
+    if not args or args[0] != remote:
+        return False
+    head = run_git(root, "rev-parse", "HEAD").stdout.strip()
+    if not head:
+        return False
+    updates = pre_push_updates(stdin_text)
+    if not updates:
+        return False
+    for local_ref, local_oid, remote_ref, _remote_oid in updates:
+        if remote_ref != target_ref:
+            return False
+        if local_ref not in allowed_local_refs:
+            return False
+        if local_oid != head:
+            return False
+        if local_ref == "(delete)" or zero_oid(local_oid):
+            return False
+    return True
+
+
+def publish_intent_allows_command(root: Path, subcommand: str, args: list[str], intent: dict[str, Any] | None) -> bool:
+    if not intent:
+        return False
+    if subcommand == "merge":
+        return merge_allowed(args, intent)
+    if subcommand == "push":
+        return push_allowed(args, intent)
+    return subcommand in {"add", "commit"} and merge_in_progress(root)
+
+
+def command_write_block(root: Path, command: str, intent: dict[str, Any] | None = None) -> tuple[str, tuple[str, ...]] | None:
     for subcommand, args in git_invocations(command):
         if subcommand not in PROTECTED_WRITE_COMMANDS:
+            continue
+
+        if publish_intent_allows_command(root, subcommand, args, intent):
             continue
 
         if subcommand == "add":
@@ -261,8 +391,9 @@ def guard_payload(payload: dict[str, Any], root: Path, protected: set[str]) -> G
         )
 
     on_protected = branch in protected
+    intent = active_publish_intent(root, protected)
     if command and on_protected:
-        blocked = command_write_block(root, command)
+        blocked = command_write_block(root, command, intent)
         if blocked:
             reason, paths = blocked
             return GuardResult(
@@ -276,7 +407,7 @@ def guard_payload(payload: dict[str, Any], root: Path, protected: set[str]) -> G
 
     if on_protected and tool_name in EDIT_TOOL_NAMES:
         impl_paths = tuple(path for path in payload_paths(payload, root) if is_implementation_path(path))
-        if impl_paths:
+        if impl_paths and not (intent and merge_in_progress(root)):
             return GuardResult(
                 False,
                 "AI agents must not edit implementation files on main/master. Use a linked execution worktree on a codex/... branch.",
@@ -289,13 +420,22 @@ def guard_payload(payload: dict[str, Any], root: Path, protected: set[str]) -> G
     return GuardResult(True, "allowed", "allowed", branch, linked)
 
 
-def guard_git_hook(root: Path, hook_name: str, protected: set[str]) -> GuardResult:
+def guard_git_hook(
+    root: Path,
+    hook_name: str,
+    protected: set[str],
+    hook_args: list[str] | None = None,
+    stdin_text: str = "",
+) -> GuardResult:
     branch = current_branch(root)
     linked = is_linked_worktree(root)
     if branch not in protected:
         return GuardResult(True, "allowed", "allowed", branch, linked)
 
+    intent = active_publish_intent(root, protected)
     if hook_name == "pre-commit":
+        if intent and merge_in_progress(root):
+            return GuardResult(True, "allowed by owner-intent main publish", "owner_intent_main_publish", branch, linked)
         impl = tuple(staged_implementation_paths(root))
         if impl:
             return GuardResult(
@@ -307,6 +447,12 @@ def guard_git_hook(root: Path, hook_name: str, protected: set[str]) -> GuardResu
                 impl,
             )
         return GuardResult(True, "allowed", "allowed", branch, linked)
+
+    if hook_name == "pre-merge-commit" and intent:
+        return GuardResult(True, "allowed by owner-intent main publish", "owner_intent_main_publish", branch, linked)
+
+    if hook_name == "pre-push" and intent and pre_push_allowed(root, hook_args or [], stdin_text, intent):
+        return GuardResult(True, "allowed by owner-intent main publish", "owner_intent_main_publish", branch, linked)
 
     return GuardResult(
         False,
@@ -345,7 +491,7 @@ def install_git_hooks(root: Path, force: bool) -> list[Path]:
             "  echo \"CodeStable AI branch guard unavailable; allowing Git hook.\" >&2\n"
             "  exit 0\n"
             "fi\n"
-            f"exec python3 \"$SCRIPT\" --root \"$ROOT\" --git-hook {hook_name}\n",
+            f"exec python3 \"$SCRIPT\" --root \"$ROOT\" --git-hook {hook_name} \"$@\"\n",
             encoding="utf-8",
         )
         path.chmod(path.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
@@ -388,6 +534,7 @@ def main() -> int:
     parser.add_argument("--install-git-hooks", action="store_true", help="Install local Git hook fallbacks")
     parser.add_argument("--force", action="store_true", help="Overwrite existing Git hooks when installing")
     parser.add_argument("--json", action="store_true")
+    parser.add_argument("hook_args", nargs=argparse.REMAINDER)
     args = parser.parse_args()
 
     root = resolve_root(args.root)
@@ -407,7 +554,8 @@ def main() -> int:
         return 0
 
     if args.git_hook:
-        result = guard_git_hook(root, args.git_hook, protected)
+        stdin_text = sys.stdin.read() if args.git_hook == "pre-push" else ""
+        result = guard_git_hook(root, args.git_hook, protected, args.hook_args, stdin_text)
         emit_result(result, args.json)
         return 0 if result.ok else 2
 

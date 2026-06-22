@@ -1,0 +1,34 @@
+{
+  "id": "approval-report-pending-not-overwritten",
+  "fixture": "clean-onboarded-repo",
+  "runs": 1,
+  "actor": {
+    "context": "sterile",
+    "script": [
+      {
+        "write": {
+          "path": ".codestable/features/2026-06-21-demo/approval-report.md",
+          "content": "---\ndoc_type: approval-report\nunit: .codestable/features/2026-06-21-demo\nstatus: pending\nreason: route-choice\ncreated_at: 2026-06-21\n---\n\n# Approval Report\n\n## Decision Needed\nDo not overwrite this pending decision.\n"
+        }
+      },
+      {"action": "new_approval_checkpoint"},
+      {"say": "Existing pending approval-report.md remains unresolved; stop instead of overwriting it."},
+      {"owner_stop": "pending_approval_exists"}
+    ]
+  },
+  "expect": {
+    "transcript": {
+      "contains": ["Existing pending approval-report.md remains unresolved"],
+      "must_stop_for": ["pending_approval_exists"]
+    },
+    "artifacts": {
+      "must_create": [".codestable/features/2026-06-21-demo/approval-report.md"],
+      "contains": [
+        {"path": ".codestable/features/2026-06-21-demo/approval-report.md", "text": "Do not overwrite this pending decision."}
+      ]
+    },
+    "trajectory": {
+      "forbidden_actions": ["write:src/app.py", "commit", "merge"]
+    }
+  }
+}

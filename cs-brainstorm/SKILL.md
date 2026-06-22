@@ -15,6 +15,11 @@ brainstorm 是"讨论层"统一入口。
 
 > 共享路径和命名约定看 `.codestable/reference/shared-conventions.md`。
 
+需要 owner 选择进入 design / roadmap、接受某个方向、或在 route choice 间拍板时，先按
+`.codestable/reference/approval-conventions.md` 写 `approval-report.md`，再停下等
+owner。case 2 用 feature 目录；case 4 和无既有 unit 的路由选择用
+`.codestable/brainstorms/{slug}/approval-report.md`。不要只在聊天里裸问。
+
 ---
 
 ## 分诊
@@ -147,11 +152,11 @@ case 1 / case 3 也能借这个动作（不强求落 brainstorm note），逻辑
 **信号**：一句话能说出做什么 / 为谁 / 怎么算成功 / 不做什么；聊两句核心行为 / 成功标准都对上。
 
 **处理**：
-1. 告诉用户"这块你已经想清楚了：{AI 一句话复述}。建议直接 `cs-feat-design`——brainstorm 对你没增量"
+1. 告诉用户"这块你已经想清楚了：{AI 一句话复述}。建议直接 `cs-feat-design`——brainstorm 对你没增量"；如果这是一次正式进入 design 的 owner checkpoint，先写 `approval-report.md`
 2. **看聊过程有没有非琐碎技术决策**——讨论了具体库选型 / Schema / 接口形态 / 跨模块约定，落一份精简 brainstorm（只填"已敲定的设计点"那节）让 design 直接读到不必重讨；纯方向确认没聊技术细节就裸退不落盘
-3. 停下来等用户触发 design
+3. 停下来等用户触发 design；已写 approval report 时明确等 owner 批准后再继续
 
-**退出**："直接触发 `cs-feat-design` 从零写 design"（不落盘）；轻量落盘则"下一步 `cs-feat-design` 会读到 `{路径}` 不必重述"
+**退出**："直接触发 `cs-feat-design` 从零写 design"（无正式 checkpoint 时不落盘）；需要 owner checkpoint 时先写 `approval-report.md`。轻量落盘则"下一步 `cs-feat-design` 会读到 `{路径}` 不必重述"
 
 ---
 
@@ -172,11 +177,11 @@ case 1 / case 3 也能借这个动作（不强求落 brainstorm note），逻辑
 - slug：根据方向自拟英文小写连字符，写进 note 时告诉用户。design 阶段改名只 rename slug 部分日期别动
 - 目录不存在就创建；已存在回到开聊前检查的接续逻辑
 
-只在用户确认进 design 那一刻落盘——对话期间不写文件。`status` 固定 `confirmed`，没有 draft。
+只在对话收敛、准备发起进入 design 的 owner checkpoint 时落盘；自由讨论中不写文件。`status` 固定 `confirmed`，没有 draft。
 
 文档模板见同目录 `reference.md` 的"feature brainstorm 模板"。frontmatter 字段口径跟 design / acceptance 共用一组，看 `shared-conventions.md` 第 1 节。
 
-**退出**：主动问"这块够清楚了可以进 design 吗？"，确认后落盘。如果愿景（用户故事 / 痛点 / 边界）已经聊透了，提示用户可以先 `cs-req draft` 把愿景落成 requirement，design 会读到这份 req 做对齐。告诉用户"下一步 `cs-feat-design` 会读到 `{路径}`"
+**退出**：先写 feature brainstorm 和同目录 `approval-report.md`，再问"这块够清楚了可以进 design 吗？"。如果愿景（用户故事 / 痛点 / 边界）已经聊透了，提示用户可以先 `cs-req draft` 把愿景落成 requirement，design 会读到这份 req 做对齐。告诉用户"下一步 `cs-feat-design` 会读到 `{路径}`"
 
 ---
 
@@ -189,7 +194,7 @@ case 1 / case 3 也能借这个动作（不强求落 brainstorm note），逻辑
 2. 把已聊的信息汇总让 roadmap 接手不用重来：真问题 / 大致范围 / 已提到的可能子模块（一句话各一）；**聊到的跨模块接口形态、共享协议、技术选型一并列出**——这些是 roadmap "架构层详设"节的种子
 3. **不落盘**——`roadmap new` 自己建目录和主文档
 
-**退出**："移交给 `cs-roadmap`"（附聊到的要点汇总），不落盘
+**退出**：需要 owner 确认移交 roadmap 时，先在 `.codestable/brainstorms/{slug}/approval-report.md` 写 route/roadmap checkpoint；否则只说"移交给 `cs-roadmap`"（附聊到的要点汇总）
 
 ---
 
@@ -225,7 +230,7 @@ case 1 / case 3 也能借这个动作（不强求落 brainstorm note），逻辑
 
 **和 roadmap 的衔接**：`cs-roadmap` 启动时会搜 `.codestable/brainstorms/` 看有没有相关 brainstorm。如果有，roadmap 把 brainstorm 当输入材料读，不重复分诊直接拆。
 
-**退出**：落盘后告诉用户"想法存到 `{路径}` 了，准备好了就触发 `cs-roadmap`，它会读到这份脑暴记录"。如果 grill 过程中愿景（用户故事 / 痛点 / 边界）已经比较清楚了，提示用户可以先 `cs-req draft` 把愿景落成 requirement，后续 roadmap 拆解和 design 都有稳定对齐基准
+**退出**：落盘后，如果下一步要 owner 确认进入 roadmap，同目录写 `approval-report.md` 后再停；否则告诉用户"想法存到 `{路径}` 了，准备好了就触发 `cs-roadmap`，它会读到这份脑暴记录"。如果 grill 过程中愿景（用户故事 / 痛点 / 边界）已经比较清楚了，提示用户可以先 `cs-req draft` 把愿景落成 requirement，后续 roadmap 拆解和 design 都有稳定对齐基准
 
 ---
 

@@ -22,11 +22,12 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 │       ├── {slug}-roadmap.md   主文档：背景 / 范围 / 模块拆分 / 接口契约 / 子 feature 清单 / 排期
 │       ├── {slug}-items.yaml   机器可读子 feature 清单，acceptance 回写状态
 │       └── drafts/             可选
-├── goals/                 限定起点/终点的自主迭代目标（cs-goal 产出）
-│   └── {slug}/
+├── goals/                 限定起点/终点的自主迭代目标（起点报告 / iteration / 功能验收）
+│   └── YYYY-MM-DD-{slug}/
 │       ├── state.yaml
-│       ├── goal.zh.md
-│       ├── goal.en.md
+│       ├── goal.md
+│       ├── functional-acceptance.md
+│       ├── approval-report.md  （需要 owner 审批但最近迭代报告未承载上下文时）
 │       └── iterations/
 ├── features/              feature spec 聚合根
 │   └── YYYY-MM-DD-{slug}/  每个 feature 一个目录
@@ -52,7 +53,7 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 ├── compound/              沉淀类文档统一目录
 │   └── YYYY-MM-DD-{doc_type}-{slug}.md
 │                          doc_type ∈ {learning, trick, decision, explore}
-├── brainstorm/            brainstorm 阶段 spike 实验代码区（cs-brainstorm 临时产出）
+├── brainstorms/           brainstorm 阶段 spike 实验代码区（cs-brainstorm 临时产出）
 │   └── {slug}/            一次 spike 一个子目录，文件名随意
 │                          验完不强制清理，结论回写到对应 brainstorm note
 ├── tools/                 跨工作流共享脚本（onboard 从技能包释放）
@@ -63,11 +64,18 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 
 - 需求文档：`requirements/{slug}.md`（能力愿景，不带日期前缀，扁平不分组）；中心索引 `requirements/VISION.md`
 - roadmap：`roadmap/{slug}/`（不带日期前缀，平铺不嵌套）
-- goal：`goals/{slug}/`（不带日期前缀；状态模型和双语报告见 `.codestable/reference/goal-conventions.md`）
+- goal：`goals/YYYY-MM-DD-{slug}/`（带创建日期；状态模型和报告见 `.codestable/reference/goal-conventions.md`）
 - feature / issue / refactor 目录：带日期前缀 `YYYY-MM-DD-{slug}`
 - 沉淀类：`compound/YYYY-MM-DD-{doc_type}-{slug}.md`，日期用**归档当天**
 - 架构 doc：`architecture/{type}-{slug}.md`（长效，不带日期前缀）；总入口固定 `ARCHITECTURE.md`
 - 项目注意事项入口固定为 `.codestable/attention.md`，所有 CodeStable 子技能启动前必须读取；不再兼容 `AGENTS.md` / `CLAUDE.md` 等外部入口
+
+### 报告语言策略
+
+- CodeStable 技能不在技能说明里硬编码报告语言；所有人读报告的正文语言以 `.codestable/attention.md` 的项目规则为准
+- attention 未写报告语言策略时，使用 owner 当前对话语言
+- 默认只写 canonical 报告文件；只有 attention 明确要求多语言副本时，才额外写 `{name}.{lang}.md`
+- 机器状态以 YAML / JSON / `state.yaml` 为准，不从不同语言的叙述反推状态
 
 ### 架构 doc 分组规则（同类聚合）
 

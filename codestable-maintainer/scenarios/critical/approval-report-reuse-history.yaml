@@ -1,0 +1,36 @@
+{
+  "id": "approval-report-reuse-history",
+  "fixture": "clean-onboarded-repo",
+  "runs": 1,
+  "actor": {
+    "context": "sterile",
+    "script": [
+      {
+        "write": {
+          "path": ".codestable/issues/2026-06-21-demo/approval-report.md",
+          "content": "---\ndoc_type: approval-report\nunit: .codestable/issues/2026-06-21-demo\nstatus: approved\nreason: fix-option\ncreated_at: 2026-06-21\n---\n\n# Approval Report\n\n## Decision Needed\nApproved option A on 2026-06-21.\n"
+        }
+      },
+      {"action": "new_approval_checkpoint"},
+      {
+        "write": {
+          "path": ".codestable/issues/2026-06-21-demo/approval-report.md",
+          "content": "---\ndoc_type: approval-report\nunit: .codestable/issues/2026-06-21-demo\nstatus: pending\nreason: risk\ncreated_at: 2026-06-21\n---\n\n# Approval Report\n\n## Decision History\n- 2026-06-21: owner approved option A.\n\n## Decision Needed\nApprove the new risk decision.\n"
+        }
+      }
+    ]
+  },
+  "expect": {
+    "trajectory": {
+      "required_actions": ["new_approval_checkpoint"],
+      "forbidden_actions": ["commit", "merge"]
+    },
+    "artifacts": {
+      "must_create": [".codestable/issues/2026-06-21-demo/approval-report.md"],
+      "contains": [
+        {"path": ".codestable/issues/2026-06-21-demo/approval-report.md", "text": "## Decision History"},
+        {"path": ".codestable/issues/2026-06-21-demo/approval-report.md", "text": "owner approved option A"}
+      ]
+    }
+  }
+}

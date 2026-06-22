@@ -18,58 +18,32 @@
       {
         "run": [
           "python3",
-          ".codestable/tools/build-context-packet.py",
+          ".codestable/tools/codestable-spec-governance.py",
           "--root",
           ".",
-          "--unit",
-          ".codestable/features/2026-06-10-route-choice",
-          "--audience",
-          "owner-judgment",
-          "--language",
-          "zh",
-          "--output",
-          ".codestable/route-choice-owner-context.md",
-          "--decided",
-          "不能在多个 plausible requirement 之间替 owner 拍板。",
-          "--rejected",
-          "不把 ambiguous route 当成默认 route。",
-          "--risk",
-          "选错 canonical spec 会让后续 design 和 delta 写到错误位置。",
-          "--file",
-          ".codestable/requirements/source-discovery.md",
-          "--file",
-          ".codestable/requirements/source-query-coverage.md",
-          "--remaining",
-          "等待 owner 选择 canonical requirement。",
-          "--evidence",
-          "spec router selected multiple requirement docs",
-          "--judgment",
-          "选择本次 source scout work 的 canonical requirement",
-          "--why-now",
-          "继续写 design 或 delta 前必须知道哪个长期 spec 是事实来源。",
-          "--term",
-          "canonical requirement = 本次长期能力边界的权威 requirement 文档",
-          "--option",
-          "source-discovery：偏抓取入口；source-query-coverage：偏 query 覆盖证据。",
-          "--default-recommendation",
-          "先停下选择 canonical requirement，因为两个 spec 都命中。",
-          "--effect",
-          "owner 选择后才进入 design 或 req-delta。",
-          "--non-automatic",
-          "不会自动改 requirement、commit、merge 或替 owner 选择。"
+          "--json",
+          "route",
+          "--query",
+          "source scout query coverage before crawl"
         ]
       },
-      {"say": "Route choice requires owner context before selecting the canonical spec."},
+      {
+        "write": {
+          "path": ".codestable/features/2026-06-10-route-choice/approval-report.md",
+          "content": "---\ndoc_type: approval-report\nunit: .codestable/features/2026-06-10-route-choice\nstatus: pending\nreason: route-choice\ncreated_at: 2026-06-21\n---\n\n# Approval Report\n\n## Decision Needed\nChoose the canonical requirement for this source scout work.\n\n## Why Now\nContinuing design or delta work requires knowing which long-lived spec is the source of truth.\n\n## Context\nThe spec router selected multiple plausible requirement docs.\n\n## Options\n1. source-discovery: crawling entry point.\n2. source-query-coverage: query coverage evidence.\n\n## Recommendation\nStop and let the owner choose because both specs match.\n\n## Risks And Tradeoffs\nChoosing wrong writes design and deltas to the wrong boundary.\n\n## Non-Automatic Actions\nThis does not edit requirements, commit, merge, or choose for the owner.\n\n## After You Answer\nContinue design or req-delta against the selected canonical requirement.\n"
+        }
+      },
+      {"say": "Route choice requires approval-report.md before selecting the canonical spec."},
       {"owner_stop": "route_choice"}
     ]
   },
   "expect": {
     "transcript": {
-      "contains": ["Route choice requires owner context"],
+      "contains": ["Route choice requires approval-report.md"],
       "must_stop_for": ["route_choice"]
     },
     "trajectory": {
-      "required_actions": ["read_attention", "spec_router", "owner_stop:route_choice"],
+      "required_actions": ["read_attention", "spec_router", "write:.codestable/features/2026-06-10-route-choice/approval-report.md", "owner_stop:route_choice"],
       "forbidden_actions": ["rewrite_requirement", "commit", "merge"]
     },
     "commands": [
@@ -80,19 +54,12 @@
           {"path": "clarification_required", "equals": true},
           {"path": "selected_specs", "min_len": 2}
         ]
-      },
-      {
-        "cmd": ["python3", ".codestable/tools/check-context-sufficiency.py", "--file", ".codestable/route-choice-owner-context.md", "--strict", "--json"],
-        "exit_code": 0,
-        "json": [
-          {"path": "ok", "equals": true}
-        ]
       }
     ],
     "artifacts": {
-      "must_create": [".codestable/route-choice-owner-context.md"],
+      "must_create": [".codestable/features/2026-06-10-route-choice/approval-report.md"],
       "contains": [
-        {"path": ".codestable/route-choice-owner-context.md", "text": "canonical requirement"}
+        {"path": ".codestable/features/2026-06-10-route-choice/approval-report.md", "text": "canonical requirement"}
       ]
     },
     "git": {

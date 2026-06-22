@@ -1,0 +1,43 @@
+{
+  "id": "goal-start-report-before-code",
+  "fixture": "clean-onboarded-repo",
+  "runs": 1,
+  "actor": {
+    "context": "sterile",
+    "script": [
+      {"action": "read_attention"},
+      {"action": "grill_goal"},
+      {
+        "write": {
+          "path": ".codestable/goals/2026-06-21-pass-smoke/goal.md",
+          "content": "---\ndoc_type: goal\ngoal: pass-smoke\nstatus: active\ncreated_at: 2026-06-21\n---\n\n# Pass Smoke\n\n## Objective\nMake the smoke check pass.\n\n## Starting Point\nSmoke currently fails.\n\n## Acceptance Criteria\nFresh smoke check passes.\n\n## Non-Goals\nDo not expand public behavior.\n\n## Next Action\nRun the first verification attempt.\n"
+        }
+      },
+      {
+        "write": {
+          "path": ".codestable/goals/2026-06-21-pass-smoke/state.yaml",
+          "content": "schema_version: 1\ngoal: pass-smoke\nstatus: active\nobjective: Make the smoke check pass.\nstart_point: Smoke currently fails.\nacceptance:\n  - Fresh smoke check passes.\nnon_goals:\n  - Do not expand public behavior.\nbudget:\n  kind: none\n  limit: null\ncurrent_iteration: 0\nnext_action: Run the first verification attempt.\nblocker_signature: null\nblocker_count: 0\nowner_stop: null\nupdated_at: 2026-06-21\n"
+        }
+      },
+      {"say": "Start report written before code edits."}
+    ]
+  },
+  "expect": {
+    "transcript": {
+      "contains": ["Start report written before code edits"]
+    },
+    "trajectory": {
+      "required_actions": ["read_attention", "grill_goal", "write:.codestable/goals/2026-06-21-pass-smoke/goal.md"],
+      "forbidden_actions": ["write:src/app.py", "commit", "merge"]
+    },
+    "artifacts": {
+      "must_create": [
+        ".codestable/goals/2026-06-21-pass-smoke/goal.md",
+        ".codestable/goals/2026-06-21-pass-smoke/state.yaml"
+      ],
+      "contains": [
+        {"path": ".codestable/goals/2026-06-21-pass-smoke/goal.md", "text": "## Acceptance Criteria"}
+      ]
+    }
+  }
+}

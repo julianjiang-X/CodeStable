@@ -65,7 +65,7 @@ CodeStable 把开发活动建模成一组**核心实体 + 4 个流程**，所有
 - **新增能力**：`cs-feat-design` → `cs-feat-impl` → `cs-feat-accept`（想法模糊先 `cs-brainstorm` 分诊）
 - **修 bug**：`cs-issue-report` → `cs-issue-analyze` → `cs-issue-fix`
 - **重构**（beta）：`cs-refactor` / `cs-refactor-ff`
-- **目标达成**：`cs-goal` 先轻量 grill，再自主实现 / 验证 / 迭代并写双语报告
+- **目标达成**：`cs-goal` 先轻量 grill 并写起点报告，再自主实现 / 验证 / 迭代，完成前做功能验收
 - **全局对话模式**：`interview me` 先轻量采访收集上下文；`grill me` 先压力测试边界和验收，再路由到具体流程
 
 **横切**：流程跑完发现"值得记下来" → `cs-learn` / `cs-trick` / `cs-decide` / `cs-explore` 沉淀到 `compound/`。
@@ -102,6 +102,16 @@ Context level 只用于说明轻重，不在 `cs` 阶段生成重型产物：
 - L3：会改变长期 spec、future agent 输入、capability boundary 或公开契约。
 - L4：旧 spec 漂移、冲突、source-of-truth 不清，需要 inventory / rehabilitation。
 
+L2/L3 需要 owner 做审批、选择、授权或接受风险时，子流程必须先按
+`.codestable/reference/approval-conventions.md` 在对应 unit 下写
+`approval-report.md`，除非 design / issue analysis / acceptance 等阶段报告已
+完整承载审批上下文。
+
+`cs` 本身通常只路由。唯一例外：route choice 本身就需要 owner 选择且还没有
+明确 unit 时，先把它当 intake decision，写
+`.codestable/brainstorms/{slug}/approval-report.md`，再 owner-stop。不要只给
+chat-only route-choice brief。
+
 升级触发器：
 
 - 需要 owner 判断方向、授权、接受风险或 finish/merge readiness；
@@ -109,14 +119,14 @@ Context level 只用于说明轻重，不在 `cs` 阶段生成重型产物：
 - fast path 发现 capability boundary、public contract、future-agent instruction 或 spec drift；
 - 旧文档冲突或不确定哪个 doc 是 canonical。
 
-如果路由不确定，停在 L2 route-choice brief，让用户选，不要硬猜。
+如果路由不确定，按上面的 intake `approval-report.md` 规则停下让用户选，不要硬猜。
 
 | 用户说什么 / 想做什么 | 路由到 |
 |---|---|
 | 仓库还没有 `.codestable/` | **先 `cs-onboard`**——所有其他 cs-* 都依赖这个目录 |
 | "interview me" / "采访我" / "先问我" / "问清楚再说" | `cs` interaction mode（先一问一答收集上下文，再路由；不新建 `cs-interview`） |
 | "grill me" / "拷问我" / "追问我" / "多问几轮" 且没有明确验收终点 | `cs-brainstorm` 的 grill mode（压测想法边界，不误当成 goal） |
-| 限定起点和终点 / 明确验收结果 / "帮我达成这个 goal" / "自主迭代直到完成" / "grill me 后开干" | `cs-goal`（目标状态 + 双语 iteration 报告；实现细节由 AI 自主推进） |
+| 限定起点和终点 / 明确验收结果 / "帮我达成这个 goal" / "自主迭代直到完成" / "grill me 后开干" | `cs-goal`（起点 / iteration 报告；报告语言由 attention 决定；实现细节由 AI 自主推进；完成前做功能验收） |
 | 想法还模糊 / "有想法没想清楚" / "先聊聊" / "不知道是不是新功能" | `cs-brainstorm`（分诊后路由到 design / feature-brainstorm 落盘 / roadmap） |
 | 新功能 / "加个 X" / "实现 XX" | `cs-feat`（路由 design / ff / impl / accept） |
 | BUG / 异常 / 报错 / "这里不对" / "文档错了" | `cs-issue`（路由 report / analyze / fix） |
@@ -142,7 +152,7 @@ Context level 只用于说明轻重，不在 `cs` 阶段生成重型产物：
 | Route | Default context | Escalate when |
 |---|---|---|
 | `cs-onboard` | L2/L4 | Existing docs need inventory, migration, or trusted/stale classification. |
-| `cs-goal` | L1/L2 | Missing acceptance/start state needs grill; spec/public contract change or repeated blocker raises to L3/L2 owner-stop. |
+| `cs-goal` | L1/L2 | Missing acceptance/start state needs grill plus start report; completion needs functional acceptance; spec/public contract change or repeated blocker raises to owner-stop. |
 | `cs-brainstorm` | L1 -> L2 | Owner accepts a direction or asks for next executable step. |
 | `cs-roadmap` | L2/L3 | Roadmap implies spec changes, capability boundaries, or requirement deltas. |
 | `cs-feat` | L1 | Stage is ambiguous or user must choose design / ff / impl / accept. |
@@ -176,7 +186,7 @@ Context level 只用于说明轻重，不在 `cs` 阶段生成重型产物：
 
 ### goal 被误当成 feature / brainstorm
 
-用户同时给出**起点、终点 / 验收结果**，并希望 AI 自主实现、自我迭代或每轮写报告 → 优先路由 `cs-goal`。`cs-goal` 可以在内部引用 feature / issue / refactor，但状态和迭代报告归 `.codestable/goals/{slug}/`。
+用户同时给出**起点、终点 / 验收结果**，并希望 AI 自主实现、自我迭代或每轮写报告 → 优先路由 `cs-goal`。`cs-goal` 会先把 interview / grill 落成起点报告，报告语言由 `.codestable/attention.md` 决定，完成前做功能验收；它可以在内部引用 feature / issue / refactor，但状态和迭代报告归 `.codestable/goals/YYYY-MM-DD-{slug}/`。
 
 ### interview / grill 被误当成独立流程
 

@@ -35,11 +35,12 @@ description: 把新仓库或有零散文档的仓库接入 CodeStable 体系，�
 ├── features/                   feature 聚合根
 ├── issues/                     issue 聚合根
 ├── refactors/                  refactor 聚合根
-├── brainstorm/                 brainstorming 聚合根
+├── brainstorms/                brainstorming 聚合根
 ├── compound/                   沉淀类统一目录（learning / trick / decision / explore）
 ├── tools/                      跨工作流共享脚本（onboard 释放）
 │   ├── codestable-doctor.py
 │   ├── codestable-ai-branch-guard.py
+│   ├── codestable-main-publish.py
 │   ├── codestable-worktree-gate.py
 │   ├── codestable_common.py
 │   ├── build-review-packet.py
@@ -56,6 +57,7 @@ description: 把新仓库或有零散文档的仓库接入 CodeStable 体系，�
 └── reference/                  跨子技能共享参考（onboard 释放）
     ├── shared-conventions.md
     ├── execution-conventions.md
+    ├── approval-conventions.md
     ├── goal-conventions.md
     ├── interaction-modes.md
     ├── tools.md                  工具参考索引，完整内容在 tools-part*.md
@@ -96,7 +98,7 @@ description: 把新仓库或有零散文档的仓库接入 CodeStable 体系，�
 
 按下面顺序执行，**不等用户逐步确认**——骨架是整体一次性的：
 
-- `.codestable/{requirements,roadmap,goals,features,issues,refactors,compound,brainstorm}/.gitkeep`
+- `.codestable/{requirements,roadmap,goals,features,issues,refactors,compound,brainstorms}/.gitkeep`
 - `.codestable/attention.md`（最小骨架模板见同目录 `reference.md`）
 - `.codestable/architecture/ARCHITECTURE.md`（占位模板见同目录 `reference.md`）
 - `.codestable/tools/`（用 `cp -rf` / `Copy-Item -Recurse -Force` 整目录拷贝技能包 `cs-onboard/tools/`，**不要 Read 再 Write**）
@@ -106,7 +108,7 @@ description: 把新仓库或有零散文档的仓库接入 CodeStable 体系，�
 
 **步骤 3：attention.md 提醒**
 
-attention.md 已创建但默认只有空骨架。汇报时提醒用户：有编译前置、测试命令、目录禁区、凭证规则这类"每次 CodeStable 技能启动都必须知道"的信息，后续用 `cs-note` 一条条追加。
+attention.md 已创建但默认只有空骨架。汇报时提醒用户：有编译前置、测试命令、目录禁区、凭证规则、报告语言偏好这类"每次 CodeStable 技能启动都必须知道"的信息，后续用 `cs-note` 一条条追加。
 
 **步骤 4：验收汇报**
 
@@ -215,7 +217,8 @@ Copy-Item -Recurse -Force <技能包路径>\cs-onboard\reference\*  .codestable\
 - `.codestable/reference/system-overview.md` — CodeStable 体系总览
 - `.codestable/reference/shared-conventions.md` — 目录结构和共享口径的权威版本
 - `.codestable/reference/execution-conventions.md` — worktree / review / finish / commit 执行约定
-- `.codestable/reference/goal-conventions.md` — goal 状态模型和双语 iteration 报告约定
+- `.codestable/reference/approval-conventions.md` — owner 审批报告和 `approval-report.md` 约定
+- `.codestable/reference/goal-conventions.md` — goal 状态模型、报告和 owner-stop 约定
 - `.codestable/reference/interaction-modes.md` — `interview me` / `grill me` 的全局对话模式约定
 - `.codestable/reference/branch-guard-hooks.md` — 禁止 AI 切主检出分支 / 在 main 或 master 上实现的 hook 配置
 - `.codestable/attention.md` — CodeStable 技能启动必读的项目注意事项

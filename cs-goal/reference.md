@@ -5,17 +5,16 @@ Use this file for templates and recovery rules after `cs-goal` triggers.
 ## Directory
 
 ```text
-.codestable/goals/{slug}/
+.codestable/goals/YYYY-MM-DD-{slug}/
 ├── state.yaml
-├── goal.zh.md
-├── goal.en.md
+├── goal.md
+├── functional-acceptance.md
 └── iterations/
-    ├── 001.zh.md
-    └── 001.en.md
+    └── 001.md
 ```
 
-`{slug}` is short English kebab-case. Reuse an active matching goal instead of
-creating a duplicate.
+`{slug}` is short English kebab-case. The date is the goal creation date. Reuse
+an active matching goal instead of creating a duplicate.
 
 ## state.yaml Schema
 
@@ -46,6 +45,14 @@ Recovery priority:
 2. latest iteration frontmatter
 3. Markdown body
 
+## Report Language
+
+Use the report language policy in `.codestable/attention.md` for prose. If
+attention has no policy, use the owner's current conversation language.
+
+Use canonical unsuffixed files by default. Add language-suffixed copies only
+when attention explicitly requires multiple language copies.
+
 ## Next Iteration Number
 
 `state.yaml.current_iteration` means the last completed iteration, not the next
@@ -54,46 +61,21 @@ in-progress attempt.
 Before changing `current_iteration`, compute the next `{nnn}` as:
 
 ```text
-max(state.yaml.current_iteration, highest existing iterations/{nnn}.*.md) + 1
+max(state.yaml.current_iteration, highest existing iterations/{nnn}*.md) + 1
 ```
 
-Format it with three digits, then write both language files and leave
+Format it with three digits, write `iterations/{nnn}.md`, and leave
 `state.yaml.current_iteration` equal to that completed number. Never overwrite
 an existing iteration file.
 
-## goal.zh.md Template
+## goal.md Template
 
 ```markdown
 ---
 doc_type: goal
 goal: {slug}
-language: zh
 status: active
----
-
-# {目标名}
-
-## 目标
-
-## 起点
-
-## 验收标准
-
-## 明确不做
-
-## 当前状态
-
-## 下一步
-```
-
-## goal.en.md Template
-
-```markdown
----
-doc_type: goal
-goal: {slug}
-language: en
-status: active
+created_at: YYYY-MM-DD
 ---
 
 # {Goal Name}
@@ -106,13 +88,12 @@ status: active
 
 ## Non-Goals
 
-## Current State
+## Owner Decisions
+
+## Unresolved Assumptions
 
 ## Next Action
 ```
-
-The Chinese and English files must be content-equivalent, not summary versus
-full detail.
 
 ## Iteration Frontmatter
 
@@ -121,7 +102,6 @@ full detail.
 doc_type: goal-iteration
 goal: "{slug}"
 iteration: 1
-language: zh # zh | en
 status_after: active # active | complete | blocked
 next_action: "{same meaning as state.yaml}"
 blocker_signature: null
@@ -129,27 +109,10 @@ updated_at: "YYYY-MM-DD"
 ---
 ```
 
-## Chinese Iteration Headings
+## Iteration Headings
 
-```markdown
-# Iteration 001
-
-## 本轮理解
-
-## 实现方式
-
-## 本轮变更
-
-## 验证证据
-
-## 遇到的问题
-
-## 下一步尝试
-
-## 状态更新
-```
-
-## English Iteration Headings
+Write headings in the project report language while preserving these section
+semantics:
 
 ```markdown
 # Iteration 001
@@ -169,9 +132,6 @@ updated_at: "YYYY-MM-DD"
 ## State Update
 ```
 
-Both language files should carry the same facts, evidence, risks, and next
-action. Translate meaning, not word order.
-
 ## Iteration Rules
 
 - Write reports only at iteration end.
@@ -179,8 +139,27 @@ action. Translate meaning, not word order.
 - If nothing changed, say so and explain what was learned.
 - Keep historical failed attempts in iteration reports; do not rewrite them into
   success.
-- Update `state.yaml` with the iteration pair so resume sees the same
+- Update `state.yaml` with the iteration report so resume sees the same
   completed iteration, next action, and status that humans read.
+
+## Functional Acceptance Report
+
+Before `status: complete`, dispatch a subagent for product-facing functional
+acceptance. Record the result in `functional-acceptance.md`.
+
+The report must include:
+
+- reviewer and subagent role;
+- acceptance criteria checked;
+- functional evidence;
+- verdict;
+- residual risks;
+- the final iteration that cites this acceptance.
+
+Tests, linters, and builds are verification evidence, but completion requires
+subagent functional acceptance. If subagent dispatch is unavailable or not
+authorized, write `approval-report.md` and owner-stop instead of marking the
+goal complete.
 
 ## Owner Stop Record
 
@@ -194,7 +173,7 @@ owner_stop: "{question or approval needed}"
 next_action: "Wait for owner decision on {topic}."
 ```
 
-The latest iteration pair must explain:
+The latest iteration report or `approval-report.md` must explain:
 
 - what decision is needed;
 - why AI cannot safely continue;

@@ -58,7 +58,9 @@ validator, harness tool, or README, switch to the source repo before editing.
    codestable-maintainer/tools/verify.py ... --sync-installed --json` command.
 10. Do not sync real installed roots from a feature branch. To make a CodeStable
     change globally available, merge it to `main`, push `origin/main`, then run
-    the verifier from a clean `main` checkout:
+    the verifier from a clean `main` checkout. Protected-branch merge / push
+    should be wrapped in `codestable-main-publish.py begin` / `end` with
+    explicit owner intent; do not use bare `--no-verify` as the normal path:
     `python3 codestable-maintainer/tools/verify.py --repo . --branch main --remote origin --installed-root "${CODEX_HOME:-$HOME/.codex}/skills" --sync-installed --json`.
     Real installed roots are synchronized only from remote `main`.
 11. For changed source files that are not installed directly, record
@@ -78,6 +80,9 @@ python3 codestable-maintainer/tools/verify.py --repo . --branch <branch> --remot
 For real installed-copy deployment, first merge and push `origin/main`, then run:
 
 ```bash
+python3 cs-onboard/tools/codestable-main-publish.py --root . --json begin --owner-intent "owner approved publishing CodeStable changes to main" --branch <branch>
+# merge, validate, and push main while the intent is active
+python3 cs-onboard/tools/codestable-main-publish.py --root . --json end
 python3 codestable-maintainer/tools/verify.py --repo . --branch main --remote origin --installed-root "${CODEX_HOME:-$HOME/.codex}/skills" --sync-installed --json
 ```
 
@@ -113,14 +118,18 @@ For CodeStable harness roadmap or design work, read
 `references/harness-implementation-plan.md` and relevant
 `harness-implementation-plan-part*.md` files when the task asks what to build
 next. For the implemented behavior runner, read
-`references/behavior-harness-tool.md`. For global `cs` routing, owner-review context, owner-judgment context,
+`references/behavior-harness-tool.md`. For global `cs` routing, owner approval reports,
 context levels, owner-stop/skip rules, finish-time checks, or harness coverage
 across routed workflows, also read `references/global-route-governance.md`. For
 spec drift, requirement delta, clarification, or human-readable spec governance
 work, read `references/spec-governance-roadmap.md` and the relevant
-`spec-governance-roadmap-part*.md` file. Together they capture the
-current proposal derived from GammaSource, BetaSoul, and CodeStable workflow
-failures:
+`spec-governance-roadmap-part*.md` file. Older references to owner context,
+owner decision context, or owner judgment context mean auxiliary context only;
+current approval checkpoints write `approval-report.md` unless a canonical
+stage report fully satisfies the L2 rule. Human-facing reports follow the
+project report language policy in `.codestable/attention.md`. Together they
+capture the current proposal derived from GammaSource, BetaSoul, and CodeStable
+workflow failures:
 
 - `codestable-doctor`
 - worktree start/commit/recovery gates

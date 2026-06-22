@@ -5,4 +5,4 @@
 ## Parts
 
 - [Part 1: Search, YAML, Review, Doctor, Worktree, Review Packet, Context Packet](tools-part1-search-validate-review-context.md)
-- [Part 2: Context Sufficiency, Finish Worktree, Inbox, Plan Commits, Backlog](tools-part2-context-finish-plan-backlog.md)
+- [Part 2: Context Sufficiency, Finish Worktree, Inbox, Plan Commits, Backlog, Main Publish](tools-part2-context-finish-plan-backlog.md)

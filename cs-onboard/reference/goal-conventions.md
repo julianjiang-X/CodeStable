@@ -7,8 +7,9 @@ for `cs-goal`.
 ## Purpose
 
 Goals are bounded start/end work units. The owner defines the outcome and
-acceptance signal; AI grills briefly, implements, verifies, self-iterates, and
-writes bilingual reports.
+acceptance signal; AI interviews / grills briefly, writes a start report,
+implements, verifies, self-iterates, and writes iteration reports. A goal can
+close only after subagent functional acceptance of the produced result.
 
 Use goals when the request says "reach this result", "run until accepted",
 "self-iterate", "AI implements autonomously", or "grill me first, then
@@ -19,21 +20,40 @@ known. Without a start/end objective or observable acceptance, use the global
 interaction modes in `.codestable/reference/interaction-modes.md`, usually via
 `cs-brainstorm`.
 
+## Report Language
+
+All goal report prose follows `.codestable/attention.md`. If attention has no
+report language policy, use the owner's current conversation language. Do not
+hard-code required two-language report pairs in this shared convention.
+
+Use the canonical unsuffixed files below by default. Add language-suffixed
+copies only when attention explicitly requires multiple language copies.
+
 ## Directory
 
 ```text
-.codestable/goals/{slug}/
+.codestable/goals/YYYY-MM-DD-{slug}/
 ├── state.yaml
-├── goal.zh.md
-├── goal.en.md
+├── goal.md
+├── functional-acceptance.md
 └── iterations/
-    ├── 001.zh.md
-    └── 001.en.md
+    └── 001.md
 ```
+
+The directory date is the goal creation date. `state.yaml.goal` remains the bare
+slug so humans and agents can compare related dated units without parsing the
+filesystem name.
 
 `state.yaml` is the machine source of truth. Markdown is human-readable context.
 Recovery priority is `state.yaml` > latest iteration frontmatter > Markdown
 body.
+
+`functional-acceptance.md` is created only during the terminal acceptance gate,
+not as an empty file at goal start.
+
+`goal.md` is the start report from interview / grill. It must exist before
+implementation and include objective, start point, acceptance, non-goals, owner
+decisions, unresolved assumptions, and next action.
 
 ## State Model
 
@@ -66,24 +86,33 @@ in-progress attempt.
 Before changing `current_iteration`, compute the next `{nnn}` as:
 
 ```text
-max(state.yaml.current_iteration, highest existing iterations/{nnn}.*.md) + 1
+max(state.yaml.current_iteration, highest existing iterations/{nnn}*.md) + 1
 ```
 
-Write both `iterations/{nnn}.zh.md` and `iterations/{nnn}.en.md`, then leave
-`state.yaml.current_iteration` equal to that completed number. Never overwrite
-an existing iteration file.
+Write `iterations/{nnn}.md`, then leave `state.yaml.current_iteration` equal to
+that completed number. Never overwrite an existing iteration file. If attention
+requires language variants, write the corresponding `iterations/{nnn}.{lang}.md`
+copies as well.
 
 ## Reporting
 
-Each completed iteration writes two equivalent files:
+Each completed iteration writes the canonical report:
 
-- `iterations/{nnn}.zh.md`
-- `iterations/{nnn}.en.md`
+- `iterations/{nnn}.md`
 
 Reports are not command logs. One iteration equals a coherent implementation and
-verification attempt. Both languages must include the same understanding,
-implementation approach, changes, verification evidence, problems, next attempt,
-and state update.
+verification attempt. Include the same semantic content even when attention
+requires extra language variants: understanding, implementation approach,
+changes, verification evidence, problems, next attempt, and state update.
+
+Before `status: complete`, write:
+
+- `functional-acceptance.md`
+
+This report records subagent functional acceptance of the product / artifact
+against the owner acceptance criteria. Include reviewer, scope, functional
+evidence, verdict, residual risks, and the final iteration that cites it. Tests
+alone are not enough to complete a goal.
 
 ## Strict Owner Stops
 
@@ -96,6 +125,7 @@ Stop only when:
 - the same blocker repeats for three consecutive iterations;
 - budget is exhausted or nearly exhausted;
 - risk acceptance, secrets, destructive action, external purchase, merge, or
-  deployment approval is required.
+  deployment approval is required;
+- required functional acceptance is unavailable or refused.
 
 Routine technical choices and ordinary failed attempts stay AI-owned.

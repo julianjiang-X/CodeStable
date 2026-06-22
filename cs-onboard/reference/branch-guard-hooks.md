@@ -10,6 +10,9 @@ meant to run before AI tool calls, and it can also install Git hook fallbacks.
 - AI must use a linked execution worktree on a `codex/...` branch for code work.
 - Planning files such as `.codestable/**` can still be edited in the coordinator
   checkout when the agent hook payload names those files directly.
+- Owner-approved main publishing uses `codestable-main-publish.py begin` / `end`
+  to create a short-lived audited intent. Do not use bare `--no-verify` as the
+  normal path for merge / push.
 
 Git cannot stop branch switches before they happen, so command-hook enforcement
 is the primary guard. Git hooks only catch commit, merge, rebase, and push
@@ -44,6 +47,18 @@ Installed fallbacks:
 - `pre-push`: blocks protected-branch pushes.
 
 Use `--force` only when replacing an existing local hook is intentional.
+
+For an owner-approved main publish:
+
+```bash
+python3 .codestable/tools/codestable-main-publish.py --root . --json begin --owner-intent "owner approved publishing this branch to main" --branch codex/example
+# merge the declared branch, validate, push main
+python3 .codestable/tools/codestable-main-publish.py --root . --json end
+```
+
+The intent must name the target branch, remote, owner intent, and declared merge
+refs. The branch guard still blocks branch switching, force pushes, undeclared
+merge refs, and pushes to non-target branches.
 
 ## Recovery
 

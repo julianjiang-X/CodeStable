@@ -14,8 +14,9 @@ CodeStable separates discussion / planning from code edits:
   refactor uses its own git worktree and `codex/...` branch unless the owner
   explicitly approves direct edits in the current checkout.
 
-Goal work may use `.codestable/goals/{slug}` as the wrapper unit, but code edits
-still obey the feature / issue / refactor worktree rules when those flows apply.
+Goal work may use `.codestable/goals/YYYY-MM-DD-{slug}` as the wrapper unit, but
+code edits still obey the feature / issue / refactor worktree rules when those
+flows apply.
 
 ## Short Correct Usage
 
@@ -41,7 +42,8 @@ through:
 - owner-designated temporary coordination docs
 
 If an execution worktree discovers the plan must change, sync the plan change
-back through the shared planning surface or stop for owner judgment.
+back through the shared planning surface or stop for owner judgment with an
+`approval-report.md` when no stage report already carries the decision context.
 
 ## Before Creating An Execution Worktree
 
@@ -77,7 +79,8 @@ completed implementation batch. Review is a completion gate, not a commit-time
 afterthought.
 
 If the current conversation has no subagent / delegation authorization, ask with
-owner judgment context before implementation review:
+owner judgment context before implementation review. When this is not already
+captured in a stage report, write `{unit}/approval-report.md` first:
 
 ```text
 Context: CodeStable requires independent implementation review before completion.
@@ -123,8 +126,13 @@ python3 .codestable/tools/build-context-packet.py --root . --unit .codestable/fe
 For human-facing reports:
 
 ```bash
-python3 .codestable/tools/build-context-packet.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --audience human-reviewer --language zh --output /tmp/codestable-human-review.md --decided "{已决定}" --remaining "{下一步}" --evidence "{验证证据}"
+python3 .codestable/tools/build-context-packet.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --audience human-reviewer --language {en-or-zh} --output /tmp/codestable-human-review.md --decided "{decided}" --remaining "{next step}" --evidence "{verification evidence}"
 ```
+
+Choose `{en-or-zh}` by mapping `.codestable/attention.md` to a supported tool
+language. If the project's report language policy is not covered by the tool's
+`--language` choices, write or adapt the human-facing report in the project
+language instead of passing the raw attention prose as a CLI value.
 
 Run sufficiency gate before sending:
 

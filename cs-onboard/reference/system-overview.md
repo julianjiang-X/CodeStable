@@ -19,11 +19,11 @@ CodeStable 把这几类场景各配一套子技能，产物放进统一的目录
 - `cs-feat` — 新功能,design → implement → acceptance（想法还模糊时先走讨论层 `cs-brainstorm` 做分诊，不属于 feature 流程内部）
 - `cs-issue` — 修 bug,report → analyze → fix
 - `cs-refactor` — 代码优化(行为不变、结构/性能/可读性变),scan → design → apply
-- `cs-goal` — 限定起点和终点的目标达成,先 grill 对齐，再自主迭代并写中英文报告
+- `cs-goal` — 限定起点和终点的目标达成,先 grill 对齐并写起点报告，再自主迭代，完成前做功能验收
 
-这些流程都先建立可恢复的上下文，再让 AI 动手；goal 场景把状态放进 `state.yaml`，feature / issue / refactor 则用各自 spec 或 analysis。这样能控制术语冲突、范围失控、改完不留存档这三种 AI 默认会出的问题。
+这些流程都先建立可恢复的上下文，再让 AI 动手；goal 场景把状态放进 `state.yaml`，需要 owner 审批、选择、授权或接受风险但没有阶段报告承载上下文时，先在对应目录写 `approval-report.md`。feature / issue / refactor 则用各自 spec 或 analysis。这样能控制术语冲突、范围失控、改完不留存档这三种 AI 默认会出的问题。
 
-默认执行拓扑：在主协调检出（通常是 `main`）讨论需求、写 plan/spec/checklist；真正改代码时为每个 feature / issue / refactor 创建独立 worktree 和独立 `codex/...` 分支，不在主协调检出里 `git switch/checkout`。不同 worktree 不互读未合并代码，只通过 `.codestable/` 下已同步的 plan/spec/roadmap/compound 文档互通意图。每个 worktree 写完一批可验收代码后，输出实现完成汇报前必须用 subagent 做独立 code review，并把证据写入同一目录的 `{slug}-implementation-review.md`；运行 finish gate 生成中文学习报告和 merge readiness 后，推荐把这些产物作为功能分支最后一个小提交；只有用户明确授权后才合并回 `main`。
+默认执行拓扑：在主协调检出（通常是 `main`）讨论需求、写 plan/spec/checklist；真正改代码时为每个 feature / issue / refactor 创建独立 worktree 和独立 `codex/...` 分支，不在主协调检出里 `git switch/checkout`。不同 worktree 不互读未合并代码，只通过 `.codestable/` 下已同步的 plan/spec/roadmap/compound 文档互通意图。每个 worktree 写完一批可验收代码后，输出实现完成汇报前必须用 subagent 做独立 code review，并把证据写入同一目录的 `{slug}-implementation-review.md`；运行 finish gate 生成学习报告和 merge readiness 后，按 attention 的报告语言策略保持人读正文一致，推荐把这些产物作为功能分支最后一个小提交；只有用户明确授权后才合并回 `main`。
 
 **沉淀**——把做事过程产生的知识存下来,下次遇到同类问题直接复用:
 
@@ -110,7 +110,8 @@ AI 最常见的问题是一口气铺几百行代码才让人看——等发现�
 
 - `.codestable/reference/shared-conventions.md` — 目录结构、YAML frontmatter 口径、`{slug}-checklist.yaml` 生命周期、收尾 commit 约定、归档类共享规则
 - `.codestable/reference/execution-conventions.md` — worktree、review、finish、commit 和 handoff 执行约定
-- `.codestable/reference/goal-conventions.md` — goal 状态模型、双语报告和 owner-stop 约定
+- `.codestable/reference/approval-conventions.md` — owner 审批报告和 `approval-report.md` 约定
+- `.codestable/reference/goal-conventions.md` — goal 状态模型、报告和 owner-stop 约定
 - `.codestable/reference/interaction-modes.md` — `interview me` / `grill me` 的全局对话模式约定
 - `.codestable/reference/tools.md` + `tools-part*.md` — 常用共享工具用法
 - `.codestable/reference/spec-governance-tools.md` — spec routing、clarification、req delta、inventory、analyze 工具用法

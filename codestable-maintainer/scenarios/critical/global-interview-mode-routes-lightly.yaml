@@ -29,7 +29,6 @@
       "must_not_create": [
         ".codestable/goals/**",
         ".codestable/features/**",
-        ".codestable/brainstorm/**",
         ".codestable/brainstorms/**",
         ".codestable/interviews/**"
       ]

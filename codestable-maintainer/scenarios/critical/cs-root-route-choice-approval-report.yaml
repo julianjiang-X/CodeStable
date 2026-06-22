@@ -1,0 +1,35 @@
+{
+  "id": "cs-root-route-choice-approval-report",
+  "fixture": "ambiguous-requirements-repo",
+  "runs": 1,
+  "actor": {
+    "context": "sterile",
+    "script": [
+      {"action": "read_attention"},
+      {
+        "write": {
+          "path": ".codestable/brainstorms/route-choice/approval-report.md",
+          "content": "---\ndoc_type: approval-report\nunit: route-choice\nstatus: pending\nreason: route-choice\ncreated_at: 2026-06-21\n---\n\n# Approval Report\n\n## Decision Needed\nChoose the canonical route before changing long-lived specs.\n\n## Why Now\nThe prompt matches multiple workflows.\n\n## Options\n1. Continue as feature design (recommended).\n2. Stop for requirement clarification.\n\n## Non-Automatic Actions\nThis does not rewrite requirements or start implementation.\n"
+        }
+      },
+      {"say": "Route choice requires approval-report.md before selecting the canonical workflow."},
+      {"owner_stop": "route_choice"}
+    ]
+  },
+  "expect": {
+    "transcript": {
+      "contains": ["approval-report.md"],
+      "must_stop_for": ["route_choice"]
+    },
+    "artifacts": {
+      "must_create": [".codestable/brainstorms/route-choice/approval-report.md"],
+      "contains": [
+        {"path": ".codestable/brainstorms/route-choice/approval-report.md", "text": "reason: route-choice"},
+        {"path": ".codestable/brainstorms/route-choice/approval-report.md", "text": "This does not rewrite requirements"}
+      ]
+    },
+    "git": {
+      "must_not_modify": [".codestable/requirements/*.md", "src/**"]
+    }
+  }
+}

@@ -33,6 +33,7 @@ cs-learn / cs-trick / cs-decide 产出独立 markdown 文件，**通过检索**�
 - "项目用 yarn berry，**别**用 `npm install`"
 - "测试命令是 `bun test`，不是 `npm test`"
 - "src/legacy/ 是历史代码，改之前先问"
+- "人读报告正文使用中文；默认只写 canonical 报告文件，不自动写双语副本"
 - "`OPENAI_KEY` 走 1Password，别从 .env.example 复制"
 
 ❌ **典型不该进**（会让 attention.md 膨胀）：
@@ -77,6 +78,8 @@ attention.md 是 CodeStable 自己的启动注意事项入口，价值来自所�
 ### 命令与脚本陷阱
 
 ### 路径与目录约定
+
+### 报告语言策略
 
 ### 环境变量与凭证
 

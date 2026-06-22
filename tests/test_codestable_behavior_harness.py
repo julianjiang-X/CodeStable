@@ -28,6 +28,9 @@ behavior_harness = load_tool("agent_behavior_harness_for_tests", MAINTAINER_TOOL
 
 CRITICAL_SCENARIO_IDS = {
     "accept-analyze-spec-drift",
+    "approval-report-before-owner-stop",
+    "approval-report-pending-not-overwritten",
+    "approval-report-reuse-history",
     "backlog-canceled-not-blocker",
     "backlog-visible",
     "blank-validation-rejected",
@@ -36,6 +39,7 @@ CRITICAL_SCENARIO_IDS = {
     "capability-status-answer",
     "compact-resume-next-action",
     "compacted-worktree-start-gate",
+    "cs-root-route-choice-approval-report",
     "cs-route-brief-minimal",
     "doctor-preexisting-findings-separated",
     "drifted-spec-inventory",
@@ -52,6 +56,8 @@ CRITICAL_SCENARIO_IDS = {
     "guide-user-contract-review",
     "goal-autonomous-iteration-docs",
     "goal-code-edits-use-execution-gate",
+    "goal-functional-acceptance-before-complete",
+    "goal-start-report-before-code",
     "handoff-context-packet",
     "implementation-review-required",
     "issue-fix-escalates-on-wrong-spec",

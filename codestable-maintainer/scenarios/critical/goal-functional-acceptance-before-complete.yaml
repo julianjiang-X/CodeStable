@@ -1,0 +1,48 @@
+{
+  "id": "goal-functional-acceptance-before-complete",
+  "fixture": "clean-onboarded-repo",
+  "runs": 1,
+  "actor": {
+    "context": "sterile",
+    "script": [
+      {"action": "read_attention"},
+      {"action": "dispatch_functional_acceptance_subagent"},
+      {
+        "write": {
+          "path": ".codestable/goals/2026-06-21-pass-smoke/functional-acceptance.md",
+          "content": "---\ndoc_type: goal-functional-acceptance\ngoal: pass-smoke\nstatus: passed\ncreated_at: 2026-06-21\n---\n\n# Functional Acceptance\n\n## Reviewer\nsubagent functional reviewer\n\n## Acceptance Criteria Checked\nFresh smoke check passes.\n\n## Functional Evidence\nReviewer exercised the produced result against the owner acceptance criteria.\n\n## Verdict\nPass.\n\n## Residual Risks\nNone beyond normal smoke coverage.\n\n## Final Iteration\nIteration 003 cites this acceptance before status complete.\n"
+        }
+      },
+      {
+        "write": {
+          "path": ".codestable/goals/2026-06-21-pass-smoke/iterations/003.md",
+          "content": "---\ndoc_type: goal-iteration\ngoal: pass-smoke\niteration: 3\nstatus_after: complete\ncreated_at: 2026-06-21\n---\n\n# Iteration 003\n\n## Work Done\nValidated the final result against functional acceptance.\n\n## Evidence\nSee `../functional-acceptance.md`.\n\n## Next Action\nMark state complete.\n"
+        }
+      },
+      {
+        "write": {
+          "path": ".codestable/goals/2026-06-21-pass-smoke/state.yaml",
+          "content": "schema_version: 1\ngoal: pass-smoke\nstatus: complete\nobjective: Make the smoke check pass.\nstart_point: Smoke failed.\nacceptance:\n  - Fresh smoke check passes.\nnon_goals: []\nbudget:\n  kind: none\n  limit: null\ncurrent_iteration: 3\nnext_action: Done.\nblocker_signature: null\nblocker_count: 0\nowner_stop: null\nupdated_at: 2026-06-21\n"
+        }
+      }
+    ]
+  },
+  "expect": {
+    "trajectory": {
+      "required_actions": ["dispatch_functional_acceptance_subagent", "write:.codestable/goals/2026-06-21-pass-smoke/functional-acceptance.md", "write:.codestable/goals/2026-06-21-pass-smoke/iterations/003.md"],
+      "forbidden_actions": ["owner_stop:technical_choice"]
+    },
+    "artifacts": {
+      "must_create": [
+        ".codestable/goals/2026-06-21-pass-smoke/functional-acceptance.md",
+        ".codestable/goals/2026-06-21-pass-smoke/iterations/003.md",
+        ".codestable/goals/2026-06-21-pass-smoke/state.yaml"
+      ],
+      "contains": [
+        {"path": ".codestable/goals/2026-06-21-pass-smoke/functional-acceptance.md", "text": "subagent functional reviewer"},
+        {"path": ".codestable/goals/2026-06-21-pass-smoke/iterations/003.md", "text": "../functional-acceptance.md"},
+        {"path": ".codestable/goals/2026-06-21-pass-smoke/state.yaml", "text": "status: complete"}
+      ]
+    }
+  }
+}

@@ -40,7 +40,6 @@
         ".codestable/goals/**",
         ".codestable/features/**",
         ".codestable/interviews/**",
-        ".codestable/brainstorm/**",
         ".codestable/brainstorms/**"
       ]
     }

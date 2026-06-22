@@ -108,8 +108,8 @@ eval. Use `live-codex` scenarios when grading actual Codex behavior.
 The current critical suite covers:
 
 - route brief stays lightweight;
-- ambiguous route choices produce owner context before selecting a canonical
-  requirement;
+- ambiguous route choices write `approval-report.md` before selecting a
+  canonical requirement;
 - fast paths stay light for local refactors and small UI tweaks, record a
   lightweight note, and leave long-lived requirements unchanged;
 - fast paths that discover capability-boundary changes escalate to L3 before
@@ -120,7 +120,7 @@ The current critical suite covers:
   from worktree inbox artifacts instead of chat;
 - long-context noise does not bypass attention reads, spec routing, owner stops,
   or forbidden mutation checks;
-- brainstorm convergence writes owner decision context and stops before formal
+- brainstorm convergence writes `approval-report.md` and stops before formal
   spec changes;
 - ambiguous spec routing stops for clarification;
 - capability-boundary work creates a req delta;
@@ -131,10 +131,14 @@ The current critical suite covers:
   before cleanup or rewrite;
 - long-lived requirements are not freely rewritten without an approved delta or
   owner clarification;
-- guide/libdoc updates that change user-visible understanding require owner
-  review context before public contract mutation;
+- guide/libdoc updates that change user-visible understanding require
+  `approval-report.md` before public contract mutation;
 - implementation starts only in a linked execution worktree, and a path named
   `.codex/worktrees/...` is not enough by itself;
+- goal starts write interview / grill reports under dated goal directories
+  before code edits, following the project's attention report language policy;
+- goal completion requires subagent functional acceptance reports instead of
+  treating tests alone as enough;
 - completed implementation units require implementation review evidence before
   closeout;
 - review authorization is requested before code work when the current thread has
@@ -154,7 +158,7 @@ The current critical suite covers:
   aliases;
 - review packets redact secrets;
 - verification packets reject blank validation evidence;
-- owner-judgment context passes strict sufficiency checks;
+- owner-judgment checkpoints write approval reports with decision context;
 - backlog remains visible;
 - canceled units do not surface historical follow-up items as current blockers;
 - missing unit paths stop with structured JSON findings instead of tracebacks;

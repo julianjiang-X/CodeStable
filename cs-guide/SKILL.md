@@ -47,6 +47,11 @@ guidedoc 产物**不在 `.codestable/` 下**——指南是面向外部读者的
 
 文件命名 `{slug}.md`（英文小写连字符，**无日期前缀**）——指南持续更新按主题管理。
 
+如果 guide/libdoc wording 会改变用户、开发者或后续 agent 对能力边界的理解，
+先在关联 feature / roadmap / issue unit 写 `approval-report.md`；没有现成 unit
+时用 `.codestable/brainstorms/{slug}/approval-report.md`。owner 批准前不要改
+`docs/**`。
+
 检索：
 
 ```
@@ -131,8 +136,8 @@ A: ...
 1. **明确任务范围**——轨道（dev / user / 都要）+ 覆盖范围（新写还是更新）+ 信息来源（方案 doc 已有吗？同 component 已有 guide？需要读哪些代码？）
 2. **收集输入**——读方案 doc（重点第 0 节术语、第 2 节接口契约、第 1 节用户可见行为）+ `search-yaml.py` 搜 docs/ 确认有无已有 guide。发现已有 guide 标 `outdated` → 任务定性为**更新**
 3. **起草**——按对应轨道结构起草，frontmatter `status: draft`。约束：只写面向目标读者的内容——**不要把方案 doc 里"实现提示"或内部设计搬过来**；术语与方案 doc 第 0 节一致；代码示例必须来自实际代码不虚构接口
-4. **用户 review**——展示草稿，逐节确认覆盖范围 / 描述准确性 / 是否有读者看不懂的地方
-5. **落盘**——用户放行后：写入路径；`status: current` + `last_reviewed` 当天；更新已有文档时小修直接改，大改（结构重组 / 读者定位调整）先把旧文档 `status: outdated` 留作参考再新写一份
+4. **用户 review**——展示草稿，逐节确认覆盖范围 / 描述准确性 / 是否有读者看不懂的地方；若会改变公共合同，先写 `approval-report.md` 并 owner-stop
+5. **落盘**——用户放行且无 pending approval 后：写入路径；`status: current` + `last_reviewed` 当天；更新已有文档时小修直接改，大改（结构重组 / 读者定位调整）先把旧文档 `status: outdated` 留作参考再新写一份
 
 ---
 

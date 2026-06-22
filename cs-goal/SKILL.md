@@ -1,13 +1,14 @@
 ---
 name: cs-goal
-description: 目标达成工作流——处理有明确起点/终点、验收结果或预算边界的自主迭代任务。触发：用户给出 desired outcome / acceptance result / budget，或说"帮我达成这个 goal"、"run until accepted"、"self-iterate"、"autonomous iteration"，或在有 bounded done signal 时要求"先 grill me 再开干"。产物写入 `.codestable/goals/`，包含中英文目标和 iteration 报告。
+description: 目标达成工作流——处理有明确起点/终点、验收结果或预算边界的自主迭代任务。触发：用户给出 desired outcome / acceptance result / budget，或说"帮我达成这个 goal"、"run until accepted"、"self-iterate"、"autonomous iteration"，或在有 bounded done signal 时要求"先 grill me 再开干"。产物写入 `.codestable/goals/`，包含目标起点报告、iteration 报告和完成前功能验收。
 ---
 
 # cs-goal
 
 `cs-goal` handles bounded goals: the owner gives the starting point and desired
-end state, then CodeStable grills lightly, implements autonomously, verifies, and
-writes bilingual iteration reports.
+end state, then CodeStable grills lightly, writes a start report, implements
+autonomously, verifies, self-iterates, and records functional acceptance before
+completion.
 
 This is a goal wrapper, not a replacement for feature / issue / refactor rules.
 When the goal crosses a capability boundary, exposes a bug root cause, or needs
@@ -27,12 +28,13 @@ Before acting:
 2. Read `.codestable/reference/system-overview.md` if present.
 3. Read this skill's `reference.md`.
 4. Read `.codestable/reference/goal-conventions.md` if present.
-5. Read `.codestable/reference/interaction-modes.md` if present and the prompt
+5. Read `.codestable/reference/approval-conventions.md` if present.
+6. Read `.codestable/reference/interaction-modes.md` if present and the prompt
    mentions `interview me`, `grill me`, "采访我", or "拷问我".
-6. Before code edits, review, commit, finish, or merge work, read
+7. Before code edits, review, commit, finish, or merge work, read
    `.codestable/reference/execution-conventions.md` if present.
-7. Inspect `.codestable/goals/` for an active matching goal.
-8. Search `.codestable/compound/` and relevant feature / issue / refactor docs
+8. Inspect `.codestable/goals/` for an active matching goal.
+9. Search `.codestable/compound/` and relevant feature / issue / refactor docs
    when the goal names an existing area.
 
 If `.codestable/` is missing, route to `cs-onboard`.
@@ -70,12 +72,24 @@ active | complete | blocked
 `state.yaml` is the machine source of truth. Markdown is for humans. Recovery
 priority is:
 
-1. `.codestable/goals/{slug}/state.yaml`
+1. `.codestable/goals/YYYY-MM-DD-{slug}/state.yaml`
 2. latest iteration frontmatter
 3. Markdown body text
 
-Never infer the current machine state from bilingual narrative when `state.yaml`
-has a clear value.
+Never infer the current machine state from narrative prose when `state.yaml` has
+a clear value.
+
+---
+
+## Report Language
+
+Use the report language policy in `.codestable/attention.md` for all
+human-facing prose. If attention has no report language policy, use the owner's
+current conversation language.
+
+Default to canonical unsuffixed files: `goal.md`, `iterations/{nnn}.md`, and
+`functional-acceptance.md`. Add language-suffixed copies only when attention
+explicitly requires multiple language copies.
 
 ---
 
@@ -106,18 +120,18 @@ If the owner already gave enough information, summarize it and proceed.
 New goal directory:
 
 ```text
-.codestable/goals/{slug}/
+.codestable/goals/YYYY-MM-DD-{slug}/
 ├── state.yaml
-├── goal.zh.md
-├── goal.en.md
+├── goal.md
 └── iterations/
 ```
 
-`goal.zh.md` and `goal.en.md` contain equivalent human-readable goal context.
-Keep them concise and update them only when the goal state changes.
+`goal.md` is the start report from interview / grill. It must exist before
+implementation and include objective, start point, acceptance, non-goals, owner
+decisions, unresolved assumptions, and next action.
 
 If an active matching goal exists, resume it instead of creating a duplicate.
-Read `state.yaml`, then the latest `iterations/{n}.zh.md` and `{n}.en.md`.
+Read `state.yaml`, then the latest `iterations/{nnn}*.md`.
 
 ---
 
@@ -126,23 +140,43 @@ Read `state.yaml`, then the latest `iterations/{n}.zh.md` and `{n}.en.md`.
 One iteration is a coherent implementation / verification attempt, not a single
 command.
 
-Loop while `state: active`:
+Loop while `status: active`:
 
 1. Choose the smallest useful next attempt from `state.yaml`.
 2. Implement using existing CodeStable constraints, including worktree, review,
    spec-governance, and commit rules when they apply.
 3. Verify with fresh commands or evidence.
 4. Before changing `state.yaml.current_iteration`, derive the next zero-padded
-   iteration number from
-   `state.yaml.current_iteration` and existing `iterations/{nnn}.*.md` files;
-   never overwrite a prior report.
+   iteration number from `state.yaml.current_iteration` and existing
+   `iterations/{nnn}*.md` files; never overwrite a prior report.
 5. Update `state.yaml` for the completed attempt, leaving
    `current_iteration: {n}`.
-6. Write exactly one bilingual report pair for that completed iteration:
-   `iterations/{nnn}.zh.md` and `iterations/{nnn}.en.md`.
+6. Write exactly one canonical report for that completed iteration:
+   `iterations/{nnn}.md`.
 7. Continue autonomously unless an owner-stop condition fires.
 
 Do not write reports after every command. Reports are iteration summaries.
+
+---
+
+## Phase 4: Functional Acceptance
+
+Before setting `status: complete`, dispatch a subagent for product-facing
+functional acceptance whenever the platform supports subagents. Record the
+result in `functional-acceptance.md`.
+
+The report must include:
+
+- reviewer and role;
+- acceptance criteria checked;
+- functional evidence;
+- verdict;
+- residual risks;
+- the final iteration that cites this acceptance.
+
+Tests, linters, and builds are verification evidence, but they do not by
+themselves close a goal. If subagent dispatch is unavailable or not authorized,
+write `approval-report.md` and owner-stop instead of marking the goal complete.
 
 ---
 
@@ -157,25 +191,14 @@ Stop and ask the owner only when:
 - the same blocker repeats for three consecutive iterations;
 - budget is exhausted or nearly exhausted;
 - the next step requires explicit human risk acceptance, secrets, destructive
-  action, external purchase, or merge / deployment approval.
+  action, external purchase, or merge / deployment approval;
+- required functional acceptance is unavailable or refused.
+
+Write or update `approval-report.md` before stopping when no existing stage
+report carries the decision context.
 
 Normal technical choices, test failures, implementation alternatives, and local
 refactors are AI-owned unless they cross one of the stops above.
-
----
-
-## Completion And Blocked Rules
-
-Mark `complete` only when the acceptance signal is satisfied and evidence is
-recorded in the final iteration.
-
-Mark `blocked` only after the same blocker has repeated for at least three
-consecutive iterations or the owner-stop rule says the AI cannot safely proceed.
-Record `blocker_signature`, `blocker_count`, evidence, and the owner decision
-needed.
-
-If budget ends before acceptance, stop with owner context instead of pretending
-completion.
 
 ---
 
@@ -183,21 +206,23 @@ completion.
 
 A goal run exits with one of:
 
-- `complete`: acceptance evidence recorded, final bilingual iteration written.
+- `complete`: acceptance evidence and functional acceptance recorded.
 - `blocked`: blocker evidence and owner question recorded.
 - `active`: iteration report written and next action recorded, but the current
   turn or budget ends before more work can be done.
 
-Final replies should be short and point to `goal.zh.md`, `goal.en.md`, and the
-latest bilingual iteration pair.
+Final replies should be short and point to `goal.md`, `functional-acceptance.md`
+when present, and the latest iteration report.
 
 ---
 
 ## Guardrails
 
 - Do not ask the owner to choose routine technical details.
-- Do not let bilingual prose override `state.yaml`.
+- Do not let Markdown prose override `state.yaml`.
 - Do not create duplicate active goals for the same objective.
+- Do not skip the start report before implementation.
 - Do not skip iteration reports after meaningful work.
+- Do not mark complete without functional acceptance.
 - Do not keep iterating after a strict owner-stop fires.
 - Keep every Markdown artifact under 300 lines; split long reports.

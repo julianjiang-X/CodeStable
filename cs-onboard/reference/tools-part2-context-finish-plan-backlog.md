@@ -139,3 +139,29 @@ python3 .codestable/tools/codestable-backlog.py --root . --json
 扫描会跳过 `.codestable/reference/` 和 `*-review-packet.md`，避免把工具说明或 reviewer 输入包里的示例文字当成当前 backlog。已解决的 follow-up 记录（例如 follow-up fixes / review closure / no remaining P0-P2）不会重复上报；canonical lifecycle 文件（`*-acceptance.md` / `*-ff-note.md` / `*-fix-note.md` / `*-apply-notes.md`）里 `status: canceled/cancelled/abandoned` 的 feature / issue / refactor 单元会被当作历史记录跳过；但当前单元的 `## Follow-Ups` 章节下的 bullet 会被视为当前 backlog。
 
 JSON 每个 item 带 `kind`、`severity`、`blocking`、`file`、`line`、`unit`、`action`、`excerpt`。`needs-human-review` / `Human review required` 一律 P1；带 `required`、`must`、`blocking`、`before merge/publish/release/ship/completion` 的 follow-up 也会升为 P1。其他 follow-up / P2 / attention candidates 是 P2，必须解决、转 issue，或明确延期。
+
+---
+
+## 13. codestable-main-publish.py
+
+受保护主分支发布授权工具。它不执行 merge / push，只写一个短期 intent，让
+`codestable-ai-branch-guard.py` 在 owner 明确授权时允许声明过的 main publish。
+
+```bash
+python3 .codestable/tools/codestable-main-publish.py --root . --json begin \
+  --owner-intent "owner approved publishing this branch to main" \
+  --branch codex/example
+```
+
+发布完成或放弃后清理 intent：
+
+```bash
+python3 .codestable/tools/codestable-main-publish.py --root . --json end
+```
+
+约束：
+
+- begin 时工作区必须干净，且 `main` 必须等于 `origin/main`
+- `--branch` 会 fetch 并记录允许 merge 的 remote ref
+- guard 只允许声明过的 merge ref 和目标 main push
+- force push、branch switch、未声明 branch merge 仍会被拦截

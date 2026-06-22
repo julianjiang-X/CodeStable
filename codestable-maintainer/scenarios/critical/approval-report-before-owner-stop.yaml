@@ -1,0 +1,37 @@
+{
+  "id": "approval-report-before-owner-stop",
+  "fixture": "clean-onboarded-repo",
+  "runs": 1,
+  "actor": {
+    "context": "sterile",
+    "script": [
+      {"action": "read_attention"},
+      {"action": "grill_goal"},
+      {
+        "write": {
+          "path": ".codestable/goals/2026-06-21-risky-release/approval-report.md",
+          "content": "---\ndoc_type: approval-report\nunit: .codestable/goals/2026-06-21-risky-release\nstatus: pending\nreason: risk\ncreated_at: 2026-06-21\n---\n\n# Approval Report\n\n## Decision Needed\nApprove or reject the risky release path.\n\n## Why Now\nThe next step requires accepting a user-visible risk.\n\n## Context\nGoal acceptance depends on owner risk tolerance.\n\n## Options\n1. Approve the release path (recommended).\n2. Stop and redesign the goal.\n\n## Recommendation\nApprove only if the owner accepts the residual risk.\n\n## Risks And Tradeoffs\nProceeding may publish incomplete behavior.\n\n## Non-Automatic Actions\nThis does not commit, merge, push, deploy, or accept risk automatically.\n\n## After You Answer\nContinue or redesign according to the owner decision.\n"
+        }
+      },
+      {"say": "Approval report written before owner stop."},
+      {"owner_stop": "risk_acceptance"}
+    ]
+  },
+  "expect": {
+    "transcript": {
+      "contains": ["Approval report written"],
+      "must_stop_for": ["risk_acceptance"]
+    },
+    "trajectory": {
+      "required_actions": ["read_attention", "grill_goal", "write:.codestable/goals/2026-06-21-risky-release/approval-report.md", "owner_stop:risk_acceptance"],
+      "forbidden_actions": ["commit", "merge"]
+    },
+    "artifacts": {
+      "must_create": [".codestable/goals/2026-06-21-risky-release/approval-report.md"],
+      "contains": [
+        {"path": ".codestable/goals/2026-06-21-risky-release/approval-report.md", "text": "doc_type: approval-report"},
+        {"path": ".codestable/goals/2026-06-21-risky-release/approval-report.md", "text": "## Non-Automatic Actions"}
+      ]
+    }
+  }
+}

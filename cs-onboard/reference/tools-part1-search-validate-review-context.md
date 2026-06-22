@@ -242,7 +242,7 @@ python3 .codestable/tools/build-context-packet.py --root . --unit .codestable/fe
   --evidence "uvx --with pytest pytest -> passed"
 ```
 
-生成中文人审 / 决策 / 学习报告：
+生成人审 / 决策 / 学习报告：
 
 ```bash
 python3 .codestable/tools/build-context-packet.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --audience human-reviewer --language zh --output /tmp/codestable-human-review.md \
@@ -255,10 +255,10 @@ python3 .codestable/tools/build-context-packet.py --root . --unit .codestable/fe
 
 audience:
 
-- `handoff`：下一阶段 agent / reviewer 的轻量交接，固定英文六项结构，不支持 `--language zh`。
+- `handoff`：下一阶段 agent / reviewer 的轻量交接，固定六项结构，不支持 `--language zh`。
 - `human-reviewer`：给人审的完整 context 报告。
 - `owner-decision`：给 owner 拍板风险 / 后续事项的决策简报。
-- `owner-judgment`：给 owner 或 human checkpoint 做判断前的上下文，覆盖 route、授权、acceptance、finish / merge 等非访谈场景。
+- `owner-judgment`：给 owner 或 human checkpoint 做判断前的辅助上下文，覆盖 route、授权、acceptance、finish / merge 等非访谈场景；需要正式审批时仍写 `approval-report.md`。
 - `learner`：学习报告，解释为什么改、改了什么、如何验证。
 - `interviewee`：真实访谈 / 复盘前的上下文提纲；不要把普通判断 checkpoint 都归到这个 audience，也不要把普通 `interview me` 对话模式误路由到这里。
 
@@ -286,6 +286,6 @@ handoff 固定输出：
 - `Remaining`
 - `Evidence`
 
-非 handoff audience 输出 `Decision Brief` / `Working Context` / `Evidence Appendix` 三层结构；`--language zh` 会输出中文标题和说明。未显式传 `--file` 时，工具会列当前 changed files；secret-like 路径会标记为 redacted，文本中的 token / secret / api key 会被脱敏。handoff 目标长度是 10-20 行，适合在创建下一阶段 subagent 前阅读；受众报告可以更长，但仍只放可验证结论和证据索引。
+非 handoff audience 输出 `Decision Brief` / `Working Context` / `Evidence Appendix` 三层结构；将 `.codestable/attention.md` 的报告语言策略映射到 `--language en|zh`。未显式传 `--file` 时，工具会列当前 changed files；secret-like 路径会标记为 redacted，文本中的 token / secret / api key 会被脱敏。handoff 目标长度是 10-20 行，适合在创建下一阶段 subagent 前阅读；受众报告可以更长，但仍只放可验证结论和证据索引。
 
 ---
