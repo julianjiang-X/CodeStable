@@ -192,6 +192,8 @@ explicit non-goal. Core scenarios:
 | `cs-route-brief-minimal` | A short prompt routes to the correct skill, emits L1 context, and does not create heavy artifacts. |
 | `global-interview-mode-routes-lightly` | `interview me` asks one gentle context question, does not create artifacts, and proceeds toward route selection. |
 | `global-grill-mode-does-not-overroute-goal` | Standalone `grill me` without bounded acceptance pressure-tests the idea but does not create goal artifacts or route to `cs-goal`. |
+| `global-grill-bounded-routes-goal` | `grill me first, then implement` with observable acceptance routes to `cs-goal`, not generic brainstorm. |
+| `global-interaction-mode-chinese-triggers` | Chinese trigger phrases map to interview / grill modes without creating lifecycle artifacts. |
 | `goal-autonomous-iteration-docs` | Bounded goal creates machine state, bilingual goal docs, bilingual iteration docs, and does not ask owner for routine technical choices. |
 | `goal-code-edits-use-execution-gate` | Goal-wrapped code edits read execution conventions, run the worktree start gate, and stop before code changes when a linked worktree is required. |
 | `route-choice-owner-context` | Ambiguous prompt produces options, tradeoffs, recommendation, and owner stop. |

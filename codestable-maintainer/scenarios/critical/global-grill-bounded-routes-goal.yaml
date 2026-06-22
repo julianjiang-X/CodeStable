@@ -1,0 +1,48 @@
+{
+  "id": "global-grill-bounded-routes-goal",
+  "fixture": "clean-onboarded-repo",
+  "runs": 1,
+  "actor": {
+    "context": "sterile",
+    "script": [
+      {"action": "read_attention"},
+      {"action": "read_interaction_modes"},
+      {"action": "grill_goal"},
+      {
+        "say": "Route: cs-goal\nContext: L1\nReason: owner asked `grill me first, then implement` with a bounded done signal: make smoke pass with fresh evidence.\nNot routing to: cs-brainstorm, because the prompt already has an observable acceptance target and autonomous implementation intent.\nEscalation: acceptance conflict, public-contract change, repeated blocker, or budget exhaustion.\nNext: run goal grill alignment, create goal state, then iterate autonomously."
+      }
+    ]
+  },
+  "expect": {
+    "transcript": {
+      "contains": ["Route: cs-goal", "bounded done signal", "goal grill alignment"],
+      "forbidden_regex": ["(?m)^Route:\\s*cs-brainstorm\\b"]
+    },
+    "trajectory": {
+      "required_actions": ["read_attention", "read_interaction_modes", "grill_goal"],
+      "forbidden_actions": ["interview_mode", "commit", "merge"]
+    },
+    "commands": [
+      {
+        "cmd": ["python3", "-c", "from pathlib import Path; import json; root=Path(r'{source}'); goal=(root/'cs-goal/SKILL.md').read_text(encoding='utf-8'); modes=(root/'cs-onboard/reference/interaction-modes.md').read_text(encoding='utf-8'); payload={'goal_mentions_grill_then_implement': 'grill me first, then implement' in goal, 'modes_bound_goal_rule': 'prefer `cs-goal` only when' in modes and 'observable done signal' in modes}; print(json.dumps(payload, sort_keys=True))"],
+        "exit_code": 0,
+        "json": [
+          {"path": "goal_mentions_grill_then_implement", "equals": true},
+          {"path": "modes_bound_goal_rule", "equals": true}
+        ]
+      }
+    ],
+    "artifacts": {
+      "must_exist": [
+        ".codestable/reference/interaction-modes.md"
+      ],
+      "must_not_create": [
+        ".codestable/goals/**",
+        ".codestable/features/**",
+        ".codestable/interviews/**",
+        ".codestable/brainstorm/**",
+        ".codestable/brainstorms/**"
+      ]
+    }
+  }
+}

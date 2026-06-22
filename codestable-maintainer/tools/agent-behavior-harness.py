@@ -28,6 +28,7 @@ except ImportError:
 SOURCE_ROOT = Path(__file__).resolve().parents[2]
 SCENARIO_ROOT = SOURCE_ROOT / "codestable-maintainer/scenarios"
 RUNTIME_TOOL_SOURCE = SOURCE_ROOT / "cs-onboard/tools"
+RUNTIME_REFERENCE_SOURCE = SOURCE_ROOT / "cs-onboard/reference"
 
 
 def run(cmd: list[str], cwd: Path, timeout: int | None = None) -> subprocess.CompletedProcess[str]:
@@ -102,6 +103,9 @@ def write_common_codestable(root: Path) -> None:
         root / ".codestable/reference/system-overview.md",
         "# System Overview\n\nFeature, issue, refactor, and route governance fixture.\n",
     )
+    interaction_modes = RUNTIME_REFERENCE_SOURCE / "interaction-modes.md"
+    if interaction_modes.exists():
+        shutil.copy2(interaction_modes, root / ".codestable/reference/interaction-modes.md")
     copy_runtime_tools(root)
 
 
