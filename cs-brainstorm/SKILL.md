@@ -1,6 +1,6 @@
 ---
 name: cs-brainstorm
-description: 想法还模糊时的讨论入口，做分诊后路由到 feature-design / feature-brainstorm / roadmap。AI 是思考伙伴不是记录员。触发：用户说"有个想法还没想清楚"、"先 brainstorm 一下"、"聊一聊这块"、"方向还在摇摆"。不处理 bug 和重构。
+description: 想法还模糊时的讨论入口，做分诊后路由到 feature-design / feature-brainstorm / roadmap。AI 是思考伙伴不是记录员。触发：用户说"有个想法还没想清楚"、"先 brainstorm 一下"、"聊一聊这块"、"方向还在摇摆"，或在无 bounded goal 时说 "interview me" / "grill me"。不处理 bug 和重构。
 ---
 
 # cs-brainstorm
@@ -34,7 +34,7 @@ brainstorm 是"讨论层"统一入口。
 
 每次都做：
 
-1. **扫一眼仓库**——先读 `.codestable/attention.md`；Glob `.codestable/` 发现 architecture / features / roadmap / brainstorms / compound / requirements，读架构总入口、看已有 feature 和 roadmap 和 brainstorm、搜 compound 看有没有相关坑（`--filter doc_type=learning`）；Grep 用户描述里的关键词防术语冲突。缺 attention.md 视为骨架不完整，不回退读外部 AI 入口
+1. **扫一眼仓库**——先读 `.codestable/attention.md`；如果用户提到 `interview me` / `grill me` / "采访我" / "拷问我"，读 `.codestable/reference/interaction-modes.md`（如果有）；Glob `.codestable/` 发现 architecture / features / roadmap / brainstorms / compound / requirements，读架构总入口、看已有 feature 和 roadmap 和 brainstorm、搜 compound 看有没有相关坑（`--filter doc_type=learning`）；Grep 用户描述里的关键词防术语冲突。缺 attention.md 视为骨架不完整，不回退读外部 AI 入口
 2. **是不是接续之前的工作**：
    - `features/` 下有名字相近的 brainstorm？`roadmap/` 下有相近子目录？`brainstorms/` 下有相关创意记录？
    - 没有 → 当新讨论
@@ -43,7 +43,7 @@ brainstorm 是"讨论层"统一入口。
    - 有同名 roadmap → 这块已在 roadmap 跟进，是不是要推进具体子 feature
    - `brainstorms/` 下有相关创意记录 → 读完汇报"之前 {日期} 存过一份脑暴记录，方向是 {…}，接着聊还是直接拆 roadmap？"
 3. **确认这是新功能 brainstorm**——bug 走 `cs-issue`，重构走 `cs-refactor`
-4. **确认不是 goal**——用户给了起点 + 终点 / 验收结果，并希望 AI 自主迭代、每轮报告或说 "grill me 后开干" → 走 `cs-goal`，不要当普通 brainstorm
+4. **确认不是 goal**——用户给了起点 + 终点 / 验收结果，并希望 AI 自主迭代、每轮报告或说 "grill me 后开干" → 走 `cs-goal`，不要当普通 brainstorm。用户只说 "grill me" 但没有 bounded destination → 留在 `cs-brainstorm` 的 grill mode
 5. **如果你已经能替用户写出 design 需求摘要的初稿**——当场判 case 1。揽下不属于自己的活是本阶段最大反模式
 
 ### 开场分诊：一两轮对话判 case
@@ -89,6 +89,10 @@ brainstorm 是"讨论层"统一入口。
 
 1. **挖问题**——按姿态 1 把"真正要解决的问题"问清楚，能用一句话复述、用户说"对就是这个"为止。**这一步价值最高不要急着跳过**
 
+   **interview 档**（显式请求时启动）
+
+   用户说 `interview me` / "采访我" / "先问我" 时，先用轻量采访收集上下文：问题、背景、约束、成功信号。它比 grill 温和，不主动挑战每个答案；问到足够分诊或设计热身就停。
+
    **grill 档**（按需启动，默认不开）
 
    默认走轻问——一次复述对上就推进。下面任一信号出现切到 grill 档加深：
@@ -101,6 +105,7 @@ brainstorm 是"讨论层"统一入口。
 
    - 最多 3-5 轮重点问题，一轮没拿到新增信息就退到发散
    - 每轮**一个问题 + 2-4 个有区别度的候选**让用户挑，不让 TA 自由作文
+   - 优先追问边界、验收、非目标、风险和隐藏假设，不问 routine 技术实现选择
    - 遇到"得写起来才知道"的问题：标成 open question 直接跳过，不死磕
    - 用户开始敷衍 / 说"先这样吧 / 差不多了" → 立刻退到收敛，别再追问
 
@@ -232,7 +237,8 @@ case 1 / case 3 也能借这个动作（不强求落 brainstorm note），逻辑
 4. **不处理 bug / 重构**
 5. **不处理 bounded goal**——有明确起点、终点 / 验收、AI 自主迭代诉求时转 `cs-goal`
 6. **不在 case 1 / 3 启动 grill 档**——case 1 已清楚硬 grill 反人性，case 3 用户已 ready 拆解不需要 grill
-7. **别自己顺手开始写 design 或 roadmap**——阶段间的人工 checkpoint 是 CodeStable 整套流程的硬约束
+7. **不把 interview mode 当 context packet**——`interviewee` audience 是真实访谈 / 复盘前报告，不是普通 `interview me` 对话
+8. **别自己顺手开始写 design 或 roadmap**——阶段间的人工 checkpoint 是 CodeStable 整套流程的硬约束
 
 ---
 

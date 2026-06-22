@@ -126,6 +126,10 @@ choices, spec-change decisions, subagent authorization, finish/merge readiness,
 and any other CodeStable checkpoint where a human answer changes what happens
 next.
 
+This is separate from lightweight `interview me` mode. Interaction-mode
+questions collect context before routing; this gate applies when the answer is a
+judgment that changes the next action.
+
 Required judgment preface:
 
 - what decision is being made;
@@ -285,4 +289,3 @@ Checks:
 
 The analyze pass reports findings and recommended owner actions. It does not
 change files by itself.
-

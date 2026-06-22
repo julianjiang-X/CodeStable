@@ -57,6 +57,7 @@ description: 把新仓库或有零散文档的仓库接入 CodeStable 体系，�
     ├── shared-conventions.md
     ├── execution-conventions.md
     ├── goal-conventions.md
+    ├── interaction-modes.md
     ├── tools.md                  工具参考索引，完整内容在 tools-part*.md
     ├── tools-part*.md
     ├── branch-guard-hooks.md
@@ -215,6 +216,7 @@ Copy-Item -Recurse -Force <技能包路径>\cs-onboard\reference\*  .codestable\
 - `.codestable/reference/shared-conventions.md` — 目录结构和共享口径的权威版本
 - `.codestable/reference/execution-conventions.md` — worktree / review / finish / commit 执行约定
 - `.codestable/reference/goal-conventions.md` — goal 状态模型和双语 iteration 报告约定
+- `.codestable/reference/interaction-modes.md` — `interview me` / `grill me` 的全局对话模式约定
 - `.codestable/reference/branch-guard-hooks.md` — 禁止 AI 切主检出分支 / 在 main 或 master 上实现的 hook 配置
 - `.codestable/attention.md` — CodeStable 技能启动必读的项目注意事项
 - `.codestable/architecture/ARCHITECTURE.md` — 架构总入口骨架

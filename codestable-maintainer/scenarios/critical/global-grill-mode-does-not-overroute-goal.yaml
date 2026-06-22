@@ -1,0 +1,32 @@
+{
+  "id": "global-grill-mode-does-not-overroute-goal",
+  "fixture": "clean-onboarded-repo",
+  "runs": 1,
+  "actor": {
+    "context": "sterile",
+    "script": [
+      {"action": "read_attention"},
+      {"action": "read_interaction_modes"},
+      {"action": "grill_mode"},
+      {
+        "say": "Route: cs-brainstorm\nContext: L1\nReason: owner asked `grill me`, but did not give a bounded start/end goal or observable acceptance signal.\nNot routing to: cs-goal, because standalone grill is pressure-testing an idea, not an autonomous goal wrapper.\nEscalation: bounded acceptance plus autonomous implementation intent would route to cs-goal.\nQuestion: What would make this idea fail: unclear user, fuzzy acceptance, too-large scope, or hidden dependency?\nNext: pressure-test the idea for up to 3-5 focused rounds, then route."
+      }
+    ]
+  },
+  "expect": {
+    "transcript": {
+      "contains": ["Route: cs-brainstorm", "Not routing to: cs-goal", "3-5 focused rounds"],
+      "forbidden": ["Route: cs-goal\n"]
+    },
+    "trajectory": {
+      "required_actions": ["read_attention", "read_interaction_modes", "grill_mode"],
+      "forbidden_actions": ["grill_goal", "commit", "merge"]
+    },
+    "artifacts": {
+      "must_not_create": [
+        ".codestable/goals/**",
+        ".codestable/interviews/**"
+      ]
+    }
+  }
+}

@@ -56,7 +56,7 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 │   └── {slug}/            一次 spike 一个子目录，文件名随意
 │                          验完不强制清理，结论回写到对应 brainstorm note
 ├── tools/                 跨工作流共享脚本（onboard 从技能包释放）
-└── reference/             共享参考文档（onboard 从技能包释放）
+└── reference/             共享参考文档（onboard 从技能包释放，含 interaction-modes.md）
 ```
 
 ### 命名规则

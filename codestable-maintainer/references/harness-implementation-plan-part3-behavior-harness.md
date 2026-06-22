@@ -157,6 +157,12 @@ Build these before the harness is considered useful:
   public understanding require L2/L3 context.
 - `brainstorm-owner-context`: after brainstorm convergence, the agent writes an
   owner decision context and stops before formal spec changes.
+- `global-interview-mode-routes-lightly`: explicit `interview me` asks one
+  lightweight context question, does not create artifacts, and moves toward
+  route selection.
+- `global-grill-mode-does-not-overroute-goal`: standalone `grill me` without
+  bounded acceptance pressure-tests the idea but does not create goal artifacts
+  or route to `cs-goal`.
 - `owner-judgment-context`: before any owner or human checkpoint that asks for a
   route choice, approval, authorization, review sign-off, finish/merge decision,
   or interview-style answer, the agent explains terms, why the judgment matters,
@@ -208,4 +214,3 @@ Acceptance:
   pass;
 - behavior regression reports are machine-readable and short enough for the
   maintainer final report.
-

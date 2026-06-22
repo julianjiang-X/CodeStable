@@ -34,6 +34,8 @@ Route through `cs` when the user asks about:
 - Bugs, regressions, broken commands, bad docs, or unexpected behavior
 - Refactors, cleanup, performance, maintainability, or structure changes
 - Requirements, architecture, roadmap, planning, design, or acceptance
+- Global intent-shaping prompts such as `interview me`, `grill me`, "采访我",
+  or "拷问我" when they concern software lifecycle work
 - Audits, reviews, risk scans, or "what should we improve?"
 - Code exploration, "how does X work?", or module orientation
 - Decisions, conventions, learnings, tricks, or things worth remembering

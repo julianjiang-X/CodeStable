@@ -83,7 +83,7 @@ CodeStable 的判断是：严肃软件工程的混乱，很多时候不是 agent
 | 问题修改 | `cs-issue` -> `cs-issue-report` -> `cs-issue-analyze` -> `cs-issue-fix` | 先记录现象，再找根因，最后定点修复 |
 | 代码重构 | `cs-refactor` / `cs-refactor-ff` | 行为不变、结构变；完整流程分 scan / design / apply |
 
-`cs-brainstorm` 是模糊想法的讨论入口，`cs-roadmap` 承接单个 feature 吃不下的大需求，`cs-audit` 用来主动发现风险但不直接修。
+`interview me` / `grill me` 是全局对话模式：前者轻量采访收集上下文，后者压力测试边界和验收；它们先帮助路由，不是新的生命周期实体。`cs-brainstorm` 是模糊想法的讨论入口，`cs-roadmap` 承接单个 feature 吃不下的大需求，`cs-audit` 用来主动发现风险但不直接修。
 
 ---
 
@@ -92,7 +92,7 @@ CodeStable 的判断是：严肃软件工程的混乱，很多时候不是 agent
 <table>
 <tr><th>分组</th><th>技能</th><th>用途</th></tr>
 <tr><td><b>自动入口</b></td><td><code>using-codestable</code></td><td>在已接入仓库中把生命周期任务路由到 <code>cs</code></td></tr>
-<tr><td><b>根入口</b></td><td><code>cs</code></td><td>介绍体系，并把开放式诉求路由到正确的 cs 子技能</td></tr>
+<tr><td><b>根入口</b></td><td><code>cs</code></td><td>介绍体系，处理 interview / grill 对话模式，并把开放式诉求路由到正确的 cs 子技能</td></tr>
 <tr><td><b>接入</b></td><td><code>cs-onboard</code></td><td>为新仓库或已有零散文档的仓库创建 / 迁移 CodeStable 骨架</td></tr>
 <tr><td rowspan="2"><b>需求 & 架构</b></td><td><code>cs-req</code></td><td>维护能力愿景文档，支持 draft / current / outdated</td></tr>
 <tr><td><code>cs-arch</code></td><td>维护只记现状的架构地图，不承载未来规划</td></tr>
@@ -166,7 +166,7 @@ your-project/
 | `codestable-worktree-gate.py` | 在 start / commit / quarantine 三个节点检查是否在正确 worktree 内 |
 | `validate-implementation-review.py` | 确认实现类变更有 implementation review 证据 |
 | `build-review-packet.py` | 为 implementation / spec / quality review 生成可审查输入包 |
-| `build-context-packet.py` | 为 handoff、human reviewer、owner judgment 生成上下文包 |
+| `build-context-packet.py` | 为 handoff、human reviewer、owner judgment、interviewee 等受众生成上下文包 |
 | `check-context-sufficiency.py` | 检查上下文包是否足够，不允许空洞 review |
 | `codestable-finish-worktree.py` | 完成 worktree 时生成 learning / merge readiness 记录 |
 | `codestable-worktree-inbox.py` | 在主分支可见地提醒哪些工作分支 ready / stale / blocked |
