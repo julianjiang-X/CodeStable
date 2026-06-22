@@ -27,6 +27,7 @@ description: 把新仓库或有零散文档的仓库接入 CodeStable 体系，�
 ```
 .codestable/
 ├── attention.md                CodeStable 技能启动必读的项目注意事项
+├── local/                      gitignored 本地偏好和机器状态（不提交）
 ├── requirements/               需求聚合根（空目录 .gitkeep）
 ├── architecture/
 │   └── ARCHITECTURE.md         架构总入口（首次创建为占位模板）
@@ -83,7 +84,8 @@ description: 把新仓库或有零散文档的仓库接入 CodeStable 体系，�
 
 3. **Glob 全仓库 `.md`**（排除 `node_modules/` `.git/`）：根目录 `DESIGN.md` / `ARCHITECTURE.md` / `SPEC.md` / `README.md`；`docs/` `doc/` `design/` `spec/` `wiki/`；现有 `.codestable/` 下文件
 4. **检查 `.codestable/attention.md`**：缺失则列为骨架待补齐项
-5. **汇报扫描结论**：找到的相关文档（列路径）+ 走哪条路径 + 判断依据 + 不确定项
+5. **检查本地偏好面**：`.codestable/local/` 是否被忽略，`.codestable/local/preferences.yaml` 是否已有 `interaction_language`
+6. **汇报扫描结论**：找到的相关文档（列路径）+ 走哪条路径 + 判断依据 + 不确定项
 
 ---
 
@@ -99,6 +101,7 @@ description: 把新仓库或有零散文档的仓库接入 CodeStable 体系，�
 按下面顺序执行，**不等用户逐步确认**——骨架是整体一次性的：
 
 - `.codestable/{requirements,roadmap,goals,features,issues,refactors,compound,brainstorms}/.gitkeep`
+- `.codestable/local/`（只放 gitignored 本地状态，不创建 `.gitkeep`）
 - `.codestable/attention.md`（最小骨架模板见同目录 `reference.md`）
 - `.codestable/architecture/ARCHITECTURE.md`（占位模板见同目录 `reference.md`）
 - `.codestable/tools/`（用 `cp -rf` / `Copy-Item -Recurse -Force` 整目录拷贝技能包 `cs-onboard/tools/`，**不要 Read 再 Write**）
@@ -106,11 +109,26 @@ description: 把新仓库或有零散文档的仓库接入 CodeStable 体系，�
 
 > **落盘用 shell 整目录覆盖**，不要 Read 再 Write——这两个目录是机器共享资产，Read+Write 会截断大文件、改缩进、吃空行，还慢费 token。具体命令见迁移路径步骤 4。
 
-**步骤 3：attention.md 提醒**
+**步骤 3：本地交互语言偏好**
+
+确保 `.codestable/local/` 被 `.gitignore` 忽略，然后问 owner 一次：
+
+> CodeStable interaction language for this repo? `zh` or `en`. This only affects chat prompts and route briefs; docs and review-facing reports still follow `.codestable/attention.md` and the existing English-first rule.
+
+owner 选择后写 `.codestable/local/preferences.yaml`：
+
+```yaml
+schema_version: 1
+interaction_language: zh
+```
+
+如果当前环境不能交互或没有得到明确选择，不写偏好文件；后续 `cs` 用当前消息语言 fallback。
+
+**步骤 4：attention.md 提醒**
 
 attention.md 已创建但默认只有空骨架。汇报时提醒用户：有编译前置、测试命令、目录禁区、凭证规则、报告语言偏好这类"每次 CodeStable 技能启动都必须知道"的信息，后续用 `cs-note` 一条条追加。
 
-**步骤 4：验收汇报**
+**步骤 5：验收汇报**
 
 列建了哪些文件：
 
@@ -148,6 +166,9 @@ attention.md 已创建但默认只有空骨架。汇报时提醒用户：有编�
 
 对照标准骨架补齐**用户确认后仍缺失**的目录 / 文件。已有内容不覆盖。
 
+补齐时同样确保 `.codestable/local/` 被 `.gitignore` 忽略。已有
+`.codestable/local/preferences.yaml` 不覆盖；缺失时按空仓库路径的本地交互语言偏好步骤询问。
+
 **`.codestable/tools/` 和 `.codestable/reference/` 一律用技能包新版本覆盖**——这两个目录是技能包维护的共享资产，权威源在 `cs-onboard/tools/` 和 `cs-onboard/reference/`，项目里的只是落盘副本。技能包升级后再跑 onboard 的目的之一就是刷新副本，留旧版本会让子技能按过时口径工作。
 
 覆盖前在汇报列出被覆盖文件让用户知道；用户明确说"我改过 tools/xxx.py 请保留"才例外保留并标红。这是迁移路径**唯一强制覆盖**的动作，其他已有文件遵守"不经确认不动"。
@@ -172,7 +193,7 @@ Copy-Item -Recurse -Force <技能包路径>\cs-onboard\reference\*  .codestable\
 
 用户选"跳过"的文件：**不移动 / 不删除 / 不重命名**，汇报标"保留原位（未纳入 CodeStable）"。**绝不允许未经确认就动**——onboard 只允许 AI 整理不允许替用户做删除决定。
 
-**步骤 6：attention.md 提醒**（同空仓库路径步骤 3）
+**步骤 6：attention.md 提醒**（同空仓库路径步骤 4）
 
 **步骤 7：验收汇报**
 
@@ -188,8 +209,9 @@ Copy-Item -Recurse -Force <技能包路径>\cs-onboard\reference\*  .codestable\
 
 ## 退出条件
 
-- [ ] `.codestable/` 十一个子目录都存在
+- [ ] `.codestable/` 十二个子目录都存在
 - [ ] `.codestable/attention.md` 已建
+- [ ] `.codestable/local/` 已被忽略；有明确选择时已写 `.codestable/local/preferences.yaml`
 - [ ] `.codestable/tools/` 和 `.codestable/reference/` 已从技能包复制
 - [ ] `.codestable/architecture/ARCHITECTURE.md` 已建
 - [ ] 迁移路径：每条映射都有明确处理结果（迁移 / 保留原位）

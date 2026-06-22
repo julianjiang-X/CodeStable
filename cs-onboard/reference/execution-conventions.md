@@ -130,9 +130,11 @@ python3 .codestable/tools/build-context-packet.py --root . --unit .codestable/fe
 ```
 
 Choose `{en-or-zh}` by mapping `.codestable/attention.md` to a supported tool
-language. If the project's report language policy is not covered by the tool's
-`--language` choices, write or adapt the human-facing report in the project
-language instead of passing the raw attention prose as a CLI value.
+language. Do not use `.codestable/local/preferences.yaml` for report language;
+that repo-local preference only affects chat interaction. If the project's
+report language policy is not covered by the tool's `--language` choices, write
+or adapt the human-facing report in the project language instead of passing the
+raw attention prose as a CLI value.
 
 Run sufficiency gate before sending:
 

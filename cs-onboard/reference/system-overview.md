@@ -23,6 +23,9 @@ CodeStable 把这几类场景各配一套子技能，产物放进统一的目录
 
 这些流程都先建立可恢复的上下文，再让 AI 动手；goal 场景把状态放进 `state.yaml`，需要 owner 审批、选择、授权或接受风险但没有阶段报告承载上下文时，先在对应目录写 `approval-report.md`。feature / issue / refactor 则用各自 spec 或 analysis。这样能控制术语冲突、范围失控、改完不留存档这三种 AI 默认会出的问题。
 
+CodeStable 的交互语言可以是 repo-local 偏好：`.codestable/local/preferences.yaml`
+保存 `interaction_language: zh|en`，但 `.codestable/local/` 必须被 git ignore。这个偏好只影响聊天和 route brief；报告正文仍按 `.codestable/attention.md`。
+
 默认执行拓扑：在主协调检出（通常是 `main`）讨论需求、写 plan/spec/checklist；真正改代码时为每个 feature / issue / refactor 创建独立 worktree 和独立 `codex/...` 分支，不在主协调检出里 `git switch/checkout`。不同 worktree 不互读未合并代码，只通过 `.codestable/` 下已同步的 plan/spec/roadmap/compound 文档互通意图。每个 worktree 写完一批可验收代码后，输出实现完成汇报前必须用 subagent 做独立 code review，并把证据写入同一目录的 `{slug}-implementation-review.md`；运行 finish gate 生成学习报告和 merge readiness 后，按 attention 的报告语言策略保持人读正文一致，推荐把这些产物作为功能分支最后一个小提交；只有用户明确授权后才合并回 `main`。
 
 **沉淀**——把做事过程产生的知识存下来,下次遇到同类问题直接复用:
@@ -117,7 +120,7 @@ AI 最常见的问题是一口气铺几百行代码才让人看——等发现�
 - `.codestable/reference/spec-governance-tools.md` — spec routing、clarification、req delta、inventory、analyze 工具用法
 - `.codestable/reference/maintainer-notes.md` — 断点恢复、新增子工作流的登记
 
-目录结构(requirements/、architecture/、roadmap/、goals/、features/、issues/、compound/、tools/、reference/)的权威定义在 `shared-conventions.md`。要改目录先改那里——方法是改 `cs-onboard/reference/shared-conventions.md` 这个模板,新项目 onboard 时会带上新版本。
+目录结构(local/、requirements/、architecture/、roadmap/、goals/、features/、issues/、compound/、tools/、reference/)的权威定义在 `shared-conventions.md`。要改目录先改那里——方法是改 `cs-onboard/reference/shared-conventions.md` 这个模板,新项目 onboard 时会带上新版本。
 
 
 ## 相关

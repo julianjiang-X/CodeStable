@@ -32,6 +32,8 @@ Onboard a repository first:
 /cs-onboard
 ```
 
+Onboarding asks for a repo-local CodeStable interaction language (`zh` or `en`) and stores it in ignored local state at `.codestable/local/preferences.yaml`. This only changes chat prompts and route briefs; project docs and review reports still follow `.codestable/attention.md`.
+
 For daily use, when you are not sure which skill fits, call the root entry:
 
 ```bash
@@ -132,6 +134,7 @@ After `/cs-onboard`, the project root contains `.codestable/`. It is the only sh
 your-project/
 ├── .codestable/
 │   ├── attention.md                 # Required read before every CodeStable skill
+│   ├── local/                       # Gitignored repo-local interaction preferences
 │   ├── requirements/                # Capability intent, including VISION.md
 │   ├── architecture/                # Current system map
 │   ├── roadmap/                     # Large-need plans and sub-feature lists
@@ -150,6 +153,7 @@ Hard constraints:
 
 - Sub-skills only use `.codestable/attention.md` as the project attention entry. `AGENTS.md` / `CLAUDE.md` are not CodeStable state sources.
 - Human-facing report prose follows the project policy in `.codestable/attention.md`; sub-skills do not hard-code a specific language or bilingual copies.
+- `.codestable/local/preferences.yaml` is repo-local and gitignored; its `interaction_language` only affects CodeStable chat interaction and route briefs.
 - Shared conventions are not referenced across skill package directories. `cs-onboard` copies `reference/` and `tools/` into the working project's `.codestable/`.
 - `requirements/` and `architecture/` are long-lived archives; `roadmap/` is the planning layer; `goals/` stores autonomous goal state and terminal functional acceptance; `features/`, `issues/`, and `refactors/` are event records; `compound/` is the single knowledge sink.
 - Old `codestable/` / `easysdd/` directories are historical compatibility entry points. Current sub-skills read `.codestable/`.

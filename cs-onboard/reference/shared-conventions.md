@@ -11,6 +11,7 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 ```
 .codestable/
 ├── attention.md           CodeStable 技能启动必读的项目注意事项
+├── local/                 gitignored repo-local 偏好与机器状态，不提交
 ├── requirements/          能力愿景层（"用户需要什么、系统提供什么能力来满足"，过去/现在/未来）
 │   ├── VISION.md           中心索引（按 status 分组，每条带 pitch 一句话）
 │   └── {slug}.md           一个能力一份，扁平（cs-req 产出）
@@ -76,6 +77,19 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 - attention 未写报告语言策略时，使用 owner 当前对话语言
 - 默认只写 canonical 报告文件；只有 attention 明确要求多语言副本时，才额外写 `{name}.{lang}.md`
 - 机器状态以 YAML / JSON / `state.yaml` 为准，不从不同语言的叙述反推状态
+- `.codestable/local/preferences.yaml` 的 `interaction_language` 只影响聊天交互和 route brief，不覆盖报告语言策略
+
+### Repo-local 偏好
+
+`.codestable/local/` 必须被 git ignore；不要放 `.gitkeep`。当前唯一标准偏好是
+`.codestable/local/preferences.yaml`：
+
+```yaml
+schema_version: 1
+interaction_language: zh
+```
+
+允许值为 `zh` / `en`。没有该文件时，CodeStable 用 owner 当前消息语言 fallback；非交互和自动化场景不得为了写偏好阻塞。
 
 ### 架构 doc 分组规则（同类聚合）
 

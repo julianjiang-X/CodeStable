@@ -7,7 +7,7 @@
     "script": [
       {"action": "read_attention"},
       {
-        "run": ["python3", "-c", "from pathlib import Path; import json; cs=(Path(r'{source}')/'cs/SKILL.md').read_text(encoding='utf-8'); payload={'has_language_switch': '## 语言切换' in cs, 'has_chinese_support': '支持会话级输出语言切换，包含中文' in cs, 'keeps_canonical_keys': 'canonical 键名' in cs and 'Route' in cs and 'Context' in cs}; print(json.dumps(payload, ensure_ascii=False, sort_keys=True))"]
+        "run": ["python3", "-c", "from pathlib import Path; import json; cs=(Path(r'{source}')/'cs/SKILL.md').read_text(encoding='utf-8'); payload={'has_language_switch': '## 语言切换' in cs, 'uses_repo_local_preference': '.codestable/local/preferences.yaml' in cs and 'interaction_language: zh' in cs, 'prompts_first_use': '刚安装后首次在此 repo 使用' in cs and '.git/info/exclude' in cs, 'keeps_report_boundary': 'English-first' in cs and '只影响聊天里的路由说明' in cs, 'keeps_canonical_keys': 'canonical 键名' in cs and 'Route' in cs and 'Context' in cs}; print(json.dumps(payload, ensure_ascii=False, sort_keys=True))"]
       },
       {
         "say": "Route: cs-feat\nContext: L1\nReason: 用户明确要求中文，并且这是一个新增能力诉求。\nEscalation: 如果改动影响长期 spec、公开契约或 future agent 输入，升级到 L3。\nNext: 切到 `cs-feat`，继续用中文说明流程和下一步。"
@@ -25,11 +25,13 @@
     },
     "commands": [
       {
-        "cmd": ["python3", "-c", "from pathlib import Path; import json; cs=(Path(r'{source}')/'cs/SKILL.md').read_text(encoding='utf-8'); payload={'has_language_switch': '## 语言切换' in cs, 'has_chinese_support': '支持会话级输出语言切换，包含中文' in cs, 'keeps_canonical_keys': 'canonical 键名' in cs and 'Route' in cs and 'Context' in cs}; print(json.dumps(payload, ensure_ascii=False, sort_keys=True))"],
+        "cmd": ["python3", "-c", "from pathlib import Path; import json; cs=(Path(r'{source}')/'cs/SKILL.md').read_text(encoding='utf-8'); payload={'has_language_switch': '## 语言切换' in cs, 'uses_repo_local_preference': '.codestable/local/preferences.yaml' in cs and 'interaction_language: zh' in cs, 'prompts_first_use': '刚安装后首次在此 repo 使用' in cs and '.git/info/exclude' in cs, 'keeps_report_boundary': 'English-first' in cs and '只影响聊天里的路由说明' in cs, 'keeps_canonical_keys': 'canonical 键名' in cs and 'Route' in cs and 'Context' in cs}; print(json.dumps(payload, ensure_ascii=False, sort_keys=True))"],
         "exit_code": 0,
         "json": [
           {"path": "has_language_switch", "equals": true},
-          {"path": "has_chinese_support", "equals": true},
+          {"path": "uses_repo_local_preference", "equals": true},
+          {"path": "prompts_first_use", "equals": true},
+          {"path": "keeps_report_boundary", "equals": true},
           {"path": "keeps_canonical_keys", "equals": true}
         ]
       }

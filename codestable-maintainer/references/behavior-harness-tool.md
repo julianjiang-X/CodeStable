@@ -110,6 +110,8 @@ The current critical suite covers:
 - route brief stays lightweight;
 - route language switching renders Chinese explanations while preserving
   canonical route keys;
+- onboarding creates an ignored repo-local language preference surface without
+  changing report-language policy;
 - ambiguous route choices write `approval-report.md` before selecting a
   canonical requirement;
 - fast paths stay light for local refactors and small UI tweaks, record a

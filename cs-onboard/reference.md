@@ -50,3 +50,14 @@ attention.md 是 CodeStable 技能启动必读的项目注意事项入口。onbo
 
 ### 其他
 ```
+
+## 3. `.codestable/local/preferences.yaml` 本地偏好模板
+
+`.codestable/local/` 必须被 git ignore。这里放 repo-local、per-user 的 CodeStable 运行偏好，不提交，不作为项目长期 source of truth。
+
+```yaml
+schema_version: 1
+interaction_language: zh
+```
+
+`interaction_language` 只支持 `zh` / `en`，只影响 CodeStable 聊天交互和 route brief。人读文档、review-facing artifact、报告语言仍以 `.codestable/attention.md` 和对应流程规则为准。

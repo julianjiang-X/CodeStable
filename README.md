@@ -32,6 +32,8 @@ npx skills add https://github.com/stellazhan/CodeStable
 /cs-onboard
 ```
 
+onboard 时会让你选择这个 repo 的 CodeStable 交互语言（`zh` 或 `en`），并写入被忽略的本地状态 `.codestable/local/preferences.yaml`。这只影响聊天提示和 route brief；项目文档和 review 报告仍按 `.codestable/attention.md`。
+
 日常不知道该用哪个技能时，喊根入口：
 
 ```bash
@@ -132,6 +134,7 @@ CodeStable 的判断是：严肃软件工程的混乱，很多时候不是 agent
 your-project/
 ├── .codestable/
 │   ├── attention.md                 # 所有 CodeStable 技能启动必读
+│   ├── local/                       # gitignored repo-local 交互偏好
 │   ├── requirements/                # 能力愿景，含 VISION.md
 │   ├── architecture/                # 只记现状的系统地图
 │   ├── roadmap/                     # 大需求规划和子 feature 清单
@@ -150,6 +153,7 @@ your-project/
 
 - 子技能只读 `.codestable/attention.md` 作为项目注意事项入口，不兼容 `AGENTS.md` / `CLAUDE.md` 作为 CodeStable 状态源。
 - 人读报告的正文语言由 `.codestable/attention.md` 的项目规则决定；子技能不硬编码特定语言或双语副本。
+- `.codestable/local/preferences.yaml` 是 repo-local 且被 git ignore；其中的 `interaction_language` 只影响 CodeStable 聊天交互和 route brief。
 - 共享口径不放在某个 skill 包里互相引用；`cs-onboard` 会把 `reference/` 和 `tools/` 复制到工作项目的 `.codestable/` 下。
 - `requirements/` 和 `architecture/` 是长效档案；`roadmap/` 是规划层；`goals/` 是自主迭代目标和终点功能验收记录；`features/`、`issues/`、`refactors/` 是事件执行记录；`compound/` 是唯一知识沉淀目录。
 - 旧版 `codestable/` / `easysdd/` 目录属于历史兼容入口，当前子技能只认 `.codestable/`。

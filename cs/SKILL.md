@@ -32,11 +32,15 @@ description: CodeStable 工作流根入口，介绍体系全貌并把诉求路�
 
 ## 语言切换
 
-`cs` 支持会话级输出语言切换，包含中文。路由前先确定 active language：
+`cs` 支持 repo-local 交互语言偏好。它只影响聊天里的路由说明和提示语，不改变
+`.codestable/attention.md` 约束的人读报告语言，也不改变 review-facing artifact 的
+English-first / Chinese-later 规则。
+
+路由前先确定 active language：
 
 1. 用户显式要求优先：例如 "中文"、"用中文"、"Chinese"、`zh`、"英文"、"English"、`en`、"switch language"。
-2. 没有显式要求时，跟随 owner 当前消息的主要语言。
-3. `.codestable/attention.md` 的报告语言策略只约束子流程写入的人读报告；它不强制 `cs` 当前 route brief 改用另一种语言，除非用户明确要求。
+2. 否则读取 `.codestable/local/preferences.yaml` 的 `interaction_language: zh|en`。
+3. 没有本地偏好时，跟随 owner 当前消息的主要语言；非交互 / 自动化场景用这个 fallback，不阻塞。
 4. skill 名、文件路径、命令、YAML/JSON 字段、context level（如 `L1`）和 `cs-*` 标识保持原文，不翻译。
 
 中文模式下，route brief 的说明文字用中文，保持短、直接、可执行。默认保留
@@ -44,8 +48,20 @@ description: CodeStable 工作流根入口，介绍体系全貌并把诉求路�
 这些 canonical 键名；如果用户明确要求全中文标签，可以写成 `路径（Route）`
 这类双标签。不要因为语言切换额外创建多语言 artifact。
 
-人类 review-facing artifact 的双语或 English-first 规则由对应子流程和
-attention 决定；本节只约束 `cs` 的聊天输出和路由说明。
+如果仓库已 onboard 但缺少 `.codestable/local/preferences.yaml`，并且用户是在启用
+CodeStable（只说 `cs`、刚安装后首次在此 repo 使用、或询问用哪个技能），先用一句话让
+owner 选择 `zh` 或 `en`，说明"只影响 CodeStable 交互语言，文档/报告仍按 attention
+和既有 English-first 规则"。选择后唯一允许的落盘动作是：
+
+```yaml
+schema_version: 1
+interaction_language: zh
+```
+
+写入 `.codestable/local/preferences.yaml`。确保 `.codestable/local/` 被忽略：
+`cs-onboard` 管理的 repo 可写 `.gitignore`；既有 onboarded repo 的首次 `cs` 使用若不该制造
+tracked diff，则写 `.git/info/exclude`。如果用户同时给了具体生命周期任务，不要为了语言偏好
+卡住任务；按当前消息语言 fallback，并在 route brief 末尾提示可保存 repo-local 偏好。
 
 ---
 
@@ -54,7 +70,7 @@ attention 决定；本节只约束 `cs` 的聊天输出和路由说明。
 回应前每次都做（几个 tool 调用就够）：
 
 1. **看仓库有没有接入 CodeStable**——`Glob .codestable/` 看顶层目录
-2. **存在**——必须先 `Read .codestable/attention.md`（如果缺失提示骨架不完整，先补齐或重跑 `cs-onboard`）；再 `Read .codestable/reference/system-overview.md`（如果有）；用户提到 `interview me` / `grill me` / "采访我" / "拷问我" 时再读 `.codestable/reference/interaction-modes.md`（如果有）；`Glob` 一下 `goals/` `features/` `issues/` `roadmap/` 看进行中的工作（拿目录名就够，不逐份读）
+2. **存在**——必须先 `Read .codestable/attention.md`（如果缺失提示骨架不完整，先补齐或重跑 `cs-onboard`）；再读 `.codestable/local/preferences.yaml`（如果有）和 `.codestable/reference/system-overview.md`（如果有）；用户提到 `interview me` / `grill me` / "采访我" / "拷问我" 时再读 `.codestable/reference/interaction-modes.md`（如果有）；`Glob` 一下 `goals/` `features/` `issues/` `roadmap/` 看进行中的工作（拿目录名就够，不逐份读）
 3. **不存在**——后面提示用户先走 `cs-onboard`
 4. **看用户原话和语言要求**——先按"语言切换"确定 active language；再判断开放式还是带具体诉求？带诉求匹配路由表，没诉求给体系介绍
 

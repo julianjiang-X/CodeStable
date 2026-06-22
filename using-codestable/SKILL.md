@@ -19,7 +19,7 @@ This skill is the CodeStable auto-entry guard. It mirrors the Superpowers `using
 
 At the start of any coding or project-maintenance task, check whether the current repository has `.codestable/attention.md`.
 
-If it exists, CodeStable is active. For lifecycle tasks, route through `cs` before answering, asking clarifying questions, reading broad code context, or making changes.
+If it exists, CodeStable is active. For lifecycle tasks, route through `cs` before answering, asking clarifying questions, reading broad code context, or making changes. `cs` owns the repo-local interaction-language preference in `.codestable/local/preferences.yaml`; do not bypass it by answering lifecycle work directly from this auto-entry guard.
 
 If the platform has explicit skill invocation, invoke `cs`. If it does not, follow the `cs` skill's routing rules directly: read `.codestable/attention.md`, inspect the CodeStable workspace, then choose the right `cs-*` workflow.
 
@@ -73,7 +73,7 @@ Be low-noise. This skill should not add a ceremony layer to every response.
 ## Responsibility Split
 
 - `using-codestable`: detects active CodeStable repositories and decides whether CodeStable should be entered.
-- `cs`: reads the active CodeStable context and routes to exactly one `cs-*` workflow.
+- `cs`: reads the active CodeStable context, applies the repo-local interaction-language preference, and routes to exactly one `cs-*` workflow.
 - Concrete `cs-*` skills: perform the real workflow.
 
 Do not put feature, issue, refactor, or docs workflow logic in this skill. Keep it as the auto-entry guard.

@@ -133,7 +133,7 @@ accept risk, or defer unresolved findings must upgrade to L2 or higher.
 | Route | Default level | Required behavior |
 |---|---|---|
 | `cs` | L1/L2 | Explain route, nearby exclusions when ambiguous, context level, and escalation trigger. If the owner says `interview me` or `grill me`, run the shared interaction mode before final routing. If route choice itself needs owner approval before any unit exists, write `.codestable/brainstorms/{slug}/approval-report.md` and owner-stop. |
-| `cs-onboard` | L2/L4 | Empty repos can stay L1. Existing docs require inventory, mapping, trusted/stale classification, and owner approval before migration. |
+| `cs-onboard` | L2/L4 | Empty repos can stay L1. Existing docs require inventory, mapping, trusted/stale classification, and owner approval before migration. Ensure `.codestable/local/` is ignored and ask once for repo-local interaction language when interactive. |
 | `cs-goal` | L1/L2 | Grill bounded start/end goals, create dated `goals/YYYY-MM-DD-{slug}/` with `state.yaml` plus start/iteration reports before implementation, follow the report language policy from `.codestable/attention.md`, autonomously iterate, and require subagent functional acceptance before completion. Acceptance conflicts, spec/public-contract changes, repeated blockers, budget exhaustion, unavailable subagent acceptance, or risk acceptance trigger owner-stop with `approval-report.md` if the iteration report is insufficient. |
 | `cs-brainstorm` | L1 -> L2 | Freeform discussion stays light. When interview / grill / route choice needs owner approval context, write `approval-report.md` before asking. |
 | `cs-roadmap` | L2/L3 | Owner brief, scope/non-goals, phases, owner decisions, clarifications, and any spec deltas implied by the roadmap. |
@@ -191,6 +191,7 @@ explicit non-goal. Core scenarios:
 |---|---|
 | `cs-route-brief-minimal` | A short prompt routes to the correct skill, emits L1 context, and does not create heavy artifacts. |
 | `cs-route-language-switch-chinese` | A Chinese language request keeps canonical route keys while rendering route explanations in Chinese. |
+| `cs-onboard-local-language-preference` | Onboarding asks for `zh` / `en`, writes only ignored repo-local preference state, and keeps report-language policy separate. |
 | `cs-root-route-choice-approval-report` | Root route ambiguity writes intake `approval-report.md` under `brainstorms/` before owner choice. |
 | `global-interview-mode-routes-lightly` | `interview me` asks one gentle context question, does not create artifacts, and proceeds toward route selection. |
 | `global-grill-mode-does-not-overroute-goal` | Standalone `grill me` without bounded acceptance pressure-tests the idea but does not create goal artifacts or route to `cs-goal`. |

@@ -1,0 +1,43 @@
+{
+  "id": "cs-onboard-local-language-preference",
+  "fixture": "clean-onboarded-repo",
+  "runs": 1,
+  "actor": {
+    "context": "sterile",
+    "script": [
+      {"action": "read_attention"},
+      {
+        "run": ["python3", "-c", "from pathlib import Path; import json; root=Path(r'{source}'); onboard=(root/'cs-onboard/SKILL.md').read_text(encoding='utf-8'); ref=(root/'cs-onboard/reference.md').read_text(encoding='utf-8'); shared=(root/'cs-onboard/reference/shared-conventions.md').read_text(encoding='utf-8'); readme=(root/'README.en.md').read_text(encoding='utf-8'); payload={'onboard_prompts_choice': 'CodeStable interaction language' in onboard and '.codestable/local/preferences.yaml' in onboard, 'onboard_ignores_local': '.codestable/local/' in onboard and '.gitignore' in onboard, 'template_has_preference': 'interaction_language: zh' in ref and '只影响 CodeStable 聊天交互' in ref, 'shared_report_boundary': '.codestable/local/preferences.yaml' in shared and '不覆盖报告语言策略' in shared, 'readme_documents_local_state': '.codestable/local/preferences.yaml' in readme and 'only changes chat prompts' in readme}; print(json.dumps(payload, ensure_ascii=False, sort_keys=True))"]
+      },
+      {
+        "say": "Route: cs-onboard\nContext: L2\nReason: onboarding now creates an ignored repo-local preference surface and asks for zh/en when interactive.\nEscalation: Existing project report policy still comes from .codestable/attention.md; do not rewrite docs for this preference.\nNext: Save `.codestable/local/preferences.yaml` only after owner chooses a language."
+      }
+    ]
+  },
+  "expect": {
+    "transcript": {
+      "contains": ["Route: cs-onboard", "repo-local preference", "zh/en", ".codestable/attention.md"],
+      "forbidden": ["Route: cs-goal"]
+    },
+    "trajectory": {
+      "required_actions": ["read_attention"],
+      "forbidden_actions": ["rewrite_requirement", "commit", "merge"]
+    },
+    "commands": [
+      {
+        "cmd": ["python3", "-c", "from pathlib import Path; import json; root=Path(r'{source}'); onboard=(root/'cs-onboard/SKILL.md').read_text(encoding='utf-8'); ref=(root/'cs-onboard/reference.md').read_text(encoding='utf-8'); shared=(root/'cs-onboard/reference/shared-conventions.md').read_text(encoding='utf-8'); readme=(root/'README.en.md').read_text(encoding='utf-8'); payload={'onboard_prompts_choice': 'CodeStable interaction language' in onboard and '.codestable/local/preferences.yaml' in onboard, 'onboard_ignores_local': '.codestable/local/' in onboard and '.gitignore' in onboard, 'template_has_preference': 'interaction_language: zh' in ref and '只影响 CodeStable 聊天交互' in ref, 'shared_report_boundary': '.codestable/local/preferences.yaml' in shared and '不覆盖报告语言策略' in shared, 'readme_documents_local_state': '.codestable/local/preferences.yaml' in readme and 'only changes chat prompts' in readme}; print(json.dumps(payload, ensure_ascii=False, sort_keys=True))"],
+        "exit_code": 0,
+        "json": [
+          {"path": "onboard_prompts_choice", "equals": true},
+          {"path": "onboard_ignores_local", "equals": true},
+          {"path": "template_has_preference", "equals": true},
+          {"path": "shared_report_boundary", "equals": true},
+          {"path": "readme_documents_local_state", "equals": true}
+        ]
+      }
+    ],
+    "git": {
+      "must_not_modify": [".codestable/requirements/*.md", "src/**"]
+    }
+  }
+}
