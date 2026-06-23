@@ -135,10 +135,11 @@ python3 .codestable/tools/codestable-backlog.py --root . --json
 - 显式 `Follow-up:` 行，以及 `## Follow-Ups` 章节下的 bullet
 - accepted / deferred P2
 - `attention.md` candidates
+- `bilingual-report-policy`：attention 要求 English first / Chinese second 双语时，human-review / review-facing lifecycle report 只有单语或只有 `中文摘要`
 
 扫描会跳过 `.codestable/reference/` 和 `*-review-packet.md`，避免把工具说明或 reviewer 输入包里的示例文字当成当前 backlog。已解决的 follow-up 记录（例如 follow-up fixes / review closure / no remaining P0-P2）不会重复上报；canonical lifecycle 文件（`*-acceptance.md` / `*-ff-note.md` / `*-fix-note.md` / `*-apply-notes.md`）里 `status: canceled/cancelled/abandoned` 的 feature / issue / refactor 单元会被当作历史记录跳过；但当前单元的 `## Follow-Ups` 章节下的 bullet 会被视为当前 backlog。
 
-JSON 每个 item 带 `kind`、`severity`、`blocking`、`file`、`line`、`unit`、`action`、`excerpt`。`needs-human-review` / `Human review required` 一律 P1；带 `required`、`must`、`blocking`、`before merge/publish/release/ship/completion` 的 follow-up 也会升为 P1。其他 follow-up / P2 / attention candidates 是 P2，必须解决、转 issue，或明确延期。
+JSON 每个 item 带 `kind`、`severity`、`blocking`、`file`、`line`、`unit`、`action`、`excerpt`。`needs-human-review` / `Human review required` / `bilingual-report-policy` 一律 P1；带 `required`、`must`、`blocking`、`before merge/publish/release/ship/completion` 的 follow-up 也会升为 P1。其他 follow-up / P2 / attention candidates 是 P2，必须解决、转 issue，或明确延期。
 
 ---
 

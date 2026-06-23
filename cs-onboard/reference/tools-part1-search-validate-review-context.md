@@ -136,7 +136,7 @@ JSON 关键字段：
 - `checkout`：当前分支、默认分支、是否 linked worktree
 - `dirty_buckets`：按 `code` / `tests` / `docs` / `migrations` / `data` / `logs` / `codestable` / `unknown` 分组的 dirty paths
 - `implementation_changes`：会触发 worktree 约束的实现文件
-- `backlog`：`needs-human-review`、`Follow-up`、accepted/deferred P2、`attention.md` candidates 等待处理项；canonical lifecycle 文件里 `status: canceled/cancelled/abandoned` 的 feature / issue / refactor 单元会被当作历史记录跳过
+- `backlog`：`needs-human-review`、`Follow-up`、accepted/deferred P2、`attention.md` candidates、`bilingual-report-policy` 等待处理项；canonical lifecycle 文件里 `status: canceled/cancelled/abandoned` 的 feature / issue / refactor 单元会被当作历史记录跳过
 - `post_baseline_blocks`：工作树干净但默认分支在 gate baseline 之后出现实现变更的阻塞项
 - `findings`：按严重度列出的阻塞或待处理问题
 - `next_action`：下一步建议

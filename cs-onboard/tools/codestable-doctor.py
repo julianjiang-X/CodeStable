@@ -20,6 +20,7 @@ from codestable_common import (
     is_linked_worktree,
     iter_baselines,
     iter_units,
+    is_blocking_backlog_item,
     missing_review_findings,
     post_baseline_implementation_changes,
     scan_backlog,
@@ -83,11 +84,20 @@ def diagnose(root: Path) -> dict[str, object]:
             )
         )
     findings.extend(review_findings)
-    if backlog:
+    blocking_backlog = [item for item in backlog if is_blocking_backlog_item(item.kind, item.text)]
+    optional_backlog = [item for item in backlog if item not in blocking_backlog]
+    if blocking_backlog:
+        findings.append(
+            Finding(
+                severity="P1",
+                message="CodeStable backlog contains blocking human-review, policy, or follow-up items.",
+            )
+        )
+    if optional_backlog:
         findings.append(
             Finding(
                 severity="P2",
-                message="CodeStable backlog contains human-review or follow-up items.",
+                message="CodeStable backlog contains optional follow-up or attention items.",
             )
         )
     for item in inbox_report.get("items", []):

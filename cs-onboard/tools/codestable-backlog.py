@@ -8,18 +8,11 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
-from codestable_common import is_blocking_follow_up_text, scan_backlog, unit_for_path
-
-
-BLOCKING_KINDS = {"needs-human-review", "human-review"}
+from codestable_common import is_blocking_backlog_item, scan_backlog, unit_for_path
 
 
 def is_blocking_item(kind: str, text: str) -> bool:
-    if kind in BLOCKING_KINDS:
-        return True
-    if kind != "follow-up":
-        return False
-    return is_blocking_follow_up_text(text)
+    return is_blocking_backlog_item(kind, text)
 
 
 def backlog(root: Path) -> dict[str, object]:

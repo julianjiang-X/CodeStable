@@ -78,6 +78,13 @@ governance：
 
 ## 验收报告模板
 
+报告正文必须遵守 `.codestable/attention.md` 的报告语言策略。若 attention
+要求 English first, then Chinese / 先英文后中文双语输出，`{slug}-acceptance.md`
+必须在同一个 canonical 文件中先写完整英文验收报告，再写完整中文验收报告。
+只在英文报告末尾补 `中文摘要` 不合格；生成完成后
+`codestable-doctor.py` / `codestable-backlog.py` 会把这种 summary-only 文档标为
+blocking `bilingual-report-policy` backlog。
+
 逐节填写**别跳节**。报告路径在 feature 目录下（位置看 `shared-conventions.md` 第 0 节）。
 
 ```markdown
@@ -236,6 +243,7 @@ requirements 的机会。
 - [ ] 第 6 节 requirement delta / clarification 回写有结论：跳过 / 未变 / 已机械应用 approved delta / 因缺 delta 或冲突而 owner-stop
 - [ ] 第 7 节 roadmap 回写有结论：跳过（非 roadmap 起头）/ 已更新（items.yaml + 主文档同步，yaml 通过校验）
 - [ ] checklist 所有 checks 都 `passed`
+- [ ] 如果 attention 要求 English first / Chinese second，则 `{slug}-acceptance.md` 是完整英文报告后接完整中文报告，不是中文摘要
 - [ ] 用户终审确认
 
 ---

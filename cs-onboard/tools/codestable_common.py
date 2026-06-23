@@ -575,11 +575,28 @@ BACKLOG_PATTERNS = (
     ("deferred-p2", re.compile(r"deferred.{0,40}P2|P2.{0,40}deferred", re.IGNORECASE)),
     ("follow-up", re.compile(r"^\s*(?:[-*]\s+|\d+\.\s+)?follow[- ]ups?(?:\s*:|\b)", re.IGNORECASE)),
 )
+BILINGUAL_POLICY_KIND = "bilingual-report-policy"
 ATTENTION_CANDIDATES_HEADING_RE = re.compile(r"attention\.md.{0,40}candidates?|candidates?.{0,40}attention\.md", re.IGNORECASE)
 MARKDOWN_BULLET_RE = re.compile(r"^\s*[-*]\s+(.+)")
 FOLLOW_UP_SECTION_HEADING_RE = re.compile(r"^\s*#{1,6}\s+follow[- ]ups?\s*$", re.IGNORECASE)
+MARKDOWN_HEADING_RE = re.compile(r"^(#{1,6})\s+(.+?)\s*$")
+CHINESE_TEXT_RE = re.compile(r"[\u3400-\u9fff]")
+ASCII_WORD_RE = re.compile(r"[A-Za-z]")
 BACKLOG_SCAN_EXCLUDED_SUFFIXES = ("-review-packet.md",)
 BACKLOG_SCAN_EXCLUDED_PREFIXES = (".codestable/reference/",)
+BILINGUAL_REPORT_FILENAMES = {"approval-report.md", "functional-acceptance.md"}
+BILINGUAL_REPORT_SUFFIXES = (
+    "-analysis.md",
+    "-acceptance.md",
+    "-apply-notes.md",
+    "-design.md",
+    "-ff-note.md",
+    "-fix-note.md",
+    "-implementation-review.md",
+    "-report.md",
+    "-roadmap.md",
+    "-scan.md",
+)
 FOLLOW_UP_BLOCKING_TEXT_MARKERS = (
     "before merge",
     "before publish",
@@ -610,9 +627,140 @@ def should_scan_backlog_file(rel_path: str) -> bool:
     )
 
 
+def attention_requires_english_first_chinese(root: Path) -> bool:
+    path = root / ".codestable/attention.md"
+    if not path.exists():
+        return False
+    try:
+        text = path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        return False
+    lowered = text.lower()
+    return (
+        ("english first" in lowered and "chinese" in lowered)
+        or ("英文" in text and "中文" in text and ("先英文" in text or "英文在前" in text))
+    )
+
+
+def is_bilingual_report_target(rel_path: str) -> bool:
+    if not rel_path.startswith(".codestable/"):
+        return False
+    if not should_scan_backlog_file(rel_path):
+        return False
+    name = Path(rel_path).name
+    path = Path(rel_path)
+    if rel_path.startswith(".codestable/goals/"):
+        return name in {"goal.md", "functional-acceptance.md", "functional-acceptance-request.md"} or (
+            len(path.parts) >= 4 and path.parts[-2] == "iterations" and name.endswith(".md")
+        )
+    return name in BILINGUAL_REPORT_FILENAMES or any(name.endswith(suffix) for suffix in BILINGUAL_REPORT_SUFFIXES)
+
+
+def content_start_line(lines: list[str]) -> int:
+    if lines and lines[0].strip() == "---":
+        for index, line in enumerate(lines[1:], start=1):
+            if line.strip() == "---":
+                return index + 1
+    return 0
+
+
+def section_body_text(lines: list[str], headings: list[tuple[int, str, str]], section_line: int, section_level: int) -> str:
+    next_peer_line = len(lines) + 1
+    for later_line, level, _ in headings:
+        later_level = len(level)
+        if later_line > section_line and later_level <= section_level:
+            next_peer_line = later_line
+            break
+    body_lines = lines[section_line : next_peer_line - 1]
+    return "\n".join(line for line in body_lines if not MARKDOWN_HEADING_RE.match(line.strip()))
+
+
+def body_text_until(lines: list[str], start_line: int, end_line: int) -> str:
+    body_lines = lines[start_line : max(start_line, end_line - 1)]
+    return "\n".join(line for line in body_lines if not MARKDOWN_HEADING_RE.match(line.strip()))
+
+
+def bilingual_policy_violation(lines: list[str]) -> tuple[int, str] | None:
+    headings: list[tuple[int, str, str]] = []
+    for index, line in enumerate(lines[content_start_line(lines) :], start=content_start_line(lines) + 1):
+        match = MARKDOWN_HEADING_RE.match(line.strip())
+        if match:
+            headings.append((index, match.group(1), match.group(2).strip()))
+
+    explicit_english_sections = [
+        (line_no, len(level), title)
+        for line_no, level, title in headings
+        if title.strip().lower() == "english"
+    ]
+    top_english_sections = [
+        (line_no, len(level), title)
+        for line_no, level, title in headings
+        if len(level) == 1 and ASCII_WORD_RE.search(title) and not CHINESE_TEXT_RE.search(title)
+    ]
+    explicit_chinese_sections = [
+        (line_no, len(level), title)
+        for line_no, level, title in headings
+        if CHINESE_TEXT_RE.search(title)
+        and "摘要" not in title
+        and (title.strip() in {"中文", "中文版"} or "中文版本" in title)
+    ]
+    top_chinese_sections = [
+        (line_no, len(level), title)
+        for line_no, level, title in headings
+        if len(level) == 1 and CHINESE_TEXT_RE.search(title) and "摘要" not in title
+    ]
+    english_sections = explicit_english_sections or top_english_sections
+    chinese_sections = sorted({*explicit_chinese_sections, *top_chinese_sections})
+
+    if not english_sections:
+        return (
+            1,
+            "Bilingual report policy requires an English top-level section before the Chinese section.",
+        )
+    if not chinese_sections:
+        return (
+            english_sections[0][0],
+            "Bilingual report policy requires a full Chinese top-level section after the English section; summary-only Chinese subsections are not enough.",
+        )
+    if chinese_sections[0][0] < english_sections[0][0]:
+        return (
+            chinese_sections[0][0],
+            "Bilingual report policy requires English first, then Chinese.",
+        )
+    english_line, english_level, _ = english_sections[0]
+    chinese_sections_after_english = [section for section in chinese_sections if section[0] > english_line]
+    if not chinese_sections_after_english:
+        return (
+            chinese_sections[0][0],
+            "Bilingual report policy requires English first, then Chinese.",
+        )
+    chinese_line, chinese_level, _ = chinese_sections_after_english[0]
+    english_body = body_text_until(lines, english_line, chinese_line)
+    if not ASCII_WORD_RE.search(english_body):
+        return (
+            english_line,
+            "Bilingual report policy requires English body content after the English section heading.",
+        )
+    chinese_body = section_body_text(lines, headings, chinese_line, chinese_level)
+    if not CHINESE_TEXT_RE.search(chinese_body):
+        return (
+            chinese_line,
+            "Bilingual report policy requires translated Chinese body content after the Chinese section heading.",
+        )
+    return None
+
+
 def is_blocking_follow_up_text(text: str) -> bool:
     lowered = text.lower()
     return any(marker in lowered for marker in FOLLOW_UP_BLOCKING_TEXT_MARKERS)
+
+
+def is_blocking_backlog_item(kind: str, text: str) -> bool:
+    if kind in {"needs-human-review", "human-review", BILINGUAL_POLICY_KIND}:
+        return True
+    if kind != "follow-up":
+        return False
+    return is_blocking_follow_up_text(text)
 
 
 def is_resolved_backlog_match(kind: str, text: str) -> bool:
@@ -659,6 +807,7 @@ def scan_backlog(root: Path) -> list[BacklogItem]:
     if not codestable.exists():
         return []
     items: list[BacklogItem] = []
+    bilingual_required = attention_requires_english_first_chinese(root)
     for path in sorted(codestable.rglob("*")):
         if not path.is_file() or path.suffix.lower() not in {".md", ".yaml", ".yml", ".txt"}:
             continue
@@ -671,6 +820,11 @@ def scan_backlog(root: Path) -> list[BacklogItem]:
             continue
         if unit_has_canceled_lifecycle_status(root, rel_path):
             continue
+        if bilingual_required and is_bilingual_report_target(rel_path):
+            violation = bilingual_policy_violation(lines)
+            if violation:
+                line_no, text = violation
+                items.append(BacklogItem(kind=BILINGUAL_POLICY_KIND, path=rel_path, line=line_no, text=text))
         in_attention_candidates = False
         in_follow_up_section = False
         for line_no, line in enumerate(lines, start=1):

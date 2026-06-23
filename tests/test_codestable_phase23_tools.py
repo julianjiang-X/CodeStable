@@ -605,6 +605,254 @@ def test_backlog_reports_required_follow_up_without_colon(tmp_path: Path) -> Non
     assert payload["items"][0]["excerpt"] == "Follow-up required before merge: confirm owner decision"
 
 
+def test_backlog_blocks_bilingual_policy_summary_only_report(tmp_path: Path) -> None:
+    repo = init_repo(tmp_path)
+    unit = make_feature_unit(repo)
+    (unit / "demo-design.md").write_text(
+        "# Demo Design\n\nEnglish design.\n\n# Demo 设计（中文）\n\n中文设计。\n",
+        encoding="utf-8",
+    )
+    (repo / ".codestable/attention.md").write_text(
+        "Report language policy: CodeStable human-review and review-facing artifacts "
+        "should be written bilingually with English first, then Chinese.\n",
+        encoding="utf-8",
+    )
+    (unit / "demo-acceptance.md").write_text(
+        "# Demo Acceptance Report\n\n"
+        "## Evidence\n\n"
+        "Verified.\n\n"
+        "## 中文摘要\n\n"
+        "- 已验证。\n",
+        encoding="utf-8",
+    )
+
+    payload = backlog_tool.backlog(repo)
+
+    assert payload["ok"] is False
+    assert payload["blocking_count"] == 1
+    assert payload["items"][0]["kind"] == "bilingual-report-policy"
+    assert "summary-only Chinese subsections are not enough" in payload["items"][0]["excerpt"]
+
+
+def test_backlog_accepts_bilingual_policy_full_english_then_chinese_report(tmp_path: Path) -> None:
+    repo = init_repo(tmp_path)
+    unit = make_feature_unit(repo)
+    (unit / "demo-design.md").write_text(
+        "# Demo Design\n\nEnglish design.\n\n# Demo 设计（中文）\n\n中文设计。\n",
+        encoding="utf-8",
+    )
+    (repo / ".codestable/attention.md").write_text(
+        "Report language policy: CodeStable human-review and review-facing artifacts "
+        "should be written bilingually with English first, then Chinese.\n",
+        encoding="utf-8",
+    )
+    (unit / "demo-acceptance.md").write_text(
+        "# Demo Acceptance Report\n\n"
+        "## Evidence\n\n"
+        "Verified.\n\n"
+        "# Demo 验收报告（中文）\n\n"
+        "## 验证证据\n\n"
+        "已验证。\n",
+        encoding="utf-8",
+    )
+
+    assert scan_backlog(repo) == []
+
+
+def test_backlog_accepts_bilingual_policy_language_subsections(tmp_path: Path) -> None:
+    repo = init_repo(tmp_path)
+    unit = make_feature_unit(repo)
+    (unit / "demo-design.md").write_text(
+        "# Demo Design\n\nEnglish design.\n\n# Demo 设计（中文）\n\n中文设计。\n",
+        encoding="utf-8",
+    )
+    (repo / ".codestable/attention.md").write_text(
+        "Report language policy: CodeStable human-review and review-facing artifacts "
+        "should be written bilingually with English first, then Chinese.\n",
+        encoding="utf-8",
+    )
+    (unit / "demo-implementation-review.md").write_text(
+        "# Demo Implementation Review\n\n"
+        "## English\n\n"
+        "### Review Scope\n\n"
+        "Checked the diff.\n\n"
+        "## 中文\n\n"
+        "### Review 范围\n\n"
+        "已检查 diff。\n",
+        encoding="utf-8",
+    )
+
+    assert scan_backlog(repo) == []
+
+
+def test_backlog_accepts_bilingual_policy_short_language_subsections(tmp_path: Path) -> None:
+    repo = init_repo(tmp_path)
+    unit = make_feature_unit(repo)
+    (unit / "demo-design.md").write_text(
+        "# Demo Design\n\nEnglish design.\n\n# Demo 设计（中文）\n\n中文设计。\n",
+        encoding="utf-8",
+    )
+    (repo / ".codestable/attention.md").write_text(
+        "Report language policy: CodeStable human-review and review-facing artifacts "
+        "should be written bilingually with English first, then Chinese.\n",
+        encoding="utf-8",
+    )
+    (unit / "approval-report.md").write_text(
+        "# Approval Report\n\n"
+        "## English\n\n"
+        "Approved.\n\n"
+        "## 中文\n\n"
+        "已批准。\n",
+        encoding="utf-8",
+    )
+
+    assert scan_backlog(repo) == []
+
+
+def test_backlog_blocks_empty_chinese_section(tmp_path: Path) -> None:
+    repo = init_repo(tmp_path)
+    unit = make_feature_unit(repo)
+    (unit / "demo-design.md").write_text(
+        "# Demo Design\n\nEnglish design.\n\n# Demo 设计（中文）\n\n中文设计。\n",
+        encoding="utf-8",
+    )
+    (repo / ".codestable/attention.md").write_text(
+        "Report language policy: CodeStable human-review and review-facing artifacts "
+        "should be written bilingually with English first, then Chinese.\n",
+        encoding="utf-8",
+    )
+    (unit / "approval-report.md").write_text(
+        "# Approval Report\n\n"
+        "## English\n\n"
+        "Approved.\n\n"
+        "## 中文\n\n",
+        encoding="utf-8",
+    )
+
+    items = scan_backlog(repo)
+
+    assert [(item.kind, item.path) for item in items] == [
+        ("bilingual-report-policy", ".codestable/features/2026-06-03-demo/approval-report.md")
+    ]
+    assert "translated Chinese body content" in items[0].text
+
+
+def test_backlog_blocks_empty_english_section(tmp_path: Path) -> None:
+    repo = init_repo(tmp_path)
+    unit = make_feature_unit(repo)
+    (unit / "demo-design.md").write_text(
+        "# Demo Design\n\nEnglish design.\n\n# Demo 设计（中文）\n\n中文设计。\n",
+        encoding="utf-8",
+    )
+    (repo / ".codestable/attention.md").write_text(
+        "Report language policy: CodeStable human-review and review-facing artifacts "
+        "should be written bilingually with English first, then Chinese.\n",
+        encoding="utf-8",
+    )
+    (unit / "approval-report.md").write_text(
+        "# Approval Report\n\n"
+        "# 审批报告（中文）\n\n"
+        "中文正文。\n",
+        encoding="utf-8",
+    )
+
+    items = [item for item in scan_backlog(repo) if item.path.endswith("approval-report.md")]
+
+    assert len(items) == 1
+    assert "English body content" in items[0].text
+
+
+def test_backlog_blocks_empty_explicit_english_section_even_with_top_title(tmp_path: Path) -> None:
+    repo = init_repo(tmp_path)
+    unit = make_feature_unit(repo)
+    (unit / "demo-design.md").write_text(
+        "# Demo Design\n\nEnglish design.\n\n# Demo 设计（中文）\n\n中文设计。\n",
+        encoding="utf-8",
+    )
+    (repo / ".codestable/attention.md").write_text(
+        "Report language policy: CodeStable human-review and review-facing artifacts "
+        "should be written bilingually with English first, then Chinese.\n",
+        encoding="utf-8",
+    )
+    (unit / "approval-report.md").write_text(
+        "# Approval Report\n\n"
+        "## English\n\n"
+        "## 中文\n\n"
+        "中文正文包含 CodeStable 和 P1。\n",
+        encoding="utf-8",
+    )
+
+    items = [item for item in scan_backlog(repo) if item.path.endswith("approval-report.md")]
+
+    assert len(items) == 1
+    assert "English body content" in items[0].text
+
+
+def test_backlog_blocks_chinese_before_english(tmp_path: Path) -> None:
+    repo = init_repo(tmp_path)
+    unit = make_feature_unit(repo)
+    (unit / "demo-design.md").write_text(
+        "# Demo Design\n\nEnglish design.\n\n# Demo 设计（中文）\n\n中文设计。\n",
+        encoding="utf-8",
+    )
+    (repo / ".codestable/attention.md").write_text(
+        "Report language policy: CodeStable human-review and review-facing artifacts "
+        "should be written bilingually with English first, then Chinese.\n",
+        encoding="utf-8",
+    )
+    (unit / "approval-report.md").write_text(
+        "# 审批报告\n\n"
+        "中文在前。\n\n"
+        "# Approval Report\n\n"
+        "English second.\n",
+        encoding="utf-8",
+    )
+
+    items = [item for item in scan_backlog(repo) if item.path.endswith("approval-report.md")]
+
+    assert len(items) == 1
+    assert "English first" in items[0].text
+
+
+def test_backlog_bilingual_policy_covers_issue_reports(tmp_path: Path) -> None:
+    repo = init_repo(tmp_path)
+    unit = repo / ".codestable/issues/2026-06-03-demo"
+    unit.mkdir(parents=True)
+    (repo / ".codestable/attention.md").write_text(
+        "Report language policy: CodeStable human-review and review-facing artifacts "
+        "should be written bilingually with English first, then Chinese.\n",
+        encoding="utf-8",
+    )
+    (unit / "demo-report.md").write_text("# Issue Report\n\nEnglish only.\n", encoding="utf-8")
+
+    items = scan_backlog(repo)
+
+    assert [(item.kind, item.path) for item in items] == [
+        ("bilingual-report-policy", ".codestable/issues/2026-06-03-demo/demo-report.md")
+    ]
+
+
+def test_backlog_bilingual_policy_covers_goal_functional_acceptance(tmp_path: Path) -> None:
+    repo = init_repo(tmp_path)
+    goal = repo / ".codestable/goals/2026-06-03-demo"
+    goal.mkdir(parents=True)
+    (repo / ".codestable/attention.md").write_text(
+        "Report language policy: CodeStable human-review and review-facing artifacts "
+        "should be written bilingually with English first, then Chinese.\n",
+        encoding="utf-8",
+    )
+    (goal / "functional-acceptance.md").write_text(
+        "# Functional Acceptance\n\nEnglish only.\n",
+        encoding="utf-8",
+    )
+
+    items = scan_backlog(repo)
+
+    assert [(item.kind, item.path) for item in items] == [
+        ("bilingual-report-policy", ".codestable/goals/2026-06-03-demo/functional-acceptance.md")
+    ]
+
+
 def test_backlog_scan_ignores_reference_docs_and_review_packets(tmp_path: Path) -> None:
     write_file(
         tmp_path / ".codestable/reference/tools.md",

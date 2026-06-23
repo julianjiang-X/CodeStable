@@ -123,6 +123,29 @@ def test_backlog_terms_are_reported_with_line_numbers(tmp_path: Path) -> None:
     assert all(item["line"] >= 1 for item in report["backlog"])
 
 
+def test_bilingual_policy_violation_blocks_doctor(tmp_path: Path) -> None:
+    repo = init_repo(tmp_path)
+    unit = make_feature_unit(repo)
+    (repo / ".codestable/attention.md").write_text(
+        "Report language policy: CodeStable human-review and review-facing artifacts "
+        "should be written bilingually with English first, then Chinese.\n",
+        encoding="utf-8",
+    )
+    (unit / "demo-acceptance.md").write_text(
+        "# Demo Acceptance Report\n\n"
+        "All acceptance evidence is in English.\n\n"
+        "## 中文摘要\n\n"
+        "- 只有摘要。\n",
+        encoding="utf-8",
+    )
+
+    report = doctor.diagnose(repo)
+
+    assert report["status"] == "blocked"
+    assert any(item["kind"] == "bilingual-report-policy" for item in report["backlog"])
+    assert any(finding["severity"] == "P1" and "blocking" in finding["message"] for finding in report["findings"])
+
+
 def test_clean_main_with_post_baseline_implementation_commit_is_blocked(tmp_path: Path) -> None:
     repo = init_repo(tmp_path)
     unit = make_feature_unit(repo)

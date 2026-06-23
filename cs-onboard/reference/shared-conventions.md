@@ -75,6 +75,7 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 - CodeStable 技能不在技能说明里硬编码报告语言；所有人读报告的正文语言以 `.codestable/attention.md` 的项目规则为准
 - attention 未写报告语言策略时，使用 owner 当前对话语言
 - 默认只写 canonical 报告文件；只有 attention 明确要求多语言副本时，才额外写 `{name}.{lang}.md`
+- attention 要求 English first, then Chinese / 先英文后中文双语时，canonical human-review / review-facing markdown 必须先写完整英文正文，再写完整中文正文；只追加 `中文摘要` 不满足策略，会被 backlog / doctor 标为 blocking `bilingual-report-policy`
 - 机器状态以 YAML / JSON / `state.yaml` 为准，不从不同语言的叙述反推状态
 
 ### 架构 doc 分组规则（同类聚合）
