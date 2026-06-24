@@ -1,4 +1,4 @@
 interface:
-  display_name: "CodeStable Goal"
+  display_name: "Cs Goal"
   short_description: "处理 CodeStable 限定起点终点的目标、自主迭代和验收"
   default_prompt: "使用 $cs-goal 处理有起点、终点或验收信号的自主迭代目标。"
