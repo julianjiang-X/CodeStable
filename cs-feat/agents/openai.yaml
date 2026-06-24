@@ -1,4 +1,4 @@
 interface:
-  display_name: "CodeStable Feature"
+  display_name: "Cs Feature"
   short_description: "路由 CodeStable 新功能从想法到设计、实现和验收"
   default_prompt: "使用 $cs-feat 路由新功能，并决定进入 design、fastforward、impl 或 accept。"

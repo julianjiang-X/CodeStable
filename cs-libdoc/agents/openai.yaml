@@ -1,4 +1,4 @@
 interface:
-  display_name: "CodeStable API Docs"
+  display_name: "Cs API Docs"
   short_description: "为 CodeStable 公开组件、函数或命令生成参考文档"
   default_prompt: "使用 $cs-libdoc 为公开组件、函数或命令生成参考文档。"

@@ -1,4 +1,4 @@
 interface:
-  display_name: "CodeStable Learning"
+  display_name: "Cs Learning"
   short_description: "沉淀 CodeStable 踩坑、好做法和未来避免规则"
   default_prompt: "使用 $cs-learn 把踩坑或好做法沉淀为可检索 learning。"

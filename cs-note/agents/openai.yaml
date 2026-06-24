@@ -1,4 +1,4 @@
 interface:
-  display_name: "CodeStable Attention Note"
+  display_name: "Cs Attention Note"
   short_description: "把短小稳定的项目注意事项写入 CodeStable attention"
   default_prompt: "使用 $cs-note 把短小稳定且每次都要知道的提示写入 attention.md。"

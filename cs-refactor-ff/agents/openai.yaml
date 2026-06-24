@@ -1,4 +1,4 @@
 interface:
-  display_name: "CodeStable Refactor Fast Forward"
+  display_name: "Cs Refactor Fast Forward"
   short_description: "快速执行 CodeStable 局部低风险重构并用测试自证"
   default_prompt: "使用 $cs-refactor-ff 快速执行局部低风险重构并用测试自证。"

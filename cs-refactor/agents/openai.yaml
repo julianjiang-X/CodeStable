@@ -1,4 +1,4 @@
 interface:
-  display_name: "CodeStable Refactor"
+  display_name: "Cs Refactor"
   short_description: "扫描并设计 CodeStable 行为不变的结构或性能重构"
   default_prompt: "使用 $cs-refactor 扫描、设计并执行行为不变的重构流程。"

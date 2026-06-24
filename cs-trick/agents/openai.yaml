@@ -1,4 +1,4 @@
 interface:
-  display_name: "CodeStable Trick"
+  display_name: "Cs Trick"
   short_description: "沉淀 CodeStable 可复用编程模式、库用法和技术技巧"
   default_prompt: "使用 $cs-trick 记录可复用编程模式、库用法或技术技巧。"

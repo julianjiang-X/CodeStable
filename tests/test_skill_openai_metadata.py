@@ -48,8 +48,11 @@ def test_every_skill_has_consistent_openai_metadata() -> None:
         default_prompt = interface.get("default_prompt", "")
         assert f"${name}" in default_prompt, f"{name} default_prompt must mention ${name}"
 
-        if name == "cs-goal":
-            assert interface["display_name"] == "Cs Goal"
+        if name == "cs":
+            assert interface["display_name"] == "Cs", "cs root entry should use the $cs shorthand"
+        elif name.startswith("cs-"):
+            assert interface["display_name"].startswith("Cs "), f"{name} should use Cs, not CodeStable"
+            assert not interface["display_name"].startswith("CodeStable"), f"{name} display should use cs shorthand"
         elif name == "browser-bridge":
             assert interface["display_name"] == "Browser Bridge"
         elif name == "using-codestable":
@@ -57,3 +60,15 @@ def test_every_skill_has_consistent_openai_metadata() -> None:
         else:
             assert not interface["display_name"].startswith("Cs "), f"{name} should use CodeStable, not Cs"
             assert interface["display_name"].startswith("CodeStable"), f"{name} display is off-brand"
+
+
+def test_cs_root_entry_uses_cs_trigger_shorthand() -> None:
+    skill_dir = ROOT / "cs"
+    interface = read_openai_interface(skill_dir)
+    skill_text = (skill_dir / "SKILL.md").read_text(encoding="utf-8")
+
+    assert frontmatter_name(skill_dir) == "cs"
+    assert interface["display_name"] == "Cs"
+    assert "$cs" in interface["default_prompt"]
+    assert "$codestable" not in interface["default_prompt"].lower()
+    assert "触发简称是 `cs`" in skill_text

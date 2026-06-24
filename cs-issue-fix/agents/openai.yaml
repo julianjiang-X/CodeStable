@@ -1,4 +1,4 @@
 interface:
-  display_name: "CodeStable Issue Fix"
+  display_name: "Cs Issue Fix"
   short_description: "按已确认方案定点修复 issue 并写 fix-note"
   default_prompt: "使用 $cs-issue-fix 按已确认方案修复问题、验证并写 fix-note。"

@@ -1,4 +1,4 @@
 interface:
-  display_name: "CodeStable Feature Fast Forward"
+  display_name: "Cs Feature Fast Forward"
   short_description: "快速实现 CodeStable 小功能并查知识库、验证结果"
   default_prompt: "使用 $cs-feat-ff 快速实现小功能，同时查知识库并完成验证。"

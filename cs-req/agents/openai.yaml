@@ -1,4 +1,4 @@
 interface:
-  display_name: "CodeStable Requirement"
+  display_name: "Cs Requirement"
   short_description: "维护 CodeStable 能力愿景文档、需求更新和落档"
   default_prompt: "使用 $cs-req 起草、补齐或更新 CodeStable requirement 文档。"

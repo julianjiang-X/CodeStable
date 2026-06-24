@@ -1,4 +1,4 @@
 interface:
-  display_name: "CodeStable Onboarding"
+  display_name: "Cs Onboarding"
   short_description: "为新仓库初始化 CodeStable 骨架并迁移已有文档"
   default_prompt: "使用 $cs-onboard 为仓库初始化 CodeStable 骨架或迁移已有文档。"

@@ -1,4 +1,4 @@
 interface:
-  display_name: "CodeStable Router"
+  display_name: "Cs"
   short_description: "路由 CodeStable 工作流并说明上下文等级和下一步"
   default_prompt: "使用 $cs 判断 CodeStable 诉求应该进入哪个工作流。"
