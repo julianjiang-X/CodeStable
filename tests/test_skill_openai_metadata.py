@@ -42,17 +42,18 @@ def test_every_skill_has_consistent_openai_metadata() -> None:
 
         assert interface.get("display_name"), f"{name} has no display_name"
         assert interface["display_name"] != name, f"{name} should not expose the raw skill id"
-        assert not interface["display_name"].startswith("Cs "), f"{name} should use CodeStable, not Cs"
-
         short_description = interface.get("short_description", "")
         assert 25 <= len(short_description) <= 64, f"{name} has invalid short_description length"
 
         default_prompt = interface.get("default_prompt", "")
         assert f"${name}" in default_prompt, f"{name} default_prompt must mention ${name}"
 
-        if name == "browser-bridge":
+        if name == "cs-goal":
+            assert interface["display_name"] == "Cs Goal"
+        elif name == "browser-bridge":
             assert interface["display_name"] == "Browser Bridge"
         elif name == "using-codestable":
             assert interface["display_name"] == "Using CodeStable"
         else:
+            assert not interface["display_name"].startswith("Cs "), f"{name} should use CodeStable, not Cs"
             assert interface["display_name"].startswith("CodeStable"), f"{name} display is off-brand"
