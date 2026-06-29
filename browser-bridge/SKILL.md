@@ -15,6 +15,7 @@ Browser Bridge 是一个独立技能。它只说明自己的安装方式、命�
 
 - Python 依赖和 Chrome 扩展已经安装。
 - `python <skill-dir>/scripts/browser.py tabs` 能看到浏览器 tab。
+- 频繁执行命令时，先启动常驻 master，避免每次 CLI 调用都等待扩展重连。
 
 ## 架构
 
@@ -51,6 +52,22 @@ pip install bs4 simple-websocket-server bottle requests
 ```
 
 下面的 `<skill-dir>` 指包含本 `SKILL.md` 的目录。
+
+### 推荐：启动常驻 master
+
+如果直接反复调用 `browser.py exec ...`，每个短命 CLI 进程都可能重新启动 bridge server，并等待 Chrome 扩展重连。频繁操作浏览器时，先单独启动：
+
+```bash
+python <skill-dir>/scripts/browser_master.py
+```
+
+保持这个进程运行。之后正常使用 `browser.py exec`、`scan`、`tabs` 等命令，它们会自动通过 `http://127.0.0.1:18766/link` 转发到常驻 master。
+
+只需要 JS 返回值、不需要 DOM diff 和 toast 捕获时，给 `exec` 加 `--no-monitor`：
+
+```bash
+python <skill-dir>/scripts/browser.py exec --no-monitor "document.title"
+```
 
 ### exec: 在浏览器里执行 JavaScript
 
