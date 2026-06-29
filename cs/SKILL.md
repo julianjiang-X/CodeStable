@@ -141,8 +141,7 @@ chat-only route-choice brief。
 | 踩坑回顾 / 经验总结 / "值得记下来" | `cs-learn` |
 | 可复用编程模式 / 库用法 / "以后做 X 就该这样" | `cs-trick` |
 | 一两行的项目注意事项 / 编译特殊设置 / 命令陷阱 / "记到 attention.md" | `cs-note` |
-| 开发者指南 / 用户指南 | `cs-guide` |
-| 库 API 参考 | `cs-libdoc` |
+| 开发者指南 / 用户指南 / API 参考 / 组件文档 | `cs-guide` |
 | 用户在 feature / issue 流程中间问"下一步" | 路由到对应入口（`cs-feat` / `cs-issue`），让该入口判断当前阶段 |
 
 **判不出来 / 太抽象**："听起来像 {猜测}，但你描述里 {缺什么}。是 {选项 A} 还是 {选项 B}？" 让用户选不要硬猜。
@@ -170,7 +169,7 @@ chat-only route-choice brief。
 | `cs-explore` | L1/L2 | Exploration becomes a decision, rule, or spec change. |
 | `cs-decide` | L2/L3 | Decision affects long-lived specs or project-wide rules. |
 | `cs-learn` / `cs-trick` / `cs-note` | L1/L2 | Lesson becomes a project-wide rule or always-loaded instruction. |
-| `cs-guide` / `cs-libdoc` | L1/L2 | Docs change user-facing contract or public understanding. |
+| `cs-guide` | L1/L2 | Docs change user-facing contract or public understanding. |
 
 ---
 

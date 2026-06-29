@@ -32,7 +32,6 @@ KNOWN_SKILL_DIRS = {
     "cs-issue-fix",
     "cs-issue-report",
     "cs-learn",
-    "cs-libdoc",
     "cs-note",
     "cs-onboard",
     "cs-refactor",
@@ -41,6 +40,10 @@ KNOWN_SKILL_DIRS = {
     "cs-roadmap",
     "cs-trick",
     "using-codestable",
+}
+
+RETIRED_SKILL_DIRS = {
+    "cs-libdoc",
 }
 
 IGNORED_PARTS = {"__pycache__", ".pytest_cache"}
@@ -110,6 +113,16 @@ def ref_head(root: Path, ref: str) -> str | None:
     return result.stdout.strip() if result.returncode == 0 else None
 
 
+def remote_default_branch(root: Path, remote: str) -> str:
+    result = git_text(root, "symbolic-ref", "--quiet", "--short", f"refs/remotes/{remote}/HEAD")
+    if result.returncode == 0 and result.stdout.strip().startswith(f"{remote}/"):
+        return result.stdout.strip().split("/", 1)[1]
+    for candidate in ("main", "master"):
+        if ref_head(root, f"refs/remotes/{remote}/{candidate}") or ref_head(root, candidate):
+            return candidate
+    return "main"
+
+
 def resolve_latest_ref(root: Path, remote: str, branch: str, explicit_ref: str | None, fetch: bool) -> tuple[str | None, str | None]:
     if explicit_ref:
         return (explicit_ref, ref_head(root, explicit_ref))
@@ -158,7 +171,11 @@ def compare_installed_root(source: Path, ref: str, installed_root: Path) -> dict
     findings: list[dict[str, str]] = []
     compared_skills: list[str] = []
     installed_skills = sorted(path.name for path in installed_root.iterdir() if path.is_dir() and path.name in KNOWN_SKILL_DIRS)
-    if not installed_skills:
+    retired_skills = sorted(path.name for path in installed_root.iterdir() if path.is_dir() and path.name in RETIRED_SKILL_DIRS)
+    for skill in retired_skills:
+        findings.append({"path": skill, "message": "Installed retired CodeStable skill should be removed."})
+
+    if not installed_skills and not retired_skills:
         return {"path": installed_root.as_posix(), "status": "unknown", "findings": [{"path": "", "message": "No installed CodeStable skill directories found."}]}
 
     for skill in installed_skills:
@@ -184,8 +201,22 @@ def compare_installed_root(source: Path, ref: str, installed_root: Path) -> dict
         "path": installed_root.as_posix(),
         "status": "stale" if findings else "current",
         "compared_skills": compared_skills,
+        "retired_skills": retired_skills,
         "findings": findings,
     }
+
+
+def finding_is_retired(finding: dict[str, str]) -> bool:
+    path = finding.get("path", "")
+    parts = Path(path).parts
+    return bool(parts and parts[0] in RETIRED_SKILL_DIRS)
+
+
+def has_non_retired_findings(item: dict[str, object]) -> bool:
+    findings = item.get("findings", [])
+    if not isinstance(findings, list):
+        return False
+    return any(isinstance(finding, dict) and not finding_is_retired(finding) for finding in findings)
 
 
 def check_freshness(
@@ -236,9 +267,15 @@ def check_freshness(
     root_results = [compare_installed_root(source, ref, root) for root in roots]
     stale = [item for item in root_results if item.get("status") == "stale"]
     unknown = [item for item in root_results if item.get("status") == "unknown"]
+    default_branch = remote_default_branch(source, remote)
+    branch_is_default = branch == default_branch and explicit_ref is None
+    retired_stale = [item for item in stale if item.get("retired_skills")]
     if stale:
         status = "stale"
-        summary = "Installed CodeStable skill copies differ from latest source."
+        if retired_stale and not branch_is_default:
+            summary = "Installed CodeStable skill copies differ from latest source; retired skills will be cleaned after default-branch sync."
+        else:
+            summary = "Installed CodeStable skill copies differ from latest source."
     elif unknown and len(unknown) == len(root_results):
         status = "unknown"
         summary = "Installed CodeStable skill roots could not be compared."
@@ -253,7 +290,25 @@ def check_freshness(
             f"--installed-root {item['path']} --sync-installed --json"
         )
         for item in stale
+        if branch_is_default or has_non_retired_findings(item)
     ]
+    retired_cleanup = {
+        "deferred": bool(retired_stale and not branch_is_default),
+        "message": (
+            f"Retired CodeStable skills are removed only by verifier sync from {remote}/{default_branch}."
+            if retired_stale
+            else ""
+        ),
+        "commands": [
+            (
+                "python3 codestable-maintainer/tools/verify.py "
+                f"--repo {source.as_posix()} --branch {default_branch} --remote {remote} "
+                f"--installed-root {item['path']} --sync-installed --json"
+            )
+            for item in retired_stale
+            if branch_is_default
+        ],
+    }
     return {
         "ok": status != "stale",
         "status": status,
@@ -262,8 +317,10 @@ def check_freshness(
         "source_root": source.as_posix(),
         "source_ref": ref,
         "source_head": head,
+        "default_branch": default_branch,
         "installed_roots": root_results,
         "update_commands": update_commands,
+        "retired_cleanup": retired_cleanup,
     }
 
 
@@ -295,6 +352,11 @@ def main() -> int:
             print("Update recommended before continuing:")
             for command in payload.get("update_commands", []):
                 print(f"- {command}")
+            retired_cleanup = payload.get("retired_cleanup") or {}
+            if isinstance(retired_cleanup, dict) and retired_cleanup.get("message"):
+                print(retired_cleanup["message"])
+                for command in retired_cleanup.get("commands", []):
+                    print(f"- {command}")
     return 0
 
 

@@ -1119,6 +1119,53 @@ def test_freshness_check_prompts_when_installed_copy_is_stale(tmp_path: Path) ->
     assert payload["installed_roots"][0]["findings"][0]["path"] == "using-codestable/SKILL.md"
 
 
+def test_freshness_check_prompts_when_retired_skill_is_installed(tmp_path: Path) -> None:
+    repo, _remote = make_freshness_source_repo(tmp_path, "latest\n")
+    installed = tmp_path / "installed"
+    write_file(installed / "cs-libdoc/SKILL.md", "retired\n")
+
+    payload = freshness_check.check_freshness(
+        source_root=repo.as_posix(),
+        installed_roots=[installed.as_posix()],
+        remote="origin",
+        branch="main",
+        fetch=True,
+    )
+
+    assert payload["ok"] is False
+    assert payload["status"] == "stale"
+    assert payload["should_prompt_update"] is True
+    assert payload["installed_roots"][0]["retired_skills"] == ["cs-libdoc"]
+    assert payload["installed_roots"][0]["findings"][0]["path"] == "cs-libdoc"
+    assert payload["update_commands"]
+    assert payload["retired_cleanup"]["deferred"] is False
+    assert payload["retired_cleanup"]["commands"]
+
+
+def test_freshness_check_defers_retired_only_cleanup_on_feature_branch(tmp_path: Path) -> None:
+    repo, _remote = make_freshness_source_repo(tmp_path, "latest\n")
+    run(repo, "switch", "-c", "codex/demo")
+    run(repo, "commit", "--allow-empty", "-m", "demo")
+    run(repo, "push", "-u", "origin", "codex/demo")
+    installed = tmp_path / "installed"
+    write_file(installed / "cs-libdoc/SKILL.md", "retired\n")
+
+    payload = freshness_check.check_freshness(
+        source_root=repo.as_posix(),
+        installed_roots=[installed.as_posix()],
+        remote="origin",
+        branch="codex/demo",
+        fetch=True,
+    )
+
+    assert payload["ok"] is False
+    assert payload["status"] == "stale"
+    assert payload["should_prompt_update"] is True
+    assert payload["update_commands"] == []
+    assert payload["retired_cleanup"]["deferred"] is True
+    assert "default-branch sync" in payload["summary"]
+
+
 def test_freshness_check_unknown_when_source_repo_missing(tmp_path: Path) -> None:
     payload = freshness_check.check_freshness(
         source_root=(tmp_path / "missing").as_posix(),
@@ -1204,13 +1251,16 @@ def test_maintainer_verify_blocks_real_installed_sync_from_feature_branch(tmp_pa
 def test_maintainer_verify_main_syncs_all_main_skill_dirs(tmp_path: Path) -> None:
     repo, _remote, validator = make_codestable_source_repo(tmp_path)
     installed = tmp_path / "installed"
+    write_file(installed / "cs-libdoc/SKILL.md", "retired\n")
 
     payload = maintainer_verify.verify(repo, "main", "origin", installed, validator.as_posix(), True)
 
     assert payload["ok"] is True
     assert payload["installable_units"] == ["codestable-maintainer", "cs-onboard"]
+    assert payload["retired_units"] == ["cs-libdoc"]
     assert (installed / "codestable-maintainer/SKILL.md").exists()
     assert (installed / "cs-onboard/SKILL.md").exists()
+    assert not (installed / "cs-libdoc").exists()
 
 
 def test_maintainer_verify_installed_compare_and_sync_ignore_runtime_caches(tmp_path: Path) -> None:

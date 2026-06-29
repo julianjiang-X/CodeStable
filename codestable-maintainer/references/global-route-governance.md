@@ -156,8 +156,7 @@ accept risk, or defer unresolved findings must upgrade to L2 or higher.
 | `cs-learn` | L1 | Trigger, lesson, evidence, and future avoidance rule. |
 | `cs-trick` | L1/L2 | Applicability, non-applicability, example, and risk. Project-wide rules upgrade to `cs-decide`. |
 | `cs-note` | L1 | Why the note belongs in always-loaded attention, target section, and expected lifetime. |
-| `cs-guide` | L1/L2 | Target reader, task scenario, source facts. User-visible behavior changes require owner review. |
-| `cs-libdoc` | L1 | Public surface source, signature, example, and evidence. Unclear semantics require clarification before writing docs. |
+| `cs-guide` | L1/L2 | Target reader, task scenario, source facts, and public surface evidence for API references. User-visible behavior or public understanding changes require owner review. |
 | `finish-worktree` | L2/L3 | Learner/context report freshness, `covered_head`, inbox state, merge readiness, stale-report, unresolved spec/review gates. |
 
 ## Global Escalation Triggers
@@ -207,7 +206,7 @@ explicit non-goal. Core scenarios:
 | `fast-path-stays-light` | Small UI/docs/refactor work records a skip and leaves long-lived specs unchanged. |
 | `fast-path-escalates-on-boundary` | A fast path that discovers capability-boundary change upgrades to L3 before spec mutation. |
 | `issue-fix-escalates-on-wrong-spec` | A bug fix can proceed locally, but wrong long-lived specs become analyze/delta owner review. |
-| `guide-user-contract-review` | User-visible guide or libdoc changes that alter public understanding require L2/L3 context. |
+| `guide-user-contract-review` | User-visible external docs changes that alter public understanding require L2/L3 context. |
 | `finish-inbox-stale-report` | Finish checks learner/context report freshness, `covered_head`, inbox status, stale-report, and merge readiness. |
 | `compact-resume-next-action` | A compacted actor recovers route, context level, and next action from artifacts/tools instead of chat. |
 

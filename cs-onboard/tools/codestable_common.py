@@ -78,7 +78,6 @@ KNOWN_SKILL_DIRS = {
     "cs-issue-fix",
     "cs-issue-report",
     "cs-learn",
-    "cs-libdoc",
     "cs-note",
     "cs-onboard",
     "cs-refactor",

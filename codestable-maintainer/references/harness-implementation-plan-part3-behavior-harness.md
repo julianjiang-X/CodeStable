@@ -153,7 +153,7 @@ Build these before the harness is considered useful:
   boundary or public-contract change upgrades to L3 before spec mutation.
 - `issue-fix-escalates-on-wrong-spec`: a fix can proceed locally, but wrong
   long-lived specs become analyze/delta owner review instead of silent edits.
-- `guide-user-contract-review`: user-facing guide or libdoc changes that alter
+- `guide-user-contract-review`: user-facing external docs changes that alter
   public understanding require L2/L3 context.
 - `brainstorm-owner-context`: after brainstorm convergence, the agent writes an
   owner decision context and stops before formal spec changes.

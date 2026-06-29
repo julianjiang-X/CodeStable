@@ -23,7 +23,7 @@ Usage examples:
   # JSON output for programmatic consumption
   python3 codestable/tools/validate-yaml.py --dir docs/api --json
 
-  # Validate the libdoc manifest
+  # Validate the API reference manifest
   python3 codestable/tools/validate-yaml.py --file docs/api/manifest.yaml --yaml-only
 """
 

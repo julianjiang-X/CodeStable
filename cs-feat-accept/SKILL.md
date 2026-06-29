@@ -257,10 +257,9 @@ requirements 的机会。
 1. 复用价值的坑点 / 经验 → "需要沉淀 learning 吗？（`cs-learn`）"
 2. 长期约束 / 技术选型 → "需要归档决定吗？（`cs-decide`）"
    - **特检**：design 第 2.5 节是否有"建议沉淀的 convention"段。有就把那条规则原文念给用户："design 2.5 建议沉淀这条 convention：『{规则一句话}』，跑通了，要不要现在 `cs-decide` 归档？"——这种是 design 阶段就识别出的稳定模式，比一般"问问看"更应该主动提
-3. 接口变更 / 用户可见行为变更 → "需要更新指南吗？（`cs-guide`）"
-4. 库公开接口（组件 / 函数 / 命令）变了 → "需要更新 API 参考吗？（`cs-libdoc`）"
-5. 第 8 节有 attention.md 候选 → 逐条问"候选 X 加到 attention.md 吗？" 用户明确同意 → 触发 `cs-note` 走分节归类 / 查重 / 软上限检查（不在 accept 里手写，避免和 cs-note 各搞一套口径）；**一次一条**
-6. 最后问是否代为 scoped-commit
+3. 接口变更 / 用户可见行为变更 / 公开 API 变更 → "需要更新对外文档吗？（`cs-guide`：dev-guide / user-guide / api-reference）"
+4. 第 8 节有 attention.md 候选 → 逐条问"候选 X 加到 attention.md 吗？" 用户明确同意 → 触发 `cs-note` 走分节归类 / 查重 / 软上限检查（不在 accept 里手写，避免和 cs-note 各搞一套口径）；**一次一条**
+5. 最后问是否代为 scoped-commit
 
 收尾提交规则看 `shared-conventions.md` 第 4 节。提交范围：功能代码 + 方案 doc + 验收报告 + 本次实际更新的架构 doc / req doc / roadmap items.yaml + 主文档。
 

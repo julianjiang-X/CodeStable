@@ -43,8 +43,7 @@ CodeStable 把这几类场景各配一套子技能，产物放进统一的目录
 - `cs-req` — 起草或刷新 `.codestable/requirements/` 下的需求文档——系统的能力愿景层，覆盖过去/现在/未来
 - `cs-arch` — 架构相关一站式:起草新架构文档 / 刷新已有文档 / 做架构体检(含 design 自洽 / design↔代码一致 / architecture 目录多份文档间一致)。architecture 只记现状
 - `cs-roadmap` — 把一块装不进单个 feature 的大需求拆成带依赖和状态的子 feature 清单,作为后续多次 feature 流程的种子和排期依据;独立于需求 / 架构档案
-- `cs-guide` — 写给外部读者的开发者指南 / 用户指南
-- `cs-libdoc` — 为库的公开 API 逐条目生成参考文档
+- `cs-guide` — 写给外部读者的开发者指南 / 用户指南 / API 参考
 
 
 ## 场景路由
@@ -67,8 +66,7 @@ CodeStable 把这几类场景各配一套子技能，产物放进统一的目录
 | 技术选型 / 约束 / 规约 | `cs-decide` |
 | 踩坑回顾、经验总结 | `cs-learn` |
 | 可复用的编程模式、库用法 | `cs-trick` |
-| 开发者指南 / 用户指南 | `cs-guide` |
-| 库 API 参考 | `cs-libdoc` |
+| 开发者指南 / 用户指南 / API 参考 | `cs-guide` |
 
 完整的操作手册、退出条件、和其他工作流的关系,各子技能里讲。
 

@@ -131,7 +131,7 @@ The current critical suite covers:
   before cleanup or rewrite;
 - long-lived requirements are not freely rewritten without an approved delta or
   owner clarification;
-- guide/libdoc updates that change user-visible understanding require
+- external docs updates that change user-visible understanding require
   `approval-report.md` before public contract mutation;
 - implementation starts only in a linked execution worktree, and a path named
   `.codex/worktrees/...` is not enough by itself;

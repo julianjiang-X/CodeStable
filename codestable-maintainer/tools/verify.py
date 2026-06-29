@@ -35,7 +35,6 @@ SKILL_DIRS = {
     "cs-issue-fix",
     "cs-issue-report",
     "cs-learn",
-    "cs-libdoc",
     "cs-note",
     "cs-onboard",
     "cs-refactor",
@@ -44,6 +43,10 @@ SKILL_DIRS = {
     "cs-roadmap",
     "cs-trick",
     "using-codestable",
+}
+
+RETIRED_SKILL_DIRS = {
+    "cs-libdoc",
 }
 
 
@@ -252,6 +255,20 @@ def sync_dir(source: Path, dest: Path) -> None:
             shutil.rmtree(cache)
 
 
+def remove_retired_skills(installed_root: Path) -> list[str]:
+    removed: list[str] = []
+    for skill in sorted(RETIRED_SKILL_DIRS):
+        dest = installed_root / skill
+        if not dest.exists():
+            continue
+        if dest.is_dir():
+            shutil.rmtree(dest)
+        else:
+            dest.unlink()
+        removed.append(skill)
+    return removed
+
+
 def verify(
     repo: Path,
     branch: str,
@@ -292,6 +309,7 @@ def verify(
     skills = existing_skill_dirs(repo) if sync_installed and branch == default_branch else changed_skill_dirs(paths)
     noninstalled = changed_noninstalled(paths, skills)
     clone_path: str | None = None
+    retired_units: list[str] = []
 
     if findings:
         return {
@@ -301,6 +319,7 @@ def verify(
             "installable_units": skills,
             "noninstalled": noninstalled,
             "fresh_clone": clone_path,
+            "retired_units": retired_units,
         }
 
     clone_root = Path(tempfile.mkdtemp(prefix="codestable-verify-"))
@@ -331,6 +350,8 @@ def verify(
                 sync_dir(source, dest)
             if not dirs_match(source, dest):
                 findings.append(Finding("P1", "Installed skill copy differs from fresh clone.", skill))
+        if sync_installed and branch == default_branch:
+            retired_units = remove_retired_skills(installed_root)
 
     return {
         "ok": not any(finding.severity == "P1" for finding in findings),
@@ -338,6 +359,7 @@ def verify(
         "changed_files": paths,
         "installable_units": skills,
         "noninstalled": noninstalled,
+        "retired_units": retired_units,
         "fresh_clone": clone_path,
         "sync_installed": sync_installed,
     }

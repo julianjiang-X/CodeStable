@@ -102,7 +102,7 @@ implemented:
   rewrite constraints.
 - `cs-feat-accept`: apply approved requirement deltas mechanically and run a
   read-only analyze pass before completion.
-- `cs-feat-ff`, `cs-issue-fix`, `cs-refactor-ff`, `cs-guide`, and `cs-libdoc`:
+- `cs-feat-ff`, `cs-issue-fix`, `cs-refactor-ff`, and `cs-guide`:
   stay lightweight by default, record explicit skips, and escalate when they
   discover capability-boundary, public-contract, or long-lived spec effects.
 - `finish-worktree`: enforce learner/context report freshness, `covered_head`,
@@ -110,4 +110,3 @@ implemented:
 - `cs-onboard/reference/shared-conventions.md`: document global route
   governance, long-lived specs, deltas, owner context, clarification, and
   historical rehabilitation semantics.
-

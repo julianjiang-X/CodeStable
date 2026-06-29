@@ -12,7 +12,7 @@ Tired of OpenSpec's flimsiness, Oh-My-OpenAgent's over-engineering, and Superpow
 
 <p>
   <img src="https://img.shields.io/badge/status-beta-F59E0B?style=flat-square" alt="Status"/>
-  <img src="https://img.shields.io/badge/skills-29-6366F1?style=flat-square" alt="Skills"/>
+  <img src="https://img.shields.io/badge/skills-28-6366F1?style=flat-square" alt="Skills"/>
   <img src="https://img.shields.io/badge/license-MIT-10B981?style=flat-square" alt="License"/>
 </p>
 
@@ -116,8 +116,7 @@ CodeStable's bet is simple: in serious software work, chaos often comes not from
 <tr><td><code>cs-trick</code></td><td>Capture reusable patterns, library usage, and techniques</td></tr>
 <tr><td><code>cs-decide</code></td><td>Record settled technical choices, architecture decisions, and long-term constraints</td></tr>
 <tr><td><code>cs-note</code></td><td>Append short, stable, always-loaded project notes to <code>.codestable/attention.md</code></td></tr>
-<tr><td rowspan="2"><b>External docs</b></td><td><code>cs-guide</code></td><td>Write developer and user guides, defaulting to <code>docs/dev/</code> and <code>docs/user/</code></td></tr>
-<tr><td><code>cs-libdoc</code></td><td>Write per-entry API / component / command reference docs, defaulting to <code>docs/api/</code></td></tr>
+<tr><td><b>External docs</b></td><td><code>cs-guide</code></td><td>Write developer guides, user guides, and API references, defaulting to <code>docs/dev/</code>, <code>docs/user/</code>, and <code>docs/api/</code></td></tr>
 <tr><td><b>Browser</b></td><td><code>browser-bridge</code></td><td>Use a Chrome extension for real browser control, DOM extraction, and component evidence</td></tr>
 <tr><td><b>Maintenance</b></td><td><code>codestable-maintainer</code></td><td>Maintain CodeStable source, harnesses, fresh-clone verifier, and main-only installed-copy sync</td></tr>
 </table>
@@ -143,7 +142,7 @@ your-project/
 │   ├── brainstorms/                 # Temporary spike area for brainstorm
 │   ├── tools/                       # Shared scripts released by onboard
 │   └── reference/                   # Shared conventions released by onboard
-└── docs/                            # Default output for cs-guide / cs-libdoc
+└── docs/                            # Default output for cs-guide
 ```
 
 Hard constraints:

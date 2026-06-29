@@ -107,7 +107,7 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 - 各子技能只认自己的 `doc_type` 不读写别家
 - `status` 等通用字段语义和本文件保持一致
 
-**外部读者文档**（guidedoc / libdoc）：frontmatter 由各自子技能定义。无特殊说明：`draft` = 待 review，`current` = 当前有效，`outdated` = 代码已变更待同步。
+**外部读者文档**：由 `cs-guide` 维护 `dev-guide` / `user-guide` / `api-reference` 三种模式。无特殊说明：`draft` = 待 review，`current` = 当前有效，`outdated` = 代码已变更待同步。
 
 **写作约束**：子技能提字段时优先写"额外字段"或"阶段状态变化"，不重复展开整套通用字段。
 
@@ -182,9 +182,8 @@ packet 和 subagent 执行选择已拆到
 
 1. `cs-learn`：沉淀经验
 2. `cs-decide`：长期约束 / 选型
-3. `cs-guide`：开发者 / 用户指南
-4. `cs-libdoc`：公开 API 参考
-5. `scoped-commit`
+3. `cs-guide`：开发者 / 用户指南 / API 参考
+4. `scoped-commit`
 
 **issue-fix** 收尾按顺序判断：
 

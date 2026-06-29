@@ -12,7 +12,7 @@
 
 <p>
   <img src="https://img.shields.io/badge/status-beta-F59E0B?style=flat-square" alt="Status"/>
-  <img src="https://img.shields.io/badge/skills-29-6366F1?style=flat-square" alt="Skills"/>
+  <img src="https://img.shields.io/badge/skills-28-6366F1?style=flat-square" alt="Skills"/>
   <img src="https://img.shields.io/badge/license-MIT-10B981?style=flat-square" alt="License"/>
 </p>
 
@@ -116,8 +116,7 @@ CodeStable 的判断是：严肃软件工程的混乱，很多时候不是 agent
 <tr><td><code>cs-trick</code></td><td>沉淀可复用模式、库用法和技术技巧</td></tr>
 <tr><td><code>cs-decide</code></td><td>记录已拍板的技术选型、架构决定和长期约束</td></tr>
 <tr><td><code>cs-note</code></td><td>把短、稳、每次启动都该知道的项目注意事项写入 <code>.codestable/attention.md</code></td></tr>
-<tr><td rowspan="2"><b>外部文档</b></td><td><code>cs-guide</code></td><td>写开发者指南 / 用户指南，默认输出到 <code>docs/dev/</code> 和 <code>docs/user/</code></td></tr>
-<tr><td><code>cs-libdoc</code></td><td>给公开 API、组件、命令写逐条目参考文档，默认输出到 <code>docs/api/</code></td></tr>
+<tr><td><b>外部文档</b></td><td><code>cs-guide</code></td><td>写开发者指南 / 用户指南 / API 参考，默认输出到 <code>docs/dev/</code>、<code>docs/user/</code> 和 <code>docs/api/</code></td></tr>
 <tr><td><b>浏览器</b></td><td><code>browser-bridge</code></td><td>通过 Chrome 扩展做真实浏览器操作、DOM 抽取和组件证据采集</td></tr>
 <tr><td><b>维护</b></td><td><code>codestable-maintainer</code></td><td>维护 CodeStable 源仓、harness、fresh clone verifier 和 main-only installed copy sync</td></tr>
 </table>
@@ -143,7 +142,7 @@ your-project/
 │   ├── brainstorms/                 # brainstorm spike 临时代码区
 │   ├── tools/                       # onboard 释放的共享脚本
 │   └── reference/                   # onboard 释放的共享口径
-└── docs/                            # cs-guide / cs-libdoc 默认写这里
+└── docs/                            # cs-guide 默认写这里
 ```
 
 几条硬约束：

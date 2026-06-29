@@ -53,7 +53,7 @@ Write `approval-report.md` for:
 - interview / grill checkpoints whose answer changes route, scope, or next work;
 - route choice between plausible workflows or canonical specs;
 - review authorization, implementation subagent authorization, or inline-review fallback;
-- guide / libdoc wording that changes public capability boundaries;
+- external docs wording that changes public capability boundaries;
 - worktree override, gate override, destructive action, secrets, external purchase,
   merge, deploy, or risk acceptance;
 - blocker / owner-stop decisions;
