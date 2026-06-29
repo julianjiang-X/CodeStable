@@ -23,7 +23,7 @@ Tired of OpenSpec's flimsiness, Oh-My-OpenAgent's over-engineering, and Superpow
 ## Install
 
 ```bash
-npx skills add https://github.com/stellazhan/CodeStable
+npx skills add https://github.com/julianjiang-X/CodeStable
 ```
 
 Onboard a repository first:

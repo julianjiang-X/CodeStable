@@ -23,7 +23,7 @@
 ## 安装
 
 ```bash
-npx skills add https://github.com/stellazhan/CodeStable
+npx skills add https://github.com/julianjiang-X/CodeStable
 ```
 
 新仓库先接入：
@@ -231,7 +231,7 @@ CodeStable 与 OMO 的哲学相反：OMO 认为人介入是失败信号；CodeSt
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/chart?repos=liuzhengdongfortest/CodeStable&type=date&legend=top-left)](https://www.star-history.com/?repos=liuzhengdongfortest%2FCodeStable&type=date&legend=top-left)
+[![Star History Chart](https://api.star-history.com/chart?repos=julianjiang-X/CodeStable&type=date&legend=top-left)](https://www.star-history.com/?repos=julianjiang-X%2FCodeStable&type=date&legend=top-left)
 
 <div align="center">
 
