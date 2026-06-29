@@ -142,6 +142,7 @@ design 只管"编排-计算分离"里的编排那一侧：**这次 feature 在�
 
 1. **续作检查**——Glob `{slug}-design.md` / `{slug}-intent.md` / `{slug}-brainstorm.md`：
    - intent / brainstorm：当作输入读入，不重复问已讲清的部分
+   - `grill/*.md`：只读 `doc_type: grill-context` 且 `status: accepted` 的文件作 human review context；必须保留 `source_of_truth: false`，不能覆盖 requirement / roadmap / design 事实
    - design `status=draft` 各节基本完整 → 跳到本流程"5. 整体 review"
    - design 部分节缺失 → 补缺失节，汇报"上次写到 X，补齐统一给你 review"
    - design `status=approved` → 别默认覆盖，问用户接着改还是另起 slug

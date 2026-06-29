@@ -27,8 +27,8 @@ Behavior harness 必须测试这套矩阵本身，而不是只测试某个 roadm
 - 轻量任务保持轻量，不生成不必要的 requirement delta。
 - 模糊任务在 route choice 前写 `approval-report.md`。
 - fast path 一旦发现 capability boundary 或 spec drift，升级到 L3。
-- goal path 先把 interview / grill 落成起点报告，再默认自主迭代；完成前必须有 subagent 功能性验收。验收冲突、spec/public contract 变化或重复 blocker 会 owner-stop。
-- `interview me` / `grill me` 是全局 interaction modes：前者轻量采访，后者可深入压测计划 / 设计的每个相关分支；都先帮助路由，不自动生成重型产物。
+- goal path 先把目标边界落成起点报告，再默认自主迭代；显式 owner-heavy grill 另写 `grill-context`，但 `state.yaml` / `goal.md` 仍是目标记录。完成前必须有 subagent 功能性验收。验收冲突、spec/public contract 变化或重复 blocker 会 owner-stop。
+- `interview me` / `grill me` 是全局 interaction modes：前者轻量采访；后者是 owner-heavy 压测，默认写 `grill-context`。小任务不自动触发 full grill；`grill-context` 只作 human review context，必须 `source_of_truth: false`。
 - implementation / fix / refactor 过程中发现长期文档错误时，停止直接改 spec。
 - finish worktree 检查 learner/context report、`covered_head` 和 inbox 状态。
 - clean / compacted actor 能从 artifacts 和 tools 恢复同样的 next action。
@@ -132,10 +132,10 @@ accept risk, or defer unresolved findings must upgrade to L2 or higher.
 
 | Route | Default level | Required behavior |
 |---|---|---|
-| `cs` | L1/L2 | Explain route, nearby exclusions when ambiguous, context level, and escalation trigger. If the owner says `interview me` or `grill me`, run the shared interaction mode before final routing; explicit `grill me` may relentlessly walk every relevant plan / design branch one question at a time. If route choice itself needs owner approval before any unit exists, write `.codestable/brainstorms/{slug}/approval-report.md` and owner-stop. |
+| `cs` | L1/L2 | Explain route, nearby exclusions when ambiguous, context level, and escalation trigger. If the owner says `interview me`, ask lightweight route context. If the owner says `grill me`, treat it as owner-heavy pressure testing: write repo-relative `grill-context` under `.codestable/brainstorms/{slug}/grill/` until route-ready, split `route-ready` from owner `accepted`, and keep `source_of_truth: false`. If route choice itself needs owner approval before any unit exists, write `.codestable/brainstorms/{slug}/approval-report.md` and owner-stop. |
 | `cs-onboard` | L2/L4 | Empty repos can stay L1. Existing docs require inventory, mapping, trusted/stale classification, and owner approval before migration. |
 | `cs-goal` | L1/L2 | Grill bounded start/end goals, create dated `goals/YYYY-MM-DD-{slug}/` with `state.yaml` plus start/iteration reports before implementation, follow the report language policy from `.codestable/attention.md`, autonomously iterate, and require subagent functional acceptance before completion. Acceptance conflicts, spec/public-contract changes, repeated blockers, budget exhaustion, unavailable subagent acceptance, or risk acceptance trigger owner-stop with `approval-report.md` if the iteration report is insufficient. |
-| `cs-brainstorm` | L1 -> L2 | Freeform discussion stays light. When interview / grill / route choice needs owner approval context, write `approval-report.md` before asking. |
+| `cs-brainstorm` | L1 -> L2 | Freeform discussion stays light. Do not auto-trigger full grill for small work. Explicit grill writes `grill-context`; route-ready context can drive routing but is not accepted until owner confirms. When route choice needs owner approval context, write `approval-report.md` before asking. |
 | `cs-roadmap` | L2/L3 | Owner brief, scope/non-goals, phases, owner decisions, clarifications, and any spec deltas implied by the roadmap. |
 | `cs-feat` | L1 | Stage routing and whether this is design, fast-forward, implementation, or acceptance. Ambiguous route requires a route-choice brief. |
 | `cs-feat-design` | L2/L3 | Spec router, selected/excluded specs, clarifications, owner-readable design brief, and req-delta draft when capability boundaries change. |
@@ -192,9 +192,11 @@ explicit non-goal. Core scenarios:
 | `codestable-freshness-warning` | A stale installed CodeStable copy produces an update prompt before lifecycle routing. |
 | `cs-root-route-choice-approval-report` | Root route ambiguity writes intake `approval-report.md` under `brainstorms/` before owner choice. |
 | `global-interview-mode-routes-lightly` | `interview me` asks one gentle context question, does not create artifacts, and proceeds toward route selection. |
-| `global-grill-mode-does-not-overroute-goal` | Standalone `grill me` without bounded acceptance may relentlessly pressure-test the idea but does not create goal artifacts or route to `cs-goal`. |
-| `global-grill-bounded-routes-goal` | `grill me first, then implement` with observable acceptance routes to `cs-goal`, not generic brainstorm, while allowing a deeper goal-boundary grill. |
-| `global-interaction-mode-chinese-triggers` | Chinese trigger phrases map to interview / grill modes without creating lifecycle artifacts. |
+| `global-small-task-does-not-trigger-grill` | A small ordinary task uses L1 route/scope brief, does not enter `grill_mode`, and does not create `grill-context`. |
+| `global-grill-mode-does-not-overroute-goal` | Standalone `grill me` without bounded acceptance writes a brainstorm `grill-context`, but does not create goal artifacts or route to `cs-goal`. |
+| `global-grill-bounded-routes-goal` | `grill me first, then implement` with observable acceptance routes to `cs-goal`, writes a pre-route `grill-context`, and avoids generic brainstorm routing. |
+| `global-grill-accepted-context-kept` | Accepted grill context is promoted into the target unit `grill/`, the brainstorm path keeps a pointer, and the document remains `source_of_truth: false`. |
+| `global-interaction-mode-chinese-triggers` | Chinese trigger phrases map to interview / grill modes; interview stays artifact-free while grill creates only `grill-context`, not lifecycle specs. |
 | `goal-autonomous-iteration-docs` | Bounded goal creates a dated goal directory, machine state, start docs, iteration docs, follows attention report language policy, and does not ask owner for routine technical choices. |
 | `goal-start-report-before-code` | Interview / grill creates a start report in a dated goal directory before implementation and does not edit code first. |
 | `goal-code-edits-use-execution-gate` | Goal-wrapped code edits read execution conventions, run the worktree start gate, and stop before code changes when a linked worktree is required. |

@@ -61,10 +61,15 @@ description: 把"大到塞不进单个 feature"的需求做成完整事前规划
 .codestable/roadmap/{slug}/
 ├── {slug}-roadmap.md       主文档：背景 / 范围 / 模块拆分（概设）/ 接口契约（架构层详设）/ 子 feature 清单 / 排期
 ├── {slug}-items.yaml       机器可读清单（feature-design 读、feature-acceptance 回写）
+├── grill/                  可选，accepted grill-context，供 human review
 └── drafts/                 可选，调研 / 讨论 / 草稿
 ```
 
 `{slug}` 小写字母 / 数字 / 连字符，和大需求一致（`permission-system`、`notification-center`）。平铺不嵌套 epic / sub-epic。`drafts/` 按需建，AI 不强制归档。
+
+如果目录里有 `grill/*.md`，只把 `doc_type: grill-context` 且 `status: accepted`
+的文件当 human review context 读；它必须 `source_of_truth: false`，不能覆盖
+roadmap 主文档、items.yaml、requirements 或 architecture。
 
 ---
 
@@ -79,6 +84,7 @@ description: 把"大到塞不进单个 feature"的需求做成完整事前规划
 **共同必读**：`.codestable/attention.md` + 用户素材 + `roadmap/` 其他 roadmap（防重复）+ `requirements/` 相关 req + `architecture/` 相关 doc。
 
 **按情况读**：
+- 本 roadmap 或相关 brainstorm 里 accepted `grill-context`：只作 human review context，不当 source of truth
 - 相关 compound 沉淀：`python3 .codestable/tools/search-yaml.py --dir .codestable/compound --query "{大需求关键词}"`
 - 已有相关 feature 方案
 

@@ -9,12 +9,19 @@ Use this file for templates and recovery rules after `cs-goal` triggers.
 ├── state.yaml
 ├── goal.md
 ├── functional-acceptance.md
+├── grill/
+│   └── round-NNN-{axis}.md
 └── iterations/
     └── 001.md
 ```
 
 `{slug}` is short English kebab-case. The date is the goal creation date. Reuse
 an active matching goal instead of creating a duplicate.
+
+`grill/` is optional and only used when the owner explicitly requested full
+grill mode before the goal. Its files are `doc_type: grill-context` with
+`source_of_truth: false`; they inform human review but do not override
+`state.yaml` or `goal.md`.
 
 ## state.yaml Schema
 

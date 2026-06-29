@@ -6,9 +6,9 @@ description: 目标达成工作流——处理有明确起点/终点、验收结
 # cs-goal
 
 `cs-goal` handles bounded goals: the owner gives the starting point and desired
-end state, then CodeStable grills lightly, writes a start report, implements
-autonomously, verifies, self-iterates, and records functional acceptance before
-completion.
+end state, then CodeStable aligns the goal boundary, writes a start report,
+implements autonomously, verifies, self-iterates, and records functional
+acceptance before completion.
 
 This is a goal wrapper, not a replacement for feature / issue / refactor rules.
 When the goal crosses a capability boundary, exposes a bug root cause, or needs
@@ -95,12 +95,19 @@ explicitly requires multiple language copies.
 
 ## Phase 1: Grill Alignment
 
-Always grill before creating a new goal. This is goal grill alignment: keep it
-short, owner-level, and limited to the goal boundary.
+Always align the goal boundary before creating a new goal. This is lightweight
+goal alignment, not full owner-heavy grill mode: keep it short, owner-level, and
+limited to the goal boundary.
 
 If the owner explicitly said `grill me` or a grill alias, allow a relentless
 pass across every relevant goal, acceptance, risk, and non-goal branch before
-creating the goal. Otherwise keep alignment short.
+creating the goal. In that explicit mode, write or continue the shared
+`grill-context`: route-unclear rounds live under `.codestable/brainstorms/{slug}/grill/`;
+after owner acceptance, copy or migrate the accepted context into the goal unit
+`grill/` directory. `grill-context` must keep `source_of_truth: false`; `goal.md`
+and `state.yaml` remain the goal records.
+
+Otherwise keep alignment short and do not create grill-context docs.
 
 Each round uses one question plus 2-4 meaningfully different choices. Include
 your recommended answer when useful, marking uncertainty if the recommendation

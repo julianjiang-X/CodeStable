@@ -21,6 +21,7 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 │   └── {slug}/            一个大需求一个子目录（cs-roadmap 产出）
 │       ├── {slug}-roadmap.md   主文档：背景 / 范围 / 模块拆分 / 接口契约 / 子 feature 清单 / 排期
 │       ├── {slug}-items.yaml   机器可读子 feature 清单，acceptance 回写状态
+│       ├── grill/              可选，accepted grill-context，供 human review
 │       └── drafts/             可选
 ├── goals/                 限定起点/终点的自主迭代目标（起点报告 / iteration / 功能验收）
 │   └── YYYY-MM-DD-{slug}/
@@ -28,12 +29,14 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 │       ├── goal.md
 │       ├── functional-acceptance.md
 │       ├── approval-report.md  （需要 owner 审批但最近迭代报告未承载上下文时）
+│       ├── grill/              可选，accepted grill-context，供 human review
 │       └── iterations/
 ├── features/              feature spec 聚合根
 │   └── YYYY-MM-DD-{slug}/  每个 feature 一个目录
 │       ├── {slug}-brainstorm.md  （可选，case 2 时产出）
 │       ├── {slug}-design.md      （标准流程）
 │       ├── {slug}-checklist.yaml （标准流程）
+│       ├── grill/               可选，accepted grill-context，供 human review
 │       ├── {slug}-implementation-review.md （实现完成门禁）
 │       ├── {slug}-acceptance.md  （标准流程）
 │       └── {slug}-ff-note.md     （fastforward 通道唯一产物，与上面四份互斥）
@@ -41,6 +44,7 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 │   └── YYYY-MM-DD-{slug}/
 │       ├── {slug}-report.md
 │       ├── {slug}-analysis.md   （根因不显然才有）
+│       ├── grill/               可选，accepted grill-context，供 human review
 │       ├── {slug}-implementation-review.md
 │       └── {slug}-fix-note.md
 ├── refactors/             refactor spec 聚合根
@@ -53,9 +57,11 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 ├── compound/              沉淀类文档统一目录
 │   └── YYYY-MM-DD-{doc_type}-{slug}.md
 │                          doc_type ∈ {learning, trick, decision, explore}
-├── brainstorms/           brainstorm 阶段 spike 实验代码区（cs-brainstorm 临时产出）
-│   └── {slug}/            一次 spike 一个子目录，文件名随意
-│                          验完不强制清理，结论回写到对应 brainstorm note
+├── brainstorms/           brainstorm / pre-route grill / spike 临时产出
+│   └── {slug}/
+│       ├── brainstorm.md        可选，open brainstorm 记录
+│       ├── grill/               route 未定前的 grill-context round docs
+│       └── spike files          可选，文件名随意；结论回写到对应 note
 ├── tools/                 跨工作流共享脚本（onboard 从技能包释放）
 └── reference/             共享参考文档（onboard 从技能包释放，含 interaction-modes.md）
 ```
@@ -68,6 +74,11 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 - feature / issue / refactor 目录：带日期前缀 `YYYY-MM-DD-{slug}`
 - 沉淀类：`compound/YYYY-MM-DD-{doc_type}-{slug}.md`，日期用**归档当天**
 - 架构 doc：`architecture/{type}-{slug}.md`（长效，不带日期前缀）；总入口固定 `ARCHITECTURE.md`
+- grill context：route 未定前写
+  `brainstorms/{slug}/grill/round-NNN-{axis}.md`；route-ready 后可复制或迁移到
+  `{workflow}/{unit}/grill/round-NNN-{axis}.md`，原 brainstorm 路径保留
+  repo-relative 指针。`doc_type: grill-context` 必须带
+  `source_of_truth: false`，只能作为 human review context。
 - 项目注意事项入口固定为 `.codestable/attention.md`，所有 CodeStable 子技能启动前必须读取；不再兼容 `AGENTS.md` / `CLAUDE.md` 等外部入口
 
 ### 报告语言策略

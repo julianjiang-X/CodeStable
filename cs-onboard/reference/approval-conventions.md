@@ -7,8 +7,13 @@ human approval reports.
 ## Core Rule
 
 Before asking the owner to choose, approve, authorize, accept risk, sign off,
-merge, deploy, override a gate, or answer an interview / grill checkpoint, write
-a human-readable approval report in the relevant `.codestable` unit.
+merge, deploy, override a gate, or answer an interview / grill checkpoint that
+changes route, scope, or next work, write a human-readable approval report in
+the relevant `.codestable` unit.
+
+Routine grill pressure-test rounds use `grill-context` docs instead. A
+`grill-context` preserves owner discussion for human review, but it is not an
+approval report and must not be treated as a source of truth.
 
 Canonical stage reports can satisfy this rule when they already contain the
 decision, options, recommendation, tradeoffs, evidence, consequence, and next
@@ -50,7 +55,8 @@ Use the closest durable workflow directory:
 
 Write `approval-report.md` for:
 
-- interview / grill checkpoints whose answer changes route, scope, or next work;
+- interview / grill checkpoints whose answer approves, rejects, or changes
+  route, scope, risk, or next work;
 - route choice between plausible workflows or canonical specs;
 - review authorization, implementation subagent authorization, or inline-review fallback;
 - external docs wording that changes public capability boundaries;

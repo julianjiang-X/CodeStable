@@ -29,12 +29,17 @@ brainstorm 是讨论层独立入口，会分诊：case 1（清楚 → 直接 des
 ├── {slug}-intent.md           ← 阶段 1 可选前置草稿（用户自己写半成品）
 ├── {slug}-design.md           ← 阶段 1 方案文件
 ├── {slug}-checklist.yaml      ← 阶段 1 生成 steps + checks，2/3 阶段更新 status
+├── grill/                     ← 可选，accepted grill-context，供 human review
 └── {slug}-acceptance.md       ← 阶段 3 验收报告
 ```
 
 目录命名 `YYYY-MM-DD-{英文 slug}`，日期取首次创建当天定了不动；slug 小写字母 / 数字 / 连字符。
 
 为什么聚一起：以后查"那个导出 CSV 功能当时怎么决定的"，brainstorm / design / acceptance 都在一处。feature 和 issue 分别放在 `.codestable/features/` 和 `.codestable/issues/` 因为归档逻辑不一样。
+
+如果目录里有 `grill/*.md`，只把 `doc_type: grill-context` 且 `status: accepted`
+的文件当 human review context 读；它必须 `source_of_truth: false`，不能覆盖
+design / checklist / acceptance 或 requirement。
 
 实现 feature 时顺手发现的 bug → 记成新 issue，**不在 feature PR 里偷偷修**——验收时分不清范围，git blame 找不到为什么改。
 

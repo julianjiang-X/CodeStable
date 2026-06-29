@@ -12,14 +12,14 @@ CodeStable 把这几类场景各配一套子技能，产物放进统一的目录
 **根入口**——开放式诉求 / 不知道走哪个时的统一入口:
 
 - `cs` — 介绍体系全貌 + 把诉求路由到正确的 cs-* 子技能。本技能不做事,只做分诊和提示
-- 全局 interaction modes — 用户显式说 `interview me` / "采访我" 时轻量采访收集上下文；说 `grill me` / "拷问我" 时可深入压测计划 / 设计的每个相关分支，再路由到具体子技能
+- 全局 interaction modes — 用户显式说 `interview me` / "采访我" 时轻量采访收集上下文；说 `grill me` / "拷问我" 时进入 owner-heavy 压测，并用 `grill-context` 记录每轮上下文，再路由到具体子技能
 
 **做事**——从一段模糊想法走到上线的功能、从一份错误报告走到修好的 bug，或者从限定目标走到验收结果:
 
 - `cs-feat` — 新功能,design → implement → acceptance（想法还模糊时先走讨论层 `cs-brainstorm` 做分诊，不属于 feature 流程内部）
 - `cs-issue` — 修 bug,report → analyze → fix
 - `cs-refactor` — 代码优化(行为不变、结构/性能/可读性变),scan → design → apply
-- `cs-goal` — 限定起点和终点的目标达成,先 grill 对齐并写起点报告，再自主迭代，完成前做功能验收
+- `cs-goal` — 限定起点和终点的目标达成,先做目标边界对齐并写起点报告，再自主迭代，完成前做功能验收
 
 这些流程都先建立可恢复的上下文，再让 AI 动手；goal 场景把状态放进 `state.yaml`，需要 owner 审批、选择、授权或接受风险但没有阶段报告承载上下文时，先在对应目录写 `approval-report.md`。feature / issue / refactor 则用各自 spec 或 analysis。这样能控制术语冲突、范围失控、改完不留存档这三种 AI 默认会出的问题。
 
@@ -53,7 +53,7 @@ CodeStable 把这几类场景各配一套子技能，产物放进统一的目录
 | 场景 | 子技能 |
 |---|---|
 | "interview me" / "采访我" / "先问我" | 先用 interview mode 问清上下文，再由 `cs` 路由 |
-| "grill me" / "拷问我" / "追问我" | 先用 grill mode 深入压测边界、验收、风险和依赖决策；有明确验收和自主执行诉求则 `cs-goal`，否则多半 `cs-brainstorm` |
+| "grill me" / "拷问我" / "追问我" | 先用 grill mode 深入压测边界、验收、风险和依赖决策，并默认写 `grill-context`；有明确验收和自主执行诉求则 `cs-goal`，否则多半 `cs-brainstorm` |
 | 限定起点 / 终点 / 验收结果，想让 AI 自主迭代到完成 | `cs-goal` |
 | 想法还模糊 / "有个想法没想清楚" / "先聊聊" | `cs-brainstorm`(分诊后路由到 design / feature-brainstorm 落盘 / roadmap) |
 | 新功能 / 新能力 | `cs-feat` |
@@ -110,7 +110,7 @@ AI 最常见的问题是一口气铺几百行代码才让人看——等发现�
 - `.codestable/reference/execution-conventions.md` — worktree、review、finish、commit 和 handoff 执行约定
 - `.codestable/reference/approval-conventions.md` — owner 审批报告和 `approval-report.md` 约定
 - `.codestable/reference/goal-conventions.md` — goal 状态模型、报告和 owner-stop 约定
-- `.codestable/reference/interaction-modes.md` — `interview me` / `grill me` 的全局对话模式约定
+- `.codestable/reference/interaction-modes.md` — `interview me` / `grill me` 的全局对话模式和 `grill-context` 约定
 - `.codestable/reference/tools.md` + `tools-part*.md` — 常用共享工具用法
 - `.codestable/reference/spec-governance-tools.md` — spec routing、clarification、req delta、inventory、analyze 工具用法
 - `.codestable/reference/maintainer-notes.md` — 断点恢复、新增子工作流的登记

@@ -7,9 +7,9 @@ for `cs-goal`.
 ## Purpose
 
 Goals are bounded start/end work units. The owner defines the outcome and
-acceptance signal; AI interviews / grills briefly, writes a start report,
-implements, verifies, self-iterates, and writes iteration reports. A goal can
-close only after subagent functional acceptance of the produced result.
+acceptance signal; AI aligns the boundary, writes a start report, implements,
+verifies, self-iterates, and writes iteration reports. A goal can close only
+after subagent functional acceptance of the produced result.
 
 Use goals when the request says "reach this result", "run until accepted",
 "self-iterate", "AI implements autonomously", or "grill me first, then
@@ -20,6 +20,12 @@ request, goal alignment may be relentless: walk every relevant objective,
 acceptance, risk, and non-goal branch one question at a time, provide your
 recommended answer, and inspect code or existing CodeStable docs instead of
 asking questions those sources can answer.
+
+In that explicit owner-heavy mode, write or continue `grill-context` docs. Route
+unclear rounds live under `.codestable/brainstorms/{slug}/grill/`; after owner
+acceptance, copy or migrate the accepted context into the goal unit `grill/`
+directory. Keep `source_of_truth: false`: `state.yaml` and `goal.md` remain the
+goal records.
 
 Do not route standalone "grill me" prompts here unless a bounded destination is
 known. Without a start/end objective or observable acceptance, use the global
@@ -42,6 +48,8 @@ copies only when attention explicitly requires multiple language copies.
 ├── state.yaml
 ├── goal.md
 ├── functional-acceptance.md
+├── grill/
+│   └── round-NNN-{axis}.md
 └── iterations/
     └── 001.md
 ```

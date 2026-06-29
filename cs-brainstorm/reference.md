@@ -75,3 +75,52 @@ tags: [...]
 ## 遗留问题 & 下一步
 {最大的未知 / 需要验证的假设 / 建议 roadmap 注意的点}
 ```
+
+## grill-context 模板
+
+用于显式 owner-heavy grill。route 未定前路径为
+`.codestable/brainstorms/{slug}/grill/round-NNN-{axis}.md`；owner 接受后复制或
+迁移到目标 unit 的 `grill/` 目录。所有路径写 repo-relative。
+
+```markdown
+---
+doc_type: grill-context
+status: draft # draft | route-ready | accepted | superseded
+source_of_truth: false
+owner_review_use: true
+route: undecided
+promoted_to: null
+created_at: YYYY-MM-DD
+---
+
+# Grill Round NNN: {Axis}
+
+## Evidence Read
+{读过的代码 / CodeStable 文档；只写 repo-relative paths}
+
+## Current Route State
+{当前更像 cs-brainstorm / cs-goal / cs-roadmap / cs-feat 等，以及为什么}
+
+## Axis
+{本轮只压测的一个问题方向}
+
+## Options
+1. {选项 A}
+2. {选项 B}
+3. {选项 C}
+
+## Recommendation
+{推荐答案；若依赖缺失证据，标为暂定}
+
+## Owner Answer
+{owner 的选择 / 修正 / 拒绝；未回答时写 pending}
+
+## Assumptions And Risks
+{明确区分 sourced fact 和 agent inference}
+
+## Route-Ready / Acceptance Notes
+{route-ready 不等于 accepted；owner 明确接受后再改 status}
+
+## Next Question
+{下一轮只问一个问题；没有就写 none}
+```

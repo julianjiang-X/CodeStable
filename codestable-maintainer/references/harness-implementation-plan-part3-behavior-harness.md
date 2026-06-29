@@ -160,13 +160,20 @@ Build these before the harness is considered useful:
 - `global-interview-mode-routes-lightly`: explicit `interview me` asks one
   lightweight context question, does not create artifacts, and moves toward
   route selection.
+- `global-small-task-does-not-trigger-grill`: a small ordinary task uses L1
+  route/scope brief, does not enter `grill_mode`, and does not create
+  `grill-context`.
 - `global-grill-mode-does-not-overroute-goal`: standalone `grill me` without
-  bounded acceptance pressure-tests the idea but does not create goal artifacts
-  or route to `cs-goal`.
+  bounded acceptance writes a brainstorm `grill-context` but does not create
+  goal artifacts or route to `cs-goal`.
 - `global-grill-bounded-routes-goal`: `grill me first, then implement` with
-  observable acceptance routes to `cs-goal`.
+  observable acceptance routes to `cs-goal` and records pre-route grill context.
+- `global-grill-accepted-context-kept`: accepted grill context is promoted into
+  the target unit `grill/`, the brainstorm path keeps a pointer, and the
+  document remains `source_of_truth: false`.
 - `global-interaction-mode-chinese-triggers`: Chinese trigger aliases map to
-  interview / grill modes and do not create lifecycle artifacts by themselves.
+  interview / grill modes; interview stays artifact-free while grill creates
+  only `grill-context`, not lifecycle specs.
 - `owner-judgment-context`: before any owner or human checkpoint that asks for a
   route choice, approval, authorization, review sign-off, finish/merge decision,
   or interview-style answer, the agent explains terms, why the judgment matters,

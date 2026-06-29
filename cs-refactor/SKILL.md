@@ -38,6 +38,7 @@ scan（扫优化点清单）→ design（和用户定做哪几条 + 顺序）→
 ├── {slug}-scan.md              ← 阶段 1 优化点清单
 ├── {slug}-refactor-design.md   ← 阶段 2 执行方案
 ├── {slug}-checklist.yaml       ← 阶段 2 生成，阶段 3 推进
+├── grill/                      ← 可选，accepted grill-context，供 human review
 ├── {slug}-implementation-review.md ← 阶段 3 完成门禁
 └── {slug}-apply-notes.md       ← 阶段 3 执行记录
 ```
@@ -45,6 +46,10 @@ scan（扫优化点清单）→ design（和用户定做哪几条 + 顺序）→
 目录命名同 feature / issue。slug 短到一眼看出改的是什么（`user-form-split`、`export-perf`）。
 
 为什么单独开目录不混进 features：refactor 产物是"代码当前状态扫描 + 执行记录"时效性强；feature 产物是"为什么这样设计"时效性弱。归档逻辑不一样。
+
+如果目录里有 `grill/*.md`，只把 `doc_type: grill-context` 且 `status: accepted`
+的文件当 human review context 读；它必须 `source_of_truth: false`，不能覆盖
+scan / design / checklist / apply-notes 或行为等价证据。
 
 ---
 

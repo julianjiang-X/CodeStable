@@ -32,6 +32,7 @@ issue 工作流在"看到问题"和"动手改代码"之间塞缓冲：
 .codestable/issues/{YYYY-MM-DD}-{slug}/
 ├── {slug}-report.md           ← 阶段 1 问题报告
 ├── {slug}-analysis.md         ← 阶段 2 根因分析
+├── grill/                     ← 可选，accepted grill-context，供 human review
 └── {slug}-fix-note.md         ← 阶段 3 修复记录（必出产物）
 ```
 
@@ -40,6 +41,10 @@ issue 工作流在"看到问题"和"动手改代码"之间塞缓冲：
 `{slug}-fix-note.md` 是阶段 3 **必出产物**——无论修复简单还是复杂都要写。它不是仪式，是回溯凭证：没有它下次类似问题来你只能从 git log 反推。
 
 所有 issue 文档带 YAML frontmatter（`doc_type` 分别为 `issue-report` / `issue-analysis` / `issue-fix`）便于 `search-yaml.py` 按 severity / tags / status 检索。
+
+如果目录里有 `grill/*.md`，只把 `doc_type: grill-context` 且 `status: accepted`
+的文件当 human review context 读；它必须 `source_of_truth: false`，不能覆盖
+report / analysis / fix-note 或代码证据。
 
 ---
 
