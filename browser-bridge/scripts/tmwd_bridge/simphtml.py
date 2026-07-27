@@ -1,11 +1,5 @@
-try:
-    from bs4 import BeautifulSoup
-except ImportError as exc:
-    raise RuntimeError(
-        "Browser Bridge 运行时依赖缺失；请通过锁定入口 "
-        "`uv run --script <skill-dir>/scripts/browser.py ...` 启动，"
-        "不要向当前项目或系统 Python 安装依赖。"
-    ) from exc
+try: from bs4 import BeautifulSoup
+except ImportError: print("[Error] BeautifulSoup4 未安装，请叫Agent安装BeautifulSoup4，再使用web相关工具。")
 
 js_optHTML = r'''function optHTML(text_only=false) {
 function createEnhancedDOMCopy() {  

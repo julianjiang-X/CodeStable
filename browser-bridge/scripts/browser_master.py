@@ -1,13 +1,4 @@
-#!/usr/bin/env -S uv run --script
-# /// script
-# requires-python = ">=3.10"
-# dependencies = [
-#   "beautifulsoup4",
-#   "bottle",
-#   "requests",
-#   "simple-websocket-server",
-# ]
-# ///
+#!/usr/bin/env python3
 """
 Persistent Browser Bridge master.
 

@@ -13,8 +13,8 @@ Browser Bridge 是一个独立技能。它只说明自己的安装方式、命�
 
 使用前确认三件事：
 
-- `uv` 和 Chrome 扩展已经安装。
-- `uv run --script <skill-dir>/scripts/browser.py tabs` 能看到浏览器 tab。
+- Python 依赖和 Chrome 扩展已经安装。
+- `python <skill-dir>/scripts/browser.py tabs` 能看到浏览器 tab。
 - 频繁执行命令时，先启动常驻 master，避免每次 CLI 调用都等待扩展重连。
 
 ## 架构
@@ -30,11 +30,13 @@ CLI (browser.py)  ->  Python (TMWebDriver)  <-WebSocket->  Chrome 扩展  <-CDP/
 
 ## 一次性安装
 
-Python 依赖已经声明在两个入口脚本中并由相邻 lock 文件固定。始终通过
-`uv run --script` 启动；uv 会创建与当前仓库或 worktree 隔离的运行环境，
-不需要也不应向项目 `.venv` 或系统 Python 安装桥接依赖。
+首次使用前安装依赖：
 
-首次使用前安装 Chrome 扩展：
+```bash
+pip install bs4 simple-websocket-server bottle requests
+```
+
+然后安装 Chrome 扩展：
 
 1. 打开 Chrome 的 `chrome://extensions/`。
 2. 启用 "Developer mode / 开发者模式"。
@@ -49,15 +51,14 @@ Python 依赖已经声明在两个入口脚本中并由相邻 lock 文件固定�
 <skill-dir>/scripts/browser.py
 ```
 
-下面的 `<skill-dir>` 指包含本 `SKILL.md` 的目录。不要把命令简化为
-`python` 或 `python3` 直接执行，否则脚本的隔离依赖声明不会生效。
+下面的 `<skill-dir>` 指包含本 `SKILL.md` 的目录。
 
 ### 推荐：启动常驻 master
 
 如果直接反复调用 `browser.py exec ...`，每个短命 CLI 进程都可能重新启动 bridge server，并等待 Chrome 扩展重连。频繁操作浏览器时，先单独启动：
 
 ```bash
-uv run --script <skill-dir>/scripts/browser_master.py
+python <skill-dir>/scripts/browser_master.py
 ```
 
 保持这个进程运行。之后正常使用 `browser.py exec`、`scan`、`tabs` 等命令，它们会自动通过 `http://127.0.0.1:18766/link` 转发到常驻 master。
@@ -65,7 +66,7 @@ uv run --script <skill-dir>/scripts/browser_master.py
 只需要 JS 返回值、不需要 DOM diff 和 toast 捕获时，给 `exec` 加 `--no-monitor`：
 
 ```bash
-uv run --script <skill-dir>/scripts/browser.py exec --no-monitor "document.title"
+python <skill-dir>/scripts/browser.py exec --no-monitor "document.title"
 ```
 
 ### exec: 在浏览器里执行 JavaScript
@@ -73,7 +74,7 @@ uv run --script <skill-dir>/scripts/browser.py exec --no-monitor "document.title
 这是最常用的主命令。直接写 JavaScript 查询或操作 DOM。系统会捕获返回值、DOM 变化和执行期间出现的短暂文本，例如 toast、通知、loading 文案。
 
 ```bash
-uv run --script <skill-dir>/scripts/browser.py exec "<javascript>"
+python <skill-dir>/scripts/browser.py exec "<javascript>"
 ```
 
 参数：
@@ -88,25 +89,25 @@ uv run --script <skill-dir>/scripts/browser.py exec "<javascript>"
 
 ```bash
 # 获取页面标题
-uv run --script <skill-dir>/scripts/browser.py exec "document.title"
+python <skill-dir>/scripts/browser.py exec "document.title"
 
 # 点击元素并查看页面变化
-uv run --script <skill-dir>/scripts/browser.py exec "document.querySelector('.submit-btn').click()"
+python <skill-dir>/scripts/browser.py exec "document.querySelector('.submit-btn').click()"
 
 # 抽取结构化数据
-uv run --script <skill-dir>/scripts/browser.py exec "Array.from(document.querySelectorAll('.item')).map(e=>({name:e.querySelector('.name')?.textContent,price:e.querySelector('.price')?.textContent}))"
+python <skill-dir>/scripts/browser.py exec "Array.from(document.querySelectorAll('.item')).map(e=>({name:e.querySelector('.name')?.textContent,price:e.querySelector('.price')?.textContent}))"
 
 # 填写表单字段，并触发 React/Vue 绑定
-uv run --script <skill-dir>/scripts/browser.py exec "const e=document.querySelector('#email');e.value='u@x.com';e.dispatchEvent(new Event('input',{bubbles:true}))"
+python <skill-dir>/scripts/browser.py exec "const e=document.querySelector('#email');e.value='u@x.com';e.dispatchEvent(new Event('input',{bubbles:true}))"
 
 # 向下滚动
-uv run --script <skill-dir>/scripts/browser.py exec "window.scrollBy(0,800)"
+python <skill-dir>/scripts/browser.py exec "window.scrollBy(0,800)"
 
 # 等待元素出现后再交互
-uv run --script <skill-dir>/scripts/browser.py exec --wait ".loaded" "return document.querySelector('.loaded').textContent"
+python <skill-dir>/scripts/browser.py exec --wait ".loaded" "return document.querySelector('.loaded').textContent"
 
 # 长时间操作
-uv run --script <skill-dir>/scripts/browser.py exec --timeout 30 "await fetch('/api/slow'); return 'done'"
+python <skill-dir>/scripts/browser.py exec --timeout 30 "await fetch('/api/slow'); return 'done'"
 ```
 
 返回字段：
@@ -126,12 +127,12 @@ uv run --script <skill-dir>/scripts/browser.py exec --timeout 30 "await fetch('/
 需要页面概览时使用。HTML 会经过空间和语义简化：移除 sidebar、浮动广告、被遮挡元素、不可见内容；重复列表截断到 3 项；删除非语义属性。
 
 ```bash
-uv run --script <skill-dir>/scripts/browser.py scan              # 简化 HTML + tab 列表
-uv run --script <skill-dir>/scripts/browser.py scan --tabs-only  # 只返回 tab 列表，不返回 HTML
-uv run --script <skill-dir>/scripts/browser.py scan --text-only  # 只返回文本，token 最少
-uv run --script <skill-dir>/scripts/browser.py scan --size-only  # 只返回内容大小，用于确认页面是否渲染
-uv run --script <skill-dir>/scripts/browser.py scan --tab <id>   # 扫描指定 tab
-uv run --script <skill-dir>/scripts/browser.py scan --wait ".result-card"  # 等待 SPA 内容出现
+python <skill-dir>/scripts/browser.py scan              # 简化 HTML + tab 列表
+python <skill-dir>/scripts/browser.py scan --tabs-only  # 只返回 tab 列表，不返回 HTML
+python <skill-dir>/scripts/browser.py scan --text-only  # 只返回文本，token 最少
+python <skill-dir>/scripts/browser.py scan --size-only  # 只返回内容大小，用于确认页面是否渲染
+python <skill-dir>/scripts/browser.py scan --tab <id>   # 扫描指定 tab
+python <skill-dir>/scripts/browser.py scan --wait ".result-card"  # 等待 SPA 内容出现
 ```
 
 返回字段：
@@ -146,7 +147,7 @@ uv run --script <skill-dir>/scripts/browser.py scan --wait ".result-card"  # 等
 ### tabs: 列出所有浏览器 tab
 
 ```bash
-uv run --script <skill-dir>/scripts/browser.py tabs
+python <skill-dir>/scripts/browser.py tabs
 # -> {"status":"success","sessions":[{"id":"123","url":"https://...","title":"..."},...]}
 ```
 
@@ -155,8 +156,8 @@ uv run --script <skill-dir>/scripts/browser.py tabs
 导航当前 tab，并等待页面加载完成，最长 30 秒。
 
 ```bash
-uv run --script <skill-dir>/scripts/browser.py navigate "https://example.com"
-uv run --script <skill-dir>/scripts/browser.py navigate "https://example.com" --no-wait  # 跳过加载等待
+python <skill-dir>/scripts/browser.py navigate "https://example.com"
+python <skill-dir>/scripts/browser.py navigate "https://example.com" --no-wait  # 跳过加载等待
 ```
 
 返回：
@@ -168,26 +169,26 @@ uv run --script <skill-dir>/scripts/browser.py navigate "https://example.com" --
 ### back: 后退
 
 ```bash
-uv run --script <skill-dir>/scripts/browser.py back
+python <skill-dir>/scripts/browser.py back
 ```
 
 ### forward: 前进
 
 ```bash
-uv run --script <skill-dir>/scripts/browser.py forward
+python <skill-dir>/scripts/browser.py forward
 ```
 
 ### reload: 重新加载当前页
 
 ```bash
-uv run --script <skill-dir>/scripts/browser.py reload
+python <skill-dir>/scripts/browser.py reload
 ```
 
 ### newtab: 打开新 tab
 
 ```bash
-uv run --script <skill-dir>/scripts/browser.py newtab
-uv run --script <skill-dir>/scripts/browser.py newtab "https://example.com"
+python <skill-dir>/scripts/browser.py newtab
+python <skill-dir>/scripts/browser.py newtab "https://example.com"
 ```
 
 返回里会尽量包含 `tab_id` 和 `tab`，后续可以直接传给 `--tab`。
@@ -195,14 +196,14 @@ uv run --script <skill-dir>/scripts/browser.py newtab "https://example.com"
 ### close: 关闭 tab
 
 ```bash
-uv run --script <skill-dir>/scripts/browser.py close
-uv run --script <skill-dir>/scripts/browser.py close <tab_id>
+python <skill-dir>/scripts/browser.py close
+python <skill-dir>/scripts/browser.py close <tab_id>
 ```
 
 ### switch: 按 URL 片段切换 tab
 
 ```bash
-uv run --script <skill-dir>/scripts/browser.py switch "github"
+python <skill-dir>/scripts/browser.py switch "github"
 # -> {"status":"success","session_id":"456"}
 ```
 
@@ -213,8 +214,8 @@ uv run --script <skill-dir>/scripts/browser.py switch "github"
 通过 Chrome DevTools Protocol 截取当前 tab 的 PNG 图。
 
 ```bash
-uv run --script <skill-dir>/scripts/browser.py screenshot
-uv run --script <skill-dir>/scripts/browser.py screenshot page.png
+python <skill-dir>/scripts/browser.py screenshot
+python <skill-dir>/scripts/browser.py screenshot page.png
 ```
 
 返回：
@@ -228,9 +229,9 @@ uv run --script <skill-dir>/scripts/browser.py screenshot page.png
 用于设计系统抽取和组件还原。对于 switch、slider、tabs、select、menu、dialog、command input、date picker、chart 等小而细节敏感的组件，仅靠截图不可靠。`evidence` 会从真实浏览器 tab 中捕获渲染后的组件结构。
 
 ```bash
-uv run --script <skill-dir>/scripts/browser.py evidence 'button[role="switch"]' --name Switch --out component-evidence/switch
-uv run --script <skill-dir>/scripts/browser.py evidence '[data-slot="switch"]' --name Switch --index 0 --depth 4
-uv run --script <skill-dir>/scripts/browser.py evidence '.tabs-root' --name Tabs --wait '.tabs-root' --wait-ms 8000
+python <skill-dir>/scripts/browser.py evidence 'button[role="switch"]' --name Switch --out component-evidence/switch
+python <skill-dir>/scripts/browser.py evidence '[data-slot="switch"]' --name Switch --index 0 --depth 4
+python <skill-dir>/scripts/browser.py evidence '.tabs-root' --name Tabs --wait '.tabs-root' --wait-ms 8000
 ```
 
 参数：
