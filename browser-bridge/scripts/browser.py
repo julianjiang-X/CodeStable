@@ -1,32 +1,41 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = [
+#   "beautifulsoup4",
+#   "bottle",
+#   "requests",
+#   "simple-websocket-server",
+# ]
+# ///
 """
 CS Browser CLI：给 AI agent 使用的一行式浏览器控制工具。
 
 用法：
-    python browser.py exec <javascript>            执行 JS 并返回结构化结果
-    python browser.py scan                         获取简化后的页面 HTML
-    python browser.py evidence <selector>          导出渲染后的组件证据
-    python browser.py tabs                         列出所有浏览器 tab
-    python browser.py navigate <url>               打开 URL
-    python browser.py back                         后退
-    python browser.py forward                      前进
-    python browser.py reload                       重新加载当前页
-    python browser.py newtab [url]                 打开新 tab
-    python browser.py close [tab_id]               关闭 tab
-    python browser.py switch <url-pattern>         切换到匹配的 tab
-    python browser.py screenshot [filepath]        截图
+    uv run --script browser.py exec <javascript>       执行 JS 并返回结构化结果
+    uv run --script browser.py scan                    获取简化后的页面 HTML
+    uv run --script browser.py evidence <selector>     导出渲染后的组件证据
+    uv run --script browser.py tabs                    列出所有浏览器 tab
+    uv run --script browser.py navigate <url>          打开 URL
+    uv run --script browser.py back                    后退
+    uv run --script browser.py forward                 前进
+    uv run --script browser.py reload                  重新加载当前页
+    uv run --script browser.py newtab [url]            打开新 tab
+    uv run --script browser.py close [tab_id]          关闭 tab
+    uv run --script browser.py switch <url-pattern>    切换到匹配的 tab
+    uv run --script browser.py screenshot [filepath]   截图
 
 示例：
-    python browser.py exec "document.title"
-    python browser.py exec "document.querySelector('.btn').click()"
-    python browser.py scan --text-only
-    python browser.py scan --tabs-only
-    python browser.py scan --size-only
-    python browser.py tabs
-    python browser.py navigate "https://example.com"
-    python browser.py switch "github"
-    python browser.py screenshot
-    python browser.py screenshot page.png
+    uv run --script browser.py exec "document.title"
+    uv run --script browser.py exec "document.querySelector('.btn').click()"
+    uv run --script browser.py scan --text-only
+    uv run --script browser.py scan --tabs-only
+    uv run --script browser.py scan --size-only
+    uv run --script browser.py tabs
+    uv run --script browser.py navigate "https://example.com"
+    uv run --script browser.py switch "github"
+    uv run --script browser.py screenshot
+    uv run --script browser.py screenshot page.png
 """
 
 import sys, os, json, argparse, io, base64, time

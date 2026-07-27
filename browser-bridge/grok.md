@@ -22,19 +22,19 @@ Use this when a task needs to operate xAI Grok at `https://grok.com` through Bro
 Navigate:
 
 ```bash
-python <skill-dir>/scripts/browser.py navigate "https://grok.com"
+uv run --script <skill-dir>/scripts/browser.py navigate "https://grok.com"
 ```
 
 Find the editor:
 
 ```bash
-python <skill-dir>/scripts/browser.py exec "document.querySelector('.tiptap.ProseMirror')"
+uv run --script <skill-dir>/scripts/browser.py exec "document.querySelector('.tiptap.ProseMirror')"
 ```
 
 Type text into the editor. Dispatch `input`; otherwise React/ProseMirror bindings may not notice the change.
 
 ```bash
-python <skill-dir>/scripts/browser.py exec "
+uv run --script <skill-dir>/scripts/browser.py exec "
 const editor = document.querySelector('.tiptap.ProseMirror');
 editor.focus();
 editor.innerHTML = '<p>your question here</p>';
@@ -45,13 +45,13 @@ editor.dispatchEvent(new Event('input', {bubbles: true}));
 Submit by clicking the submit button. This is more reliable than synthesizing Enter on the current Grok UI.
 
 ```bash
-python <skill-dir>/scripts/browser.py exec "document.querySelector('[data-testid=chat-submit]')?.click()"
+uv run --script <skill-dir>/scripts/browser.py exec "document.querySelector('[data-testid=chat-submit]')?.click()"
 ```
 
 If the button is unavailable, try Enter as a fallback:
 
 ```bash
-python <skill-dir>/scripts/browser.py exec "
+uv run --script <skill-dir>/scripts/browser.py exec "
 const editor = document.querySelector('.tiptap.ProseMirror');
 editor.dispatchEvent(new KeyboardEvent('keydown', {
   key: 'Enter',
@@ -67,7 +67,7 @@ editor.dispatchEvent(new KeyboardEvent('keydown', {
 Extract the latest assistant response:
 
 ```bash
-python <skill-dir>/scripts/browser.py exec "
+uv run --script <skill-dir>/scripts/browser.py exec "
 const blocks = document.querySelectorAll('.response-content-markdown');
 const lastBlock = blocks[blocks.length - 1];
 return lastBlock?.textContent || '';

@@ -27,18 +27,18 @@
 React / Vue 页面通常会动态加载内容。抽取前用 `--wait` 等待元素出现：
 
 ```bash
-python <skill-dir>/scripts/browser.py exec --wait ".note-item" "
+uv run --script <skill-dir>/scripts/browser.py exec --wait ".note-item" "
   Array.from(document.querySelectorAll('.note-item')).map(el => ({
     title: el.querySelector('.title')?.textContent,
     link: el.querySelector('a')?.href
   }))
 "
 
-python <skill-dir>/scripts/browser.py exec --wait ".result-card" --wait-ms 8000 --timeout 30 "
+uv run --script <skill-dir>/scripts/browser.py exec --wait ".result-card" --wait-ms 8000 --timeout 30 "
   return document.querySelectorAll('.result-card').length
 "
 
-python <skill-dir>/scripts/browser.py scan --text-only --wait ".product-list" --wait-ms 5000
+uv run --script <skill-dir>/scripts/browser.py scan --text-only --wait ".product-list" --wait-ms 5000
 ```
 
 如果你确定页面有内容，但 `exec` 返回空数组 `[]`，先退回 `scan --text-only`。常见原因是页面还没渲染完，或 selector 没匹配上。
@@ -77,7 +77,7 @@ python <skill-dir>/scripts/browser.py scan --text-only --wait ".product-list" --
 **多行 JS**：外层字符串用单引号：
 
 ```bash
-python <skill-dir>/scripts/browser.py exec '
+uv run --script <skill-dir>/scripts/browser.py exec '
   const items = document.querySelectorAll(".row");
   return Array.from(items).map(r => r.textContent);
 '
