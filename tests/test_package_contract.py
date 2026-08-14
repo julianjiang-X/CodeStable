@@ -269,3 +269,37 @@ def test_risk_gate_checker_rejects_a_gutted_gate(tmp_path: Path) -> None:
     assert payload["ok"] is False
     for lane, result in payload["lanes"].items():
         assert result["missing_categories"], lane
+
+
+def load_review_protocol_checker():
+    import importlib.util
+
+    path = skill("codestable-maintainer") / "tools" / "check-review-protocol.py"
+    spec = importlib.util.spec_from_file_location("check_review_protocol_for_tests", path)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_reviewer_protocol_sections_are_intact() -> None:
+    payload = load_review_protocol_checker().check(SKILLS_ROOT)
+
+    assert payload["ok"], payload
+    for heading, result in payload["sections"].items():
+        assert not result["missing"], (heading, result)
+
+
+def test_review_protocol_checker_rejects_a_decoy_section(tmp_path: Path) -> None:
+    """Keywords present but the section gutted must fail, or the guard is theatre."""
+    checker = load_review_protocol_checker()
+    target = tmp_path / "skills" / checker.CONVENTIONS
+    target.parent.mkdir(parents=True, exist_ok=True)
+    keywords = " ".join(kw for elems in checker.REQUIRED.values() for kw in elems)
+    body = "".join(f"{heading}\n<!-- {keywords} -->\n" for heading in checker.REQUIRED)
+    target.write_text(body, encoding="utf-8")
+
+    payload = checker.check(tmp_path / "skills")
+
+    assert payload["ok"] is False
+    assert any(not s["ok"] for s in payload["sections"].values())

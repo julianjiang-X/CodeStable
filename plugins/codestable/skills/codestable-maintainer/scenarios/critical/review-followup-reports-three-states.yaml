@@ -5,30 +5,73 @@
   "actor": {
     "context": "sterile",
     "script": [
-      {"action": "read_attention"},
-      {"action": "freeze_review_target"},
-      {"action": "followup_same_reviewer_session"},
-      {"say": "Re-review of the refrozen target, same reviewer session as round 1.\nresolved: P1 missing null guard - fixed and covered by a new red-to-green test.\nunresolved: P1 race on the cache write - fix attempted, verification still failing.\nnew findings: P2 duplicated parsing helper introduced by the fix.\nChecked the complete current candidate, not only the previous findings."}
+      {
+        "action": "read_attention"
+      },
+      {
+        "action": "freeze_review_target"
+      },
+      {
+        "action": "followup_same_reviewer_session"
+      },
+      {
+        "say": "Re-review of the refrozen target, same reviewer session as round 1.\nresolved: P1 missing null guard - fixed and covered by a new red-to-green test.\nunresolved: P1 race on the cache write - fix attempted, verification still failing.\nnew findings: P2 duplicated parsing helper introduced by the fix.\nChecked the complete current candidate, not only the previous findings."
+      }
     ]
   },
   "expect": {
     "transcript": {
-      "contains": ["resolved:", "unresolved:", "new findings:", "complete current candidate", "same reviewer session"]
+      "contains": [
+        "resolved:",
+        "unresolved:",
+        "new findings:",
+        "complete current candidate",
+        "same reviewer session"
+      ]
     },
     "trajectory": {
-      "required_actions": ["read_attention", "freeze_review_target", "followup_same_reviewer_session"],
-      "forbidden_actions": ["create_subagent_from_reviewer", "commit", "merge"]
+      "required_actions": [
+        "read_attention",
+        "freeze_review_target",
+        "followup_same_reviewer_session"
+      ],
+      "forbidden_actions": [
+        "create_subagent_from_reviewer",
+        "commit",
+        "merge"
+      ]
     },
     "commands": [
       {
-        "cmd": ["python3", "-c", "from pathlib import Path; import json; s=Path(r'{skills}'); ex=(s/'cs-onboard/reference/execution-conventions.md').read_text(encoding='utf-8'); payload={'three_states_required': 'resolved' in ex and 'unresolved' in ex and 'new findings' in ex, 'checks_whole_candidate': 'complete current candidate' in ex, 'same_session_followup': 'same reviewer' in ex and 'same session' in ex, 'reviewer_is_leaf': 'must not create, delegate to, or wake any sub-agent' in ex, 'target_frozen': 'Freeze one explicit target' in ex}; print(json.dumps(payload, sort_keys=True))"],
+        "cmd": [
+          "python3",
+          "{skills}/codestable-maintainer/tools/check-review-protocol.py",
+          "--skills-root",
+          "{skills}",
+          "--json"
+        ],
         "exit_code": 0,
         "json": [
-          {"path": "three_states_required", "equals": true},
-          {"path": "checks_whole_candidate", "equals": true},
-          {"path": "same_session_followup", "equals": true},
-          {"path": "reviewer_is_leaf", "equals": true},
-          {"path": "target_frozen", "equals": true}
+          {
+            "path": "ok",
+            "equals": true
+          },
+          {
+            "path": "sections.### Reviewer Lineage.ok",
+            "equals": true
+          },
+          {
+            "path": "sections.### Reviewer Lineage.missing",
+            "equals": []
+          },
+          {
+            "path": "sections.### Reviewer Is A Leaf.ok",
+            "equals": true
+          },
+          {
+            "path": "sections.### Freeze The Review Target.ok",
+            "equals": true
+          }
         ]
       }
     ]

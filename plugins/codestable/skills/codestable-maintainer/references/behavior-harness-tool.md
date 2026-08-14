@@ -103,6 +103,32 @@ scripted scenarios today. They are useful proxy regressions for tool-level
 guardrails under misleading context, but they are not yet a live compaction
 eval. Use `live-codex` scenarios when grading actual Codex behavior.
 
+### Which graders actually bite, per actor mode
+
+This decides how to write a scenario, and it is easy to get backwards.
+
+Under the scripted actors, `run_scripted_actor` replays the scenario's own `say`
+strings into the transcript. So `transcript`, `trajectory` and `artifacts` are
+graded against text the same file authored. They **can** fail — editing the
+script out of step with the assertions goes red, which is a real self-consistency
+check — but they cannot detect a regression in a skill's instructions, because no
+skill text is involved in producing them.
+
+**Under scripted actors, only `commands` observes the repository.** A scenario
+meant to pin skill behavior in CI must carry a `commands` probe, and that probe
+must assert structure rather than substrings: scope to the section, require the
+full expected set, and avoid matching connective phrases. A substring search over
+a whole file passes on a decoy comment containing the keywords and fails on a
+harmless rewording — both error directions at once. Prefer running a real checker
+or tool and asserting its JSON, the way
+`reference-drift-blocks-stale-copy.yaml` calls `codestable-doctor.py` and
+`fast-path-*.yaml` call `check-risk-gate.py`.
+
+Under `live-codex` the same `transcript` and `trajectory` blocks grade a real
+agent, which is what they are for. **Do not delete them as dead weight because
+they look inert in CI** — they are the behavioral specification that activates
+when the suite is run live.
+
 ## Critical Coverage
 
 The current critical suite covers:

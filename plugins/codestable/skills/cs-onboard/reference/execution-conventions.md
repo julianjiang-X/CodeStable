@@ -184,6 +184,28 @@ The reviewer is a leaf executor:
 
 Fixing is the main thread's job, not the reviewer's.
 
+### When The Reviewer Returns No Report
+
+Reviewers ending on `Idle.` or a bare "report delivered" line while the analysis
+itself completed is a **common** failure, not a theoretical one. Restating the
+rule above in the dispatch prompt does not reliably prevent it. So the caller
+recovers rather than re-runs:
+
+1. **Read the agent's transcript before concluding anything.** The report is
+   usually present in an earlier assistant message; the final message is what
+   got lost. Extract the longest assistant text block from the run's `.jsonl`
+   and check whether it is a complete report.
+2. **A recovered report is a valid terminal report.** Consume it, and do not
+   spend a round re-dispatching for something already produced.
+3. Only when the transcript truly holds no report does the round count as
+   failed-without-report — then apply the reviewer-health rules above (one
+   bounded retry, a different dispatch method, or owner escalation).
+4. Never substitute your own judgment for the missing report and never report
+   review results the reviewer did not produce.
+
+Token cost is the reason this matters: a completed analysis re-run from scratch
+costs a full review for output that already exists.
+
 ## Context Packets
 
 For multi-stage handoff:

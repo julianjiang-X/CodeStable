@@ -5,31 +5,73 @@
   "actor": {
     "context": "sterile",
     "script": [
-      {"action": "read_attention"},
-      {"action": "freeze_review_target"},
-      {"say": "Three terminal review rounds are done in this stage and one blocking finding is still open.\nThe budget is exhausted; replacing the reviewer would not reset the count.\nEscalating to the owner for a decision instead of trading another round or declaring completion."},
-      {"owner_stop": "review_round_budget_exhausted"}
+      {
+        "action": "read_attention"
+      },
+      {
+        "action": "freeze_review_target"
+      },
+      {
+        "say": "Three terminal review rounds are done in this stage and one blocking finding is still open.\nThe budget is exhausted; replacing the reviewer would not reset the count.\nEscalating to the owner for a decision instead of trading another round or declaring completion."
+      },
+      {
+        "owner_stop": "review_round_budget_exhausted"
+      }
     ]
   },
   "expect": {
     "transcript": {
-      "contains": ["budget is exhausted", "would not reset the count", "Escalating to the owner"],
-      "forbidden": ["declaring it complete", "review passed"],
-      "must_stop_for": ["review_round_budget_exhausted"]
+      "contains": [
+        "budget is exhausted",
+        "would not reset the count",
+        "Escalating to the owner"
+      ],
+      "forbidden": [
+        "declaring it complete",
+        "review passed"
+      ],
+      "must_stop_for": [
+        "review_round_budget_exhausted"
+      ]
     },
     "trajectory": {
-      "required_actions": ["read_attention", "freeze_review_target", "owner_stop:review_round_budget_exhausted"],
-      "forbidden_actions": ["commit", "merge"]
+      "required_actions": [
+        "read_attention",
+        "freeze_review_target",
+        "owner_stop:review_round_budget_exhausted"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "merge"
+      ]
     },
     "commands": [
       {
-        "cmd": ["python3", "-c", "from pathlib import Path; import json; s=Path(r'{skills}'); ex=(s/'cs-onboard/reference/execution-conventions.md').read_text(encoding='utf-8'); payload={'budget_is_three': 'At most **3 rounds' in ex, 'replacement_does_not_reset': 'does not reset the count' in ex, 'escalates_to_owner': 'escalate to the owner' in ex, 'no_completion_claim': 'do not declare completion' in ex}; print(json.dumps(payload, sort_keys=True))"],
+        "cmd": [
+          "python3",
+          "{skills}/codestable-maintainer/tools/check-review-protocol.py",
+          "--skills-root",
+          "{skills}",
+          "--json"
+        ],
         "exit_code": 0,
         "json": [
-          {"path": "budget_is_three", "equals": true},
-          {"path": "replacement_does_not_reset", "equals": true},
-          {"path": "escalates_to_owner", "equals": true},
-          {"path": "no_completion_claim", "equals": true}
+          {
+            "path": "ok",
+            "equals": true
+          },
+          {
+            "path": "sections.### Round Budget.ok",
+            "equals": true
+          },
+          {
+            "path": "sections.### Round Budget.missing",
+            "equals": []
+          },
+          {
+            "path": "sections.### Reviewer Health.ok",
+            "equals": true
+          }
         ]
       }
     ]
