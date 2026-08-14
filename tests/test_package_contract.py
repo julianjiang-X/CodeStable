@@ -382,3 +382,66 @@ def test_review_protocol_checker_rejects_a_decoy_section(tmp_path: Path) -> None
 
     assert payload["ok"] is False
     assert any(not s["ok"] for s in payload["sections"].values())
+
+
+def load_scenario_coverage_checker():
+    import importlib.util
+
+    path = skill("codestable-maintainer") / "tools" / "check-scenario-coverage.py"
+    spec = importlib.util.spec_from_file_location("check_scenario_coverage_for_tests", path)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_new_scenarios_carry_unique_ci_coverage() -> None:
+    """Ratchet: a new scenario must assert something no sibling already asserts.
+
+    Under scripted actors, transcript/trajectory replay the scenario's own text, so
+    a scenario duplicating a sibling's command assertions adds no CI coverage while
+    looking substantial. The allowlist may shrink, never grow.
+    """
+    payload = load_scenario_coverage_checker().check(SKILLS_ROOT)
+
+    assert not payload["regressions"], (
+        f"scenarios with no CI assertion of their own: {payload['regressions']}"
+    )
+    assert not payload["stale_allowlist_entries"], (
+        f"these gained coverage and must leave the allowlist: {payload['stale_allowlist_entries']}"
+    )
+
+
+def test_scenario_coverage_checker_detects_duplicate_only_scenarios(tmp_path: Path) -> None:
+    """The N3 regression, reproduced: a scenario whose assertions all duplicate a sibling."""
+    checker = load_scenario_coverage_checker()
+    directory = tmp_path / "skills" / checker.SCENARIO_DIR
+    directory.mkdir(parents=True)
+
+    shared = {
+        "fixture": "clean-onboarded-repo",
+        "expect": {"commands": [{"cmd": ["check"], "json": [{"path": "ok", "equals": True}]}]},
+    }
+    (directory / "original.yaml").write_text(json.dumps(shared), encoding="utf-8")
+    (directory / "duplicate.yaml").write_text(json.dumps(shared), encoding="utf-8")
+
+    payload = checker.check(tmp_path / "skills")
+
+    assert payload["ok"] is False
+    assert payload["regressions"] == ["duplicate", "original"]
+
+
+def test_scenario_coverage_checker_accepts_a_distinct_scenario(tmp_path: Path) -> None:
+    """Positive control: differing on fixture alone is enough to be a real test."""
+    checker = load_scenario_coverage_checker()
+    directory = tmp_path / "skills" / checker.SCENARIO_DIR
+    directory.mkdir(parents=True)
+
+    body = {"expect": {"commands": [{"cmd": ["check"], "json": [{"path": "ok", "equals": True}]}]}}
+    (directory / "one.yaml").write_text(json.dumps({**body, "fixture": "repo-a"}), encoding="utf-8")
+    (directory / "two.yaml").write_text(json.dumps({**body, "fixture": "repo-b"}), encoding="utf-8")
+
+    payload = checker.check(tmp_path / "skills")
+
+    assert payload["ok"] is True
+    assert payload["regressions"] == []

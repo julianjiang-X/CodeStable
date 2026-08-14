@@ -124,6 +124,18 @@ or tool and asserting its JSON, the way
 `reference-drift-blocks-stale-copy.yaml` calls `codestable-doctor.py` and
 `fast-path-*.yaml` call `check-risk-gate.py`.
 
+A scenario can therefore pass, look substantial, and still assert nothing its
+siblings do not already assert — deleting the thing it is named for stays green.
+`check-scenario-coverage.py` reports which scenarios carry at least one CI
+assertion of their own (keyed by fixture, since the same assertion under a
+different repo state is a genuinely different test). It is a ratchet: the
+allowlist of scenarios without unique coverage may shrink, never grow, and it
+also flags entries that gained coverage so the list cannot go stale.
+
+```bash
+python3 plugins/codestable/skills/codestable-maintainer/tools/check-scenario-coverage.py
+```
+
 Under `live-codex` the same `transcript` and `trajectory` blocks grade a real
 agent, which is what they are for. **Do not delete them as dead weight because
 they look inert in CI** — they are the behavioral specification that activates
