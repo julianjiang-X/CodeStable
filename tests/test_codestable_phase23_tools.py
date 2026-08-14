@@ -8,9 +8,13 @@ from datetime import date
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[1]
-TOOLS_DIR = ROOT / "cs-onboard/tools"
-MAINTAINER_TOOLS_DIR = ROOT / "codestable-maintainer/tools"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from layout import (
+    MAINTAINER_TOOLS as MAINTAINER_TOOLS_DIR,
+    ONBOARD_TOOLS as TOOLS_DIR,
+    REPO_ROOT as ROOT,
+    source_in,
+)
 sys.path.insert(0, str(TOOLS_DIR))
 
 from codestable_common import is_blocking_follow_up_text, scan_backlog  # noqa: E402
@@ -1039,15 +1043,15 @@ def make_codestable_source_repo(tmp_path: Path, runner_code: str | None = None) 
     run(repo, "config", "user.name", "Test User")
     run(repo, "remote", "add", "origin", remote.as_posix())
     (repo / "README.md").write_text("base\n", encoding="utf-8")
-    (repo / "cs-onboard").mkdir()
-    (repo / "cs-onboard/SKILL.md").write_text("---\nname: cs-onboard\ndescription: test\n---\n", encoding="utf-8")
-    (repo / "codestable-maintainer").mkdir()
-    (repo / "codestable-maintainer/SKILL.md").write_text(
+    source_in(repo, "cs-onboard").mkdir(parents=True)
+    source_in(repo, "cs-onboard/SKILL.md").write_text("---\nname: cs-onboard\ndescription: test\n---\n", encoding="utf-8")
+    source_in(repo, "codestable-maintainer").mkdir(parents=True)
+    source_in(repo, "codestable-maintainer/SKILL.md").write_text(
         "---\nname: codestable-maintainer\ndescription: test\n---\n",
         encoding="utf-8",
     )
-    (repo / "codestable-maintainer/tools").mkdir()
-    (repo / "codestable-maintainer/tools/agent-behavior-harness.py").write_text(
+    source_in(repo, "codestable-maintainer/tools").mkdir(parents=True)
+    source_in(repo, "codestable-maintainer/tools/agent-behavior-harness.py").write_text(
         runner_code
         or "import json, pathlib, sys\n"
         "pathlib.Path('behavior-argv.json').write_text(json.dumps(sys.argv[1:]), encoding='utf-8')\n"
@@ -1072,8 +1076,8 @@ def make_freshness_source_repo(tmp_path: Path, text: str = "latest\n") -> tuple[
     run(repo, "config", "user.name", "Test User")
     run(repo, "remote", "add", "origin", remote.as_posix())
     write_file(repo / "README.md", "base\n")
-    write_file(repo / "cs-onboard/SKILL.md", "---\nname: cs-onboard\ndescription: test\n---\n")
-    write_file(repo / "using-codestable/SKILL.md", text)
+    write_file(source_in(repo, "cs-onboard/SKILL.md"), "---\nname: cs-onboard\ndescription: test\n---\n")
+    write_file(source_in(repo, "using-codestable/SKILL.md"), text)
     run(repo, "add", ".")
     run(repo, "commit", "-m", "init")
     run(repo, "push", "-u", "origin", "main")
@@ -1181,7 +1185,7 @@ def test_freshness_check_unknown_when_source_repo_missing(tmp_path: Path) -> Non
 def test_maintainer_verify_fails_unpushed_branch(tmp_path: Path) -> None:
     repo, _remote, validator = make_codestable_source_repo(tmp_path)
     run(repo, "switch", "-c", "codex/demo")
-    (repo / "cs-onboard/SKILL.md").write_text("---\nname: cs-onboard\ndescription: changed\n---\n", encoding="utf-8")
+    source_in(repo, "cs-onboard/SKILL.md").write_text("---\nname: cs-onboard\ndescription: changed\n---\n", encoding="utf-8")
     run(repo, "add", ".")
     run(repo, "commit", "-m", "change skill")
 
@@ -1194,7 +1198,7 @@ def test_maintainer_verify_fails_unpushed_branch(tmp_path: Path) -> None:
 def test_maintainer_verify_fails_dirty_checkout(tmp_path: Path) -> None:
     repo, _remote, validator = make_codestable_source_repo(tmp_path)
     run(repo, "switch", "-c", "codex/demo")
-    (repo / "cs-onboard/SKILL.md").write_text("---\nname: cs-onboard\ndescription: changed\n---\n", encoding="utf-8")
+    source_in(repo, "cs-onboard/SKILL.md").write_text("---\nname: cs-onboard\ndescription: changed\n---\n", encoding="utf-8")
     run(repo, "add", ".")
     run(repo, "commit", "-m", "change skill")
     run(repo, "push", "-u", "origin", "codex/demo")
@@ -1209,7 +1213,7 @@ def test_maintainer_verify_fails_dirty_checkout(tmp_path: Path) -> None:
 def test_maintainer_verify_syncs_and_diff_checks_changed_skill(tmp_path: Path) -> None:
     repo, _remote, validator = make_codestable_source_repo(tmp_path)
     run(repo, "switch", "-c", "codex/demo")
-    (repo / "cs-onboard/SKILL.md").write_text("---\nname: cs-onboard\ndescription: changed\n---\n", encoding="utf-8")
+    source_in(repo, "cs-onboard/SKILL.md").write_text("---\nname: cs-onboard\ndescription: changed\n---\n", encoding="utf-8")
     run(repo, "add", ".")
     run(repo, "commit", "-m", "change skill")
     run(repo, "push", "-u", "origin", "codex/demo")
@@ -1230,7 +1234,7 @@ def test_maintainer_verify_syncs_and_diff_checks_changed_skill(tmp_path: Path) -
 def test_maintainer_verify_blocks_real_installed_sync_from_feature_branch(tmp_path: Path) -> None:
     repo, _remote, validator = make_codestable_source_repo(tmp_path)
     run(repo, "switch", "-c", "codex/demo")
-    (repo / "cs-onboard/SKILL.md").write_text("---\nname: cs-onboard\ndescription: changed\n---\n", encoding="utf-8")
+    source_in(repo, "cs-onboard/SKILL.md").write_text("---\nname: cs-onboard\ndescription: changed\n---\n", encoding="utf-8")
     run(repo, "add", ".")
     run(repo, "commit", "-m", "change skill")
     run(repo, "push", "-u", "origin", "codex/demo")
@@ -1290,7 +1294,7 @@ def test_maintainer_verify_fails_when_behavior_harness_fails(tmp_path: Path) -> 
         "import sys\nprint('behavior failed')\nsys.exit(2)\n",
     )
     run(repo, "switch", "-c", "codex/demo")
-    (repo / "cs-onboard/SKILL.md").write_text("---\nname: cs-onboard\ndescription: changed\n---\n", encoding="utf-8")
+    source_in(repo, "cs-onboard/SKILL.md").write_text("---\nname: cs-onboard\ndescription: changed\n---\n", encoding="utf-8")
     run(repo, "add", ".")
     run(repo, "commit", "-m", "change skill")
     run(repo, "push", "-u", "origin", "codex/demo")
@@ -1299,3 +1303,30 @@ def test_maintainer_verify_fails_when_behavior_harness_fails(tmp_path: Path) -> 
 
     assert payload["ok"] is False
     assert any("Behavior harness critical suite failed" in finding["message"] for finding in payload["findings"])
+
+
+def test_real_installed_root_covers_every_live_agent_root(tmp_path: Path) -> None:
+    """Live roots may only be synced from main; temp verification roots must not match."""
+    home = Path.home()
+
+    for live in (
+        home / ".agents/skills",
+        home / ".codex/skills",
+        home / ".claude/skills",
+        home / ".claude/plugins/codestable/skills",
+    ):
+        assert maintainer_verify.is_real_installed_root(live), live
+
+    for temporary in (tmp_path / "installed", tmp_path / "skills", home / ".claude/skills/cs-onboard"):
+        assert not maintainer_verify.is_real_installed_root(temporary), temporary
+
+
+def test_plugin_manifest_changes_are_reported_as_shipped() -> None:
+    """Plugin manifests ship to plugin users, so they are not 'source-only'."""
+    rows = maintainer_verify.changed_noninstalled(
+        ["plugins/codestable/.claude-plugin/plugin.json", "README.md"], []
+    )
+    by_path = {row["path"]: row for row in rows}
+
+    assert by_path["plugins/codestable/.claude-plugin/plugin.json"]["install"] == "plugin manifest"
+    assert by_path["README.md"]["install"] == "not installed: N/A"

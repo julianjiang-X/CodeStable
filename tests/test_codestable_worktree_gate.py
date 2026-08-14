@@ -7,7 +7,8 @@ import sys
 from pathlib import Path
 
 
-TOOLS_DIR = Path(__file__).resolve().parents[1] / "cs-onboard/tools"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from layout import ONBOARD_REFERENCE, ONBOARD_TOOLS as TOOLS_DIR
 sys.path.insert(0, str(TOOLS_DIR))
 
 
@@ -233,14 +234,14 @@ def test_quarantine_refuses_untracked_secret_like_files(tmp_path: Path) -> None:
 
 
 def test_runtime_tool_paths_are_documented() -> None:
-    reference_dir = Path(__file__).resolve().parents[1] / "cs-onboard/reference"
+    reference_dir = ONBOARD_REFERENCE
     tools_doc = "\n".join(path.read_text(encoding="utf-8") for path in sorted(reference_dir.glob("tools*.md")))
 
     assert "python3 .codestable/tools/codestable-doctor.py --root . --json" in tools_doc
     assert "python3 .codestable/tools/codestable-worktree-gate.py --root . --json start" in tools_doc
     assert "python3 .codestable/tools/codestable-finish-worktree.py --root ." in tools_doc
     assert "python3 .codestable/tools/codestable-worktree-inbox.py --root . --json" in tools_doc
-    hook_doc = (Path(__file__).resolve().parents[1] / "cs-onboard/reference/branch-guard-hooks.md").read_text(
+    hook_doc = (ONBOARD_REFERENCE / "branch-guard-hooks.md").read_text(
         encoding="utf-8"
     )
     assert "codestable-ai-branch-guard.py" in hook_doc

@@ -7,9 +7,13 @@ import sys
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[1]
-TOOLS_DIR = ROOT / "cs-onboard/tools"
-MAINTAINER_TOOLS_DIR = ROOT / "codestable-maintainer/tools"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from layout import (
+    MAINTAINER_SCENARIOS,
+    MAINTAINER_TOOLS as MAINTAINER_TOOLS_DIR,
+    ONBOARD_TOOLS as TOOLS_DIR,
+    REPO_ROOT as ROOT,
+)
 sys.path.insert(0, str(TOOLS_DIR))
 
 
@@ -276,7 +280,7 @@ def test_record_clarification_is_idempotent(tmp_path: Path) -> None:
 
 
 def test_behavior_harness_runs_critical_suite() -> None:
-    paths = sorted((ROOT / "codestable-maintainer/scenarios/critical").glob("*.yaml"))
+    paths = sorted((MAINTAINER_SCENARIOS / "critical").glob("*.yaml"))
 
     payload = behavior_harness.run_scenarios(paths, "sterile", 1)
 
@@ -296,16 +300,33 @@ def test_behavior_harness_scenario_path_suppresses_default_suite() -> None:
     paths = behavior_harness.scenario_paths(Args)
 
     assert [path.name for path in paths] == ["cs-route-brief-minimal.yaml"]
+    # A relative scenario path must resolve to a file that actually exists, or the
+    # harness silently runs nothing when the package layout moves.
+    assert paths[0].exists(), paths[0]
+
+
+def test_behavior_harness_resolves_repo_relative_scenario_path() -> None:
+    class Args:
+        scenario = [
+            MAINTAINER_SCENARIOS.relative_to(ROOT).as_posix()
+            + "/critical/cs-route-brief-minimal.yaml"
+        ]
+        suite = "critical"
+
+    paths = behavior_harness.scenario_paths(Args)
+
+    assert len(paths) == 1
+    assert paths[0].exists(), paths[0]
 
 
 def test_behavior_harness_runs_context_mode_regressions() -> None:
     compacted = behavior_harness.run_scenarios(
-        [ROOT / "codestable-maintainer/scenarios/critical/compacted-worktree-start-gate.yaml"],
+        [MAINTAINER_SCENARIOS / "critical/compacted-worktree-start-gate.yaml"],
         "compacted",
         1,
     )
     realistic = behavior_harness.run_scenarios(
-        [ROOT / "codestable-maintainer/scenarios/critical/realistic-spec-no-free-rewrite.yaml"],
+        [MAINTAINER_SCENARIOS / "critical/realistic-spec-no-free-rewrite.yaml"],
         "realistic",
         1,
     )
@@ -383,7 +404,7 @@ def test_behavior_harness_live_transcript_regex_handles_nested_item_text(tmp_pat
     fake_codex.write_text(
         "#!/usr/bin/env python3\n"
         "import json\n"
-        "print(json.dumps({'type': 'item.completed', 'item': {'type': 'agent_message', 'text': 'Do not use codestable-maintainer verify as a wrapper.\\nUse python3 codestable-maintainer/tools/verify.py --repo . --branch <branch> --remote origin --installed-root \"$tmp_installed\" --sync-installed --json for branch verification. Sync real installed roots only from origin/main.'}}))\n",
+        "print(json.dumps({'type': 'item.completed', 'item': {'type': 'agent_message', 'text': 'Do not use codestable-maintainer verify as a wrapper.\\nUse python3 plugins/codestable/skills/codestable-maintainer/tools/verify.py --repo . --branch <branch> --remote origin --installed-root \"$tmp_installed\" --sync-installed --json for branch verification. Sync real installed roots only from origin/main.'}}))\n",
         encoding="utf-8",
     )
     fake_codex.chmod(0o755)
@@ -397,7 +418,7 @@ def test_behavior_harness_live_transcript_regex_handles_nested_item_text(tmp_pat
                 "actor": {"prompt": "show verifier"},
                 "expect": {
                     "transcript": {
-                        "contains": ["python3 codestable-maintainer/tools/verify.py"],
+                        "contains": ["python3 plugins/codestable/skills/codestable-maintainer/tools/verify.py"],
                         "forbidden_regex": ["(?m)^\\s*codestable-maintainer verify\\b"],
                     },
                     "trajectory": {"required_actions": ["codex_exec"]},

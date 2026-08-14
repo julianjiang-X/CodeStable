@@ -23,7 +23,7 @@
 ## 安装
 
 ```bash
-npx skills add https://github.com/julianjiang-X/CodeStable
+npx skills add https://github.com/julianjiang-X/CodeStable/tree/main/plugins/codestable
 ```
 
 新仓库先接入：
@@ -141,11 +141,13 @@ your-project/
 │   ├── compound/                    # learning / trick / decision / explore
 │   ├── brainstorms/                 # brainstorm spike 临时代码区
 │   ├── tools/                       # onboard 释放的共享脚本
-│   └── reference/                   # onboard 释放的共享口径
+│   └── reference/                   # onboard 释放的共享口径（含 MANIFEST.json）
 └── docs/                            # cs-guide 默认写这里
 ```
 
 几条硬约束：
+
+- `.codestable/reference/` 和 `.codestable/tools/` 是技能包副本，升级后必须重新释放。`reference/MANIFEST.json` 记录释放版本，`codestable-doctor.py` 用它检测两半只刷新了一个（P1）或副本从未刷新（P2）。步骤见 [UPGRADE.md](./UPGRADE.md)。
 
 - 子技能只读 `.codestable/attention.md` 作为项目注意事项入口，不兼容 `AGENTS.md` / `CLAUDE.md` 作为 CodeStable 状态源。
 - 人读报告的正文语言由 `.codestable/attention.md` 的项目规则决定；子技能不硬编码特定语言或双语副本。
@@ -187,7 +189,7 @@ CodeStable 自身变更走 `codestable-maintainer`。在当前 CodeStable 源码
 
 ```bash
 tmp_installed="$(mktemp -d)/skills"
-python3 codestable-maintainer/tools/verify.py --repo . --branch <branch> --remote origin --installed-root "$tmp_installed" --sync-installed --json
+python3 plugins/codestable/skills/codestable-maintainer/tools/verify.py --repo . --branch <branch> --remote origin --installed-root "$tmp_installed" --sync-installed --json
 ```
 
 真实 installed root（如 `${HOME}/.agents/skills` 或 `${CODEX_HOME:-$HOME/.codex}/skills`）只从远端 `main` 更新。分支合入并推送到 `origin/main` 后再运行：
@@ -195,13 +197,13 @@ python3 codestable-maintainer/tools/verify.py --repo . --branch <branch> --remot
 AI 执行 owner 授权的 main 发布时，用 `codestable-main-publish.py begin` / `end` 包住 merge 和 push，不裸用 `--no-verify`。
 
 ```bash
-python3 codestable-maintainer/tools/verify.py --repo . --branch main --remote origin --installed-root "${CODEX_HOME:-$HOME/.codex}/skills" --sync-installed --json
+python3 plugins/codestable/skills/codestable-maintainer/tools/verify.py --repo . --branch main --remote origin --installed-root "${CODEX_HOME:-$HOME/.codex}/skills" --sync-installed --json
 ```
 
 行为回归由 maintainer harness 覆盖：
 
 ```bash
-python3 codestable-maintainer/tools/agent-behavior-harness.py run --suite critical --actor sterile
+python3 plugins/codestable/skills/codestable-maintainer/tools/agent-behavior-harness.py run --suite critical --actor sterile
 ```
 
 当前稳定边界：
@@ -217,6 +219,13 @@ python3 codestable-maintainer/tools/agent-behavior-harness.py run --suite critic
 CodeStable 与 OMO 的哲学相反：OMO 认为人介入是失败信号；CodeStable 认为程序员是软件编码里的在环对象。AI 可以高效执行，但需求边界、架构演进、验收标准和取舍仍需要 owner 判断。
 
 软件架构必须可演进、可观测、可控制。CodeStable 不追求全自动幻想，而是让真实项目在上下文膨胀、需求漂移、多人 / 多 agent 接力时还能被人接住。
+
+两条贯穿全局的原则：
+
+- **风险决定保障强度，任务类型只决定工程方法**——`执行流程 = 最小闭环 + 每个未排除风险所要求的最少保障`。行数、文件数、task kind 都不是风险的代理指标。口径见 `.codestable/reference/assurance.md`。
+- **机械 guard 优先**——能被一条测试、checker 或 lint 挡住的约束，不应该只写成文档。写下来但没人守的规则会静默腐烂。
+
+难回退的架构决定记录在 [docs/adr/](./docs/adr/)，版本变化见 [CHANGELOG.md](./CHANGELOG.md)。
 
 ---
 

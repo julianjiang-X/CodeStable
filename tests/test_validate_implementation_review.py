@@ -6,7 +6,10 @@ import sys
 from pathlib import Path
 
 
-MODULE_PATH = Path(__file__).resolve().parents[1] / "cs-onboard/tools/validate-implementation-review.py"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from layout import ONBOARD_TOOLS
+
+MODULE_PATH = ONBOARD_TOOLS / "validate-implementation-review.py"
 SPEC = importlib.util.spec_from_file_location("validate_implementation_review", MODULE_PATH)
 assert SPEC and SPEC.loader
 gate = importlib.util.module_from_spec(SPEC)

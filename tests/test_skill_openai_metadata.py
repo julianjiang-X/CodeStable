@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import re
+import sys
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from layout import skill, skill_dirs
 
 
 def frontmatter_name(skill_dir: Path) -> str:
@@ -33,10 +35,10 @@ def read_openai_interface(skill_dir: Path) -> dict[str, str]:
 
 
 def test_every_skill_has_consistent_openai_metadata() -> None:
-    skill_dirs = sorted(path.parent for path in ROOT.glob("*/SKILL.md"))
+    discovered = skill_dirs()
 
-    assert skill_dirs, "expected at least one skill"
-    for skill_dir in skill_dirs:
+    assert discovered, "expected at least one skill"
+    for skill_dir in discovered:
         name = frontmatter_name(skill_dir)
         interface = read_openai_interface(skill_dir)
 
@@ -63,7 +65,7 @@ def test_every_skill_has_consistent_openai_metadata() -> None:
 
 
 def test_cs_root_entry_uses_cs_trigger_shorthand() -> None:
-    skill_dir = ROOT / "cs"
+    skill_dir = skill("cs")
     interface = read_openai_interface(skill_dir)
     skill_text = (skill_dir / "SKILL.md").read_text(encoding="utf-8")
 

@@ -6,7 +6,8 @@ import sys
 from pathlib import Path
 
 
-TOOLS_DIR = Path(__file__).resolve().parents[1] / "cs-onboard/tools"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from layout import ONBOARD_TOOLS as TOOLS_DIR
 sys.path.insert(0, str(TOOLS_DIR))
 
 

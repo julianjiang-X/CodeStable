@@ -23,7 +23,7 @@ Tired of OpenSpec's flimsiness, Oh-My-OpenAgent's over-engineering, and Superpow
 ## Install
 
 ```bash
-npx skills add https://github.com/julianjiang-X/CodeStable
+npx skills add https://github.com/julianjiang-X/CodeStable/tree/main/plugins/codestable
 ```
 
 Onboard a repository first:
@@ -141,11 +141,13 @@ your-project/
 │   ├── compound/                    # Learning / trick / decision / explore
 │   ├── brainstorms/                 # Temporary spike area for brainstorm
 │   ├── tools/                       # Shared scripts released by onboard
-│   └── reference/                   # Shared conventions released by onboard
+│   └── reference/                   # Shared conventions released by onboard (with MANIFEST.json)
 └── docs/                            # Default output for cs-guide
 ```
 
 Hard constraints:
+
+- `.codestable/reference/` and `.codestable/tools/` are package copies and must be re-released after an upgrade. `reference/MANIFEST.json` records the released version; `codestable-doctor.py` uses it to detect a half-refreshed copy (P1) or a copy that was never refreshed (P2). Steps are in [UPGRADE.md](./UPGRADE.md).
 
 - Sub-skills only use `.codestable/attention.md` as the project attention entry. `AGENTS.md` / `CLAUDE.md` are not CodeStable state sources.
 - Human-facing report prose follows the project policy in `.codestable/attention.md`; sub-skills do not hard-code a specific language or bilingual copies.
@@ -187,7 +189,7 @@ After pushing a branch, run the verifier for fresh-clone checks, skill validatio
 
 ```bash
 tmp_installed="$(mktemp -d)/skills"
-python3 codestable-maintainer/tools/verify.py --repo . --branch <branch> --remote origin --installed-root "$tmp_installed" --sync-installed --json
+python3 plugins/codestable/skills/codestable-maintainer/tools/verify.py --repo . --branch <branch> --remote origin --installed-root "$tmp_installed" --sync-installed --json
 ```
 
 Real installed roots, such as `${HOME}/.agents/skills` or `${CODEX_HOME:-$HOME/.codex}/skills`, are updated only from remote `main`. After merging and pushing `origin/main`, run:
@@ -195,13 +197,13 @@ Real installed roots, such as `${HOME}/.agents/skills` or `${CODEX_HOME:-$HOME/.
 When AI performs an owner-approved main publish, wrap merge and push in `codestable-main-publish.py begin` / `end`; do not use bare `--no-verify`.
 
 ```bash
-python3 codestable-maintainer/tools/verify.py --repo . --branch main --remote origin --installed-root "${CODEX_HOME:-$HOME/.codex}/skills" --sync-installed --json
+python3 plugins/codestable/skills/codestable-maintainer/tools/verify.py --repo . --branch main --remote origin --installed-root "${CODEX_HOME:-$HOME/.codex}/skills" --sync-installed --json
 ```
 
 Behavior regression coverage lives in the maintainer harness:
 
 ```bash
-python3 codestable-maintainer/tools/agent-behavior-harness.py run --suite critical --actor sterile
+python3 plugins/codestable/skills/codestable-maintainer/tools/agent-behavior-harness.py run --suite critical --actor sterile
 ```
 
 Current stability boundary:
@@ -217,6 +219,13 @@ Current stability boundary:
 CodeStable takes the opposite stance from OMO: OMO treats human intervention as a failure signal; CodeStable treats the programmer as the in-loop owner of software coding. AI can execute efficiently, but capability boundaries, architecture evolution, acceptance criteria, and trade-offs still need owner judgment.
 
 Software architecture must remain evolvable, observable, and controllable. CodeStable does not chase full automation fantasies; it keeps real projects recoverable when context grows, requirements drift, and multiple humans or agents hand work off.
+
+Two principles run through everything:
+
+- **Risk decides assurance strength; task type only decides engineering method** — `execution = minimal loop + the least assurance each unexcluded risk demands`. Line count, file count, and task kind are not risk proxies. See `.codestable/reference/assurance.md`.
+- **Mechanical guards first** — a constraint a test, checker, or lint can enforce should not live only as prose. Rules written down but unenforced rot silently.
+
+Hard-to-reverse architecture decisions are recorded in [docs/adr/](./docs/adr/); version changes in [CHANGELOG.md](./CHANGELOG.md).
 
 ---
 

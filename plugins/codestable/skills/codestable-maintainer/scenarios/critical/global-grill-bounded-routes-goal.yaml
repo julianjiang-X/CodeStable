@@ -1,0 +1,64 @@
+{
+  "id": "global-grill-bounded-routes-goal",
+  "fixture": "clean-onboarded-repo",
+  "runs": 1,
+  "actor": {
+    "context": "sterile",
+    "script": [
+      {"action": "read_attention"},
+      {"action": "read_interaction_modes"},
+      {"action": "grill_goal"},
+      {
+        "write": {
+          "path": ".codestable/brainstorms/smoke-pass/grill/round-001-goal-boundary.md",
+          "content": "---\ndoc_type: grill-context\nstatus: route-ready\nsource_of_truth: false\nowner_review_use: true\nroute: cs-goal\npromoted_to: null\ncreated_at: 2026-06-29\n---\n\n# Grill Round 001: Goal Boundary\n\n## Evidence Read\n- `.codestable/attention.md`\n- `.codestable/reference/interaction-modes.md`\n\n## Current Route State\nThe prompt has observable acceptance and autonomous implementation intent, so the next route is `cs-goal`.\n\n## Axis\nGoal boundary.\n\n## Options\n1. Route to `cs-goal` and create `goal.md` after owner confirms the boundary.\n2. Stay in brainstorm if the done signal becomes fuzzy.\n\n## Recommendation\nRoute to `cs-goal`; smoke pass with fresh evidence is an observable done signal.\n\n## Owner Answer\npending\n\n## Assumptions And Risks\nSourced fact: interaction modes prefer `cs-goal` only with an observable done signal. Agent inference: smoke pass is sufficiently bounded.\n\n## Route-Ready / Acceptance Notes\nRoute-ready for `cs-goal`; not accepted until owner confirms. This context is not a source of truth.\n\n## Next Question\nWhat evidence proves the smoke pass is enough: command output, browser proof, artifact diff, or owner inspection?\n"
+        }
+      },
+      {
+        "say": "Route: cs-goal\nContext: L2\nReason: owner asked `grill me first, then implement` with a bounded done signal: make smoke pass with fresh evidence.\nNot routing to: cs-brainstorm, because the prompt already has an observable acceptance target and autonomous implementation intent.\nArtifact: wrote `.codestable/brainstorms/smoke-pass/grill/round-001-goal-boundary.md` as route-ready `grill-context` with `source_of_truth: false`; it is not accepted until owner confirms.\nEscalation: acceptance conflict, public-contract change, repeated blocker, or budget exhaustion.\nNext: run goal grill alignment, then create goal state and iterate autonomously."
+      }
+    ]
+  },
+  "expect": {
+    "transcript": {
+      "contains": ["Route: cs-goal", "bounded done signal", "route-ready `grill-context`", "source_of_truth: false", "not accepted until owner confirms"],
+      "forbidden_regex": ["(?m)^Route:\\s*cs-brainstorm\\b"]
+    },
+    "trajectory": {
+      "required_actions": ["read_attention", "read_interaction_modes", "grill_goal", "write:.codestable/brainstorms/smoke-pass/grill/round-001-goal-boundary.md"],
+      "forbidden_actions": ["interview_mode", "commit", "merge"]
+    },
+    "commands": [
+      {
+        "cmd": ["python3", "-c", "from pathlib import Path; import json; root=Path(r'{skills}'); goal=(root/'cs-goal/SKILL.md').read_text(encoding='utf-8'); modes=(root/'cs-onboard/reference/interaction-modes.md').read_text(encoding='utf-8'); payload={'goal_mentions_grill_then_implement': 'grill me first, then implement' in goal, 'modes_bound_goal_rule': 'prefer `cs-goal` only when' in modes and 'observable done signal' in modes, 'goal_allows_relentless_grill': 'relentless' in goal and 'pass across every relevant goal' in goal, 'modes_recommend_answer': 'recommended answer' in modes, 'goal_context_doc_guard': 'source_of_truth: false' in goal and '.codestable/brainstorms/{slug}/grill/' in goal}; print(json.dumps(payload, sort_keys=True))"],
+        "exit_code": 0,
+        "json": [
+          {"path": "goal_mentions_grill_then_implement", "equals": true},
+          {"path": "modes_bound_goal_rule", "equals": true},
+          {"path": "goal_allows_relentless_grill", "equals": true},
+          {"path": "modes_recommend_answer", "equals": true},
+          {"path": "goal_context_doc_guard", "equals": true}
+        ]
+      }
+    ],
+    "artifacts": {
+      "must_exist": [
+        ".codestable/reference/interaction-modes.md"
+      ],
+      "must_create": [
+        ".codestable/brainstorms/smoke-pass/grill/round-001-goal-boundary.md"
+      ],
+      "must_not_create": [
+        ".codestable/goals/**",
+        ".codestable/features/**",
+        ".codestable/interviews/**",
+        ".codestable/roadmap/**"
+      ],
+      "contains": [
+        {"path": ".codestable/brainstorms/smoke-pass/grill/round-001-goal-boundary.md", "text": "status: route-ready"},
+        {"path": ".codestable/brainstorms/smoke-pass/grill/round-001-goal-boundary.md", "text": "source_of_truth: false"},
+        {"path": ".codestable/brainstorms/smoke-pass/grill/round-001-goal-boundary.md", "text": "not accepted until owner confirms"}
+      ]
+    }
+  }
+}

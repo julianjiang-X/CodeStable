@@ -1,0 +1,24 @@
+{
+  "version": "2.0.0",
+  "description": "Shared reference templates released into .codestable/reference/ by cs-onboard.",
+  "files": [
+    "approval-conventions.md",
+    "assurance.md",
+    "branch-guard-hooks.md",
+    "code-design.md",
+    "code-dimensions.md",
+    "economy.md",
+    "evidence-lifecycle.md",
+    "execution-conventions.md",
+    "goal-conventions.md",
+    "interaction-modes.md",
+    "maintainer-notes.md",
+    "requirement-example.md",
+    "shared-conventions.md",
+    "spec-governance-tools.md",
+    "system-overview.md",
+    "tools-part1-search-validate-review-context.md",
+    "tools-part2-context-finish-plan-backlog.md",
+    "tools.md"
+  ]
+}

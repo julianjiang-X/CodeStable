@@ -1,0 +1,66 @@
+{
+  "id": "global-interaction-mode-chinese-triggers",
+  "fixture": "clean-onboarded-repo",
+  "runs": 1,
+  "actor": {
+    "context": "sterile",
+    "script": [
+      {"action": "read_attention"},
+      {"action": "read_interaction_modes"},
+      {
+        "run": ["python3", "-c", "from pathlib import Path; import json; root=Path(r'{skills}'); modes=(root/'cs-onboard/reference/interaction-modes.md').read_text(encoding='utf-8'); cs=(root/'cs/SKILL.md').read_text(encoding='utf-8'); payload={phrase: (phrase in modes and phrase in cs) for phrase in ['采访我','先问我','拷问我','追问我']}; payload['multi_round_grill']=('多问几轮' in modes and '多问几轮' in cs); print(json.dumps(payload, ensure_ascii=False, sort_keys=True))"]
+      },
+      {"action": "interview_mode_chinese_trigger"},
+      {"action": "grill_mode_chinese_trigger"},
+      {
+        "write": {
+          "path": ".codestable/brainstorms/chinese-grill/grill/round-001-route-boundary.md",
+          "content": "---\ndoc_type: grill-context\nstatus: draft\nsource_of_truth: false\nowner_review_use: true\nroute: undecided\npromoted_to: null\ncreated_at: 2026-06-29\n---\n\n# Grill Round 001: Route Boundary\n\n## Evidence Read\n- `.codestable/reference/interaction-modes.md`\n\n## Current Route State\nChinese grill aliases start owner-heavy grill mode before final routing.\n\n## Axis\nChinese trigger routing.\n\n## Options\n1. Use interview mode for `采访我` / `先问我`.\n2. Use grill mode for `拷问我` / `追问我` / `多问几轮`.\n\n## Recommendation\nUse grill only for explicit grill aliases, not for small routine tasks.\n\n## Owner Answer\npending\n\n## Assumptions And Risks\nSourced fact: interaction modes list the Chinese aliases. Agent inference: route remains undecided.\n\n## Route-Ready / Acceptance Notes\nDraft context only; not accepted and not a source of truth.\n\n## Next Question\nWhich route boundary should this grill round test first?\n"
+        }
+      },
+      {
+        "say": "Route: interaction-mode/chinese-triggers\nContext: L2\nReason: Chinese trigger phrases are global aliases for interview and grill modes.\nQuestion: `采访我` / `先问我` should start interview mode without artifacts; `拷问我` / `追问我` / `多问几轮` should start owner-heavy grill mode and write `grill-context` before final routing.\nNext: for grill aliases, relentlessly pressure-test the relevant plan branches one question at a time, then route when lifecycle intent is clear."
+      }
+    ]
+  },
+  "expect": {
+    "transcript": {
+      "contains": ["Route: interaction-mode/chinese-triggers", "采访我", "拷问我", "grill-context", "relentlessly pressure-test"],
+      "forbidden_regex": ["(?m)^Route:\\s*cs-goal\\b"]
+    },
+    "trajectory": {
+      "required_actions": ["read_attention", "read_interaction_modes", "interview_mode_chinese_trigger", "grill_mode_chinese_trigger", "write:.codestable/brainstorms/chinese-grill/grill/round-001-route-boundary.md"],
+      "forbidden_actions": ["grill_goal", "commit", "merge"]
+    },
+    "commands": [
+      {
+        "cmd": ["python3", "-c", "from pathlib import Path; import json; root=Path(r'{skills}'); modes=(root/'cs-onboard/reference/interaction-modes.md').read_text(encoding='utf-8'); cs=(root/'cs/SKILL.md').read_text(encoding='utf-8'); payload={phrase: (phrase in modes and phrase in cs) for phrase in ['采访我','先问我','拷问我','追问我']}; payload['multi_round_grill']=('多问几轮' in modes and '多问几轮' in cs); print(json.dumps(payload, ensure_ascii=False, sort_keys=True))"],
+        "exit_code": 0,
+        "json": [
+          {"path": "采访我", "equals": true},
+          {"path": "先问我", "equals": true},
+          {"path": "拷问我", "equals": true},
+          {"path": "追问我", "equals": true},
+          {"path": "multi_round_grill", "equals": true}
+        ]
+      }
+    ],
+    "artifacts": {
+      "must_exist": [
+        ".codestable/reference/interaction-modes.md"
+      ],
+      "must_create": [
+        ".codestable/brainstorms/chinese-grill/grill/round-001-route-boundary.md"
+      ],
+      "must_not_create": [
+        ".codestable/goals/**",
+        ".codestable/features/**",
+        ".codestable/interviews/**"
+      ],
+      "contains": [
+        {"path": ".codestable/brainstorms/chinese-grill/grill/round-001-route-boundary.md", "text": "doc_type: grill-context"},
+        {"path": ".codestable/brainstorms/chinese-grill/grill/round-001-route-boundary.md", "text": "source_of_truth: false"}
+      ]
+    }
+  }
+}

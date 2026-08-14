@@ -7,7 +7,8 @@ import sys
 from pathlib import Path
 
 
-TOOLS_DIR = Path(__file__).resolve().parents[1] / "cs-onboard/tools"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from layout import ONBOARD_TOOLS as TOOLS_DIR, skill
 sys.path.insert(0, str(TOOLS_DIR))
 
 
@@ -315,7 +316,7 @@ def test_installed_git_hook_allows_when_guard_script_is_missing(tmp_path: Path) 
 
 
 def test_codex_hook_definition_invokes_branch_guard() -> None:
-    hook_path = Path(__file__).resolve().parents[1] / "cs-onboard/hooks/hooks.codex.json"
+    hook_path = skill("cs-onboard") / "hooks/hooks.codex.json"
     payload = json.loads(hook_path.read_text(encoding="utf-8"))
 
     hook_command = payload["hooks"]["PreToolUse"][0]["hooks"][0]["command"]

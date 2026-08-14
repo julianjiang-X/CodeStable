@@ -1,0 +1,62 @@
+{
+  "id": "global-grill-mode-does-not-overroute-goal",
+  "fixture": "clean-onboarded-repo",
+  "runs": 1,
+  "actor": {
+    "context": "sterile",
+    "script": [
+      {"action": "read_attention"},
+      {"action": "read_interaction_modes"},
+      {"action": "grill_mode"},
+      {
+        "write": {
+          "path": ".codestable/brainstorms/grill-demo/grill/round-001-route-boundary.md",
+          "content": "---\ndoc_type: grill-context\nstatus: draft\nsource_of_truth: false\nowner_review_use: true\nroute: cs-brainstorm\npromoted_to: null\ncreated_at: 2026-06-29\n---\n\n# Grill Round 001: Route Boundary\n\n## Evidence Read\n- `.codestable/attention.md`\n- `.codestable/reference/interaction-modes.md`\n\n## Current Route State\nStandalone grill has no bounded destination, so route to `cs-brainstorm`, not `cs-goal`.\n\n## Axis\nRoute boundary.\n\n## Options\n1. Keep pressure-testing in brainstorm.\n2. Convert to goal only after observable acceptance appears.\n\n## Recommendation\nStart with fuzzy acceptance, because it determines whether this remains brainstorm or becomes a bounded goal.\n\n## Owner Answer\npending\n\n## Assumptions And Risks\nSourced fact: interaction modes require a bounded destination before `cs-goal`. Agent inference: fuzzy acceptance is the first useful axis.\n\n## Route-Ready / Acceptance Notes\nNot route-ready. Not accepted. This context is not a source of truth.\n\n## Next Question\nWhat would make this idea fail first: unclear user, fuzzy acceptance, too-large scope, or hidden dependency?\n"
+        }
+      },
+      {
+        "say": "Route: cs-brainstorm\nContext: L2\nReason: owner asked `grill me`, but did not give a bounded start/end goal or observable acceptance signal.\nNot routing to: cs-goal, because standalone grill is pressure-testing an idea, not an autonomous goal wrapper.\nArtifact: wrote `.codestable/brainstorms/grill-demo/grill/round-001-route-boundary.md` as `doc_type: grill-context` with `source_of_truth: false`.\nEscalation: bounded acceptance plus autonomous implementation intent would route to cs-goal.\nQuestion: What would make this idea fail: unclear user, fuzzy acceptance, too-large scope, or hidden dependency?\nRecommended answer: start with fuzzy acceptance, because it determines whether this remains brainstorm or becomes a bounded goal.\nNext: relentlessly pressure-test every relevant branch of the plan or design one question at a time, then route when shared understanding is reached."
+      }
+    ]
+  },
+  "expect": {
+    "transcript": {
+      "contains": ["Route: cs-brainstorm", "Not routing to: cs-goal", "grill-context", "source_of_truth: false", "relentlessly pressure-test every relevant branch", "Recommended answer"],
+      "forbidden_regex": ["(?m)^Route:\\s*cs-goal\\b"]
+    },
+    "trajectory": {
+      "required_actions": ["read_attention", "read_interaction_modes", "grill_mode", "write:.codestable/brainstorms/grill-demo/grill/round-001-route-boundary.md"],
+      "forbidden_actions": ["grill_goal", "commit", "merge"]
+    },
+    "commands": [
+      {
+        "cmd": ["python3", "-c", "from pathlib import Path; import json; root=Path(r'{skills}'); modes=(root/'cs-onboard/reference/interaction-modes.md').read_text(encoding='utf-8'); cs=(root/'cs/SKILL.md').read_text(encoding='utf-8'); payload={'modes_has_grill_path': '.codestable/brainstorms/{slug}/grill/round-NNN-{axis}.md' in modes, 'modes_has_source_guard': 'source_of_truth: false' in modes, 'modes_splits_status': 'route-ready' in modes and 'accepted' in modes, 'cs_has_no_auto_small_grill': '小任务不自动触发 full grill' in cs}; print(json.dumps(payload, ensure_ascii=False, sort_keys=True))"],
+        "exit_code": 0,
+        "json": [
+          {"path": "modes_has_grill_path", "equals": true},
+          {"path": "modes_has_source_guard", "equals": true},
+          {"path": "modes_splits_status", "equals": true},
+          {"path": "cs_has_no_auto_small_grill", "equals": true}
+        ]
+      }
+    ],
+    "artifacts": {
+      "must_exist": [
+        ".codestable/reference/interaction-modes.md"
+      ],
+      "must_create": [
+        ".codestable/brainstorms/grill-demo/grill/round-001-route-boundary.md"
+      ],
+      "must_not_create": [
+        ".codestable/goals/**",
+        ".codestable/features/**",
+        ".codestable/interviews/**"
+      ],
+      "contains": [
+        {"path": ".codestable/brainstorms/grill-demo/grill/round-001-route-boundary.md", "text": "doc_type: grill-context"},
+        {"path": ".codestable/brainstorms/grill-demo/grill/round-001-route-boundary.md", "text": "source_of_truth: false"},
+        {"path": ".codestable/brainstorms/grill-demo/grill/round-001-route-boundary.md", "text": "This context is not a source of truth"}
+      ]
+    }
+  }
+}
