@@ -32,9 +32,11 @@ REQUIRED = {
     "### Reviewer Lineage": (
         "fresh reviewer",
         "same session",
-        "resolved",
-        "unresolved",
-        "new findings",
+        # `resolved` is a substring of `unresolved`, so the three states are
+        # matched as the backticked tokens the protocol actually specifies.
+        "`resolved`",
+        "`unresolved`",
+        "`new findings`",
         "complete current candidate",
     ),
     "### Round Budget": (
