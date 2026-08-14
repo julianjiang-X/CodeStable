@@ -28,29 +28,33 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from sections import describe_failure, slice_section  # noqa: E402
+
 
 SKILLS_ROOT = Path(__file__).resolve().parents[2]
 
-# One keyword per risk row in assurance.md, in row order. Membership proves the
-# categories survive; order proves the lane still mirrors the canon row-for-row,
-# which is what each lane's 逐行对应 claim asserts.
+# One keyword per risk row in assurance.md. Membership proves the categories
+# survive; row-count parity against assurance.md (check_canon_parity) proves the
+# set is still complete. Order is deliberately not checked — a permutation has no
+# instructional consequence, so asserting it only produces false positives.
 RISK_KEYWORDS = ("取舍", "契约", "权限", "schema", "并发", "副作用", "性能", "传播")
 
-BOUNDARY = re.compile(r"^(?:#{2,4}\s|\s*\d+\.\s|---\s*$)")
-FENCE = re.compile(r"^\s*```")
-HTML_COMMENT = re.compile(r"<!--.*?-->", re.DOTALL)
-
 LANES = {
-    "cs-feat-ff": ("cs-feat-ff/SKILL.md", "### 风险升级"),
-    "cs-refactor-ff": ("cs-refactor-ff/SKILL.md", "### 第 4 条：风险核对"),
-    "cs-issue-fix": ("cs-issue-fix/SKILL.md", "**风险核对（静默）**"),
+    "cs-feat-ff": ("cs-feat-ff/SKILL.md", "### 风险升级", False),
+    "cs-refactor-ff": ("cs-refactor-ff/SKILL.md", "### 第 4 条：风险核对", False),
+    # This gate is nested inside the fast-path numbered list.
+    "cs-issue-fix": ("cs-issue-fix/SKILL.md", "**风险核对（静默）**", True),
 }
 
 # "Stay in the lane" is only safe while a scale signal still forces fallback.
 # That carve-out lives in the fallback section, not the gate, so requiring the
 # bare 不切回 token inside the gate would accept the rule without its bound.
 SCOPE_SECTIONS = {
-    "cs-feat-ff": ("## 什么时候跳出 fastforward", ("规模", "风险")),
+    # Must reach the trigger list itself. Pointing at the parent heading sliced
+    # only the framing sentence, which names both tokens while the rule it
+    # announces could be deleted wholesale.
+    "cs-feat-ff": ("### 规模跳出", ("3 个以上子系统", "cs-feat-design")),
     "cs-refactor-ff": ("## 什么时候跳出 fastforward", ("规模信号", "以规模信号为准")),
 }
 
@@ -69,71 +73,55 @@ COUNTERWEIGHT_ELEMENTS = (
 )
 
 
-def slice_section(text: str, heading: str) -> str | None:
-    """Text from `heading` to the next structural boundary, or None if unslicable.
-
-    Returns None when the heading is absent, appears more than once (an ambiguous
-    slice), or has no following boundary — never a widened fallback.
-    """
-    lines = text.split("\n")
-    starts = [i for i, ln in enumerate(lines) if heading in ln]
-    if len(starts) != 1:
-        return None
-    start = starts[0]
-
-    in_fence = False
-    for i in range(start + 1, len(lines)):
-        if FENCE.match(lines[i]):
-            in_fence = not in_fence
-            continue
-        if in_fence:
-            continue
-        if BOUNDARY.match(lines[i]):
-            body = "\n".join(lines[start:i])
-            # Commented-out text is not instruction the agent reads, so it must
-            # not satisfy any requirement. Without this a decoy comment carrying
-            # every token passes every token check.
-            return HTML_COMMENT.sub(" ", body)
-    return None
-
-
-ENUMERATION_ANCHOR = "逐行对应"
+# N12: anchoring on a phrase like 逐行对应 just swaps one magic phrase for another —
+# a descriptive connective is exactly what a prose cleanup rewrites. Anchor on the
+# enumeration's own shape: the bullet run, or the `·`-separated run used inline.
+BULLET = re.compile(r"^\s*[-*]\s+\S", re.MULTILINE)
 
 
 def enumeration(section: str) -> str:
     """The category list itself, excluding the narrative lead-in.
 
-    The lead-in legitimately mentions 权限 / 并发 as examples, so measuring
-    membership or order across the whole section would grade prose rather than
-    the list. All three lanes anchor the list on the 逐行对应 claim.
+    The lead-in legitimately names 权限 / 并发 as examples, so measuring membership
+    or order across the whole section would grade prose rather than the list.
     """
-    i = section.find(ENUMERATION_ANCHOR)
-    return section[i:] if i >= 0 else ""
-
-
-def ordered(text: str, keywords: tuple[str, ...]) -> bool:
-    positions = [text.find(k) for k in keywords]
-    return all(p >= 0 for p in positions) and positions == sorted(positions)
+    bullets = BULLET.findall(section)
+    if len(bullets) >= 4:
+        first = BULLET.search(section)
+        return section[first.start():]
+    # Inline form: the longest `·`-separated run, starting at the colon that
+    # introduces it — the lead-in shares the line and legitimately names
+    # 权限 / 并发 as examples.
+    runs = [ln for ln in section.split("\n") if ln.count("·") >= 3]
+    if not runs:
+        return ""
+    line = max(runs, key=len)
+    head = line.rfind("：", 0, line.find("·"))
+    return line[head + 1:] if head >= 0 else line
 
 
 def scope_ok(skills_root: Path, lane: str) -> bool:
-    """Lanes that may stay in-lane on a risk hit must still let scale force fallback."""
+    """Lanes that may stay in-lane on a risk hit must still let scale force fallback.
+
+    The carve-out lives in the fallback section, not the gate, so requiring the bare
+    不切回 token inside the gate would accept the rule without its bound.
+    """
     spec = SCOPE_SECTIONS.get(lane)
     if spec is None:
         return True
     heading, tokens = spec
-    section = slice_section((skills_root / LANES[lane][0]).read_text(encoding="utf-8"), heading)
+    text = (skills_root / LANES[lane][0]).read_text(encoding="utf-8")
+    section = slice_section(text, heading)
     return section is not None and all(tok in section for tok in tokens)
 
 
 def check_lane(skills_root: Path, lane: str) -> dict[str, object]:
-    relpath, heading = LANES[lane]
+    relpath, heading, nested = LANES[lane]
     path = skills_root / relpath
     base = {
         "missing_categories": list(RISK_KEYWORDS),
         "categories_present": 0,
         "categories_expected": len(RISK_KEYWORDS),
-        "categories_in_canon_order": False,
         "cites_assurance": False,
         "takes_full_row": False,
         "clarifies_jiashen": False,
@@ -145,20 +133,20 @@ def check_lane(skills_root: Path, lane: str) -> dict[str, object]:
     if not path.is_file():
         return {**base, "reason": f"missing {relpath}"}
 
-    section = slice_section(path.read_text(encoding="utf-8"), heading)
+    text = path.read_text(encoding="utf-8")
+    section = slice_section(text, heading, stop_at_list_item=nested)
     if section is None:
-        return {**base, "reason": f"gate section under {heading!r} is missing, duplicated, or unbounded"}
+        return {**base, "reason": describe_failure(text, heading)}
 
     listing = enumeration(section)
     if not listing:
-        return {**base, "reason": f"gate section has no {ENUMERATION_ANCHOR!r} category list"}
+        return {**base, "reason": "gate section has no recognisable category enumeration"}
 
     missing = [kw for kw in RISK_KEYWORDS if kw not in listing]
     result = {
         **base,
         "missing_categories": missing,
         "categories_present": len(RISK_KEYWORDS) - len(missing),
-        "categories_in_canon_order": ordered(listing, RISK_KEYWORDS),
         "cites_assurance": "assurance.md" in section,
         # Structural marker for "take the whole compound cell", not one phrasing.
         "takes_full_row": bool(re.search(r"每一?项都要做", section)),
@@ -171,7 +159,6 @@ def check_lane(skills_root: Path, lane: str) -> dict[str, object]:
     }
     result["ok"] = (
         not missing
-        and result["categories_in_canon_order"]
         and result["cites_assurance"]
         and result["takes_full_row"]
         and result["clarifies_jiashen"]
@@ -195,13 +182,38 @@ def check_counterweight(skills_root: Path) -> dict[str, object]:
     return {"ok": not missing, "missing": missing}
 
 
+ASSURANCE = "cs-onboard/reference/assurance.md"
+ASSURANCE_ROW = re.compile(r"^\| (?!风险事实|---)[^|]+\|[^|]+\|\s*$", re.MULTILINE)
+
+
+def check_canon_parity(skills_root: Path) -> dict[str, object]:
+    """The lanes claim to mirror assurance.md row for row; verify the count.
+
+    Without this the canon can gain a row while every lane and every checker
+    stays green, because RISK_KEYWORDS is a constant baked into this file.
+    """
+    path = skills_root / ASSURANCE
+    if not path.is_file():
+        return {"ok": False, "reason": f"missing {ASSURANCE}"}
+    rows = len(ASSURANCE_ROW.findall(path.read_text(encoding="utf-8")))
+    return {
+        "ok": rows == len(RISK_KEYWORDS),
+        "canon_rows": rows,
+        "keywords": len(RISK_KEYWORDS),
+        "reason": "" if rows == len(RISK_KEYWORDS)
+        else f"assurance.md has {rows} risk rows but RISK_KEYWORDS has {len(RISK_KEYWORDS)}",
+    }
+
+
 def check(skills_root: Path) -> dict[str, object]:
     lanes = {lane: check_lane(skills_root, lane) for lane in LANES}
     counterweight = check_counterweight(skills_root)
+    canon = check_canon_parity(skills_root)
     return {
-        "ok": all(v["ok"] for v in lanes.values()) and counterweight["ok"],
+        "ok": all(v["ok"] for v in lanes.values()) and counterweight["ok"] and canon["ok"],
         "lanes": lanes,
         "counterweight": counterweight,
+        "canon_parity": canon,
     }
 
 
@@ -219,6 +231,8 @@ def main() -> int:
             print(f"{lane}: {'ok' if result['ok'] else 'FAIL ' + str(result.get('reason', ''))}")
         cw = payload["counterweight"]
         print(f"counterweight: {'ok' if cw['ok'] else 'FAIL ' + str(cw.get('missing'))}")
+        cp = payload["canon_parity"]
+        print(f"canon parity: {'ok' if cp['ok'] else 'FAIL ' + cp.get('reason', '')}")
     return 0 if payload["ok"] else 1
 
 

@@ -62,10 +62,17 @@ def assertion_signatures(scenario: dict[str, object]) -> set[tuple[str, ...]]:
 
     for command in expect.get("commands", []) or []:
         cmd = " ".join(command.get("cmd", []))
+        # exit_code is an assertion in its own right: two scenarios asserting
+        # opposite exit codes on one command are not duplicates.
+        if "exit_code" in command:
+            signatures.add((fixture, cmd, "exit_code", json.dumps(command["exit_code"])))
         for check in command.get("json", []) or []:
-            signatures.add(
-                (fixture, cmd, str(check.get("path")), json.dumps(check.get("equals"), sort_keys=True))
+            # Serialise the whole check, not just `equals`; contains_item and
+            # friends otherwise all collapse to the same "null" signature.
+            predicate = json.dumps(
+                {k: v for k, v in check.items() if k != "path"}, sort_keys=True, ensure_ascii=False
             )
+            signatures.add((fixture, cmd, str(check.get("path")), predicate))
 
     artifacts = expect.get("artifacts") or {}
     for key in ("must_create", "must_not_create", "must_exist", "must_not_exist"):

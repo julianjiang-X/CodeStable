@@ -259,13 +259,13 @@ def _fake_lane_files(root: Path, gate_body: str, tail: str = "") -> Path:
     """Minimal skills tree with the same gate body in every lane."""
     checker = load_risk_gate_checker()
     fake = root / "skills"
-    for relpath, heading in checker.LANES.values():
+    for lane, (relpath, heading, _nested) in checker.LANES.items():
         target = fake / relpath
         target.parent.mkdir(parents=True, exist_ok=True)
-        scope = checker.SCOPE_SECTIONS.get(_lane_of(relpath))
         scope_block = ""
-        if scope:
-            scope_heading, tokens = scope
+        spec = checker.SCOPE_SECTIONS.get(lane)
+        if spec:
+            scope_heading, tokens = spec
             scope_block = f"\n{scope_heading}\n" + " ".join(tokens) + "\n\n## after\n"
         target.write_text(
             f"# lane\n\n{heading}\n{gate_body}\n\n## next\n{scope_block}{tail}", encoding="utf-8"
@@ -273,15 +273,12 @@ def _fake_lane_files(root: Path, gate_body: str, tail: str = "") -> Path:
     return fake
 
 
-def _lane_of(relpath: str) -> str:
-    return relpath.split("/", 1)[0]
-
-
 def _well_formed_gate() -> str:
     checker = load_risk_gate_checker()
-    listing = " · ".join(checker.RISK_KEYWORDS)
+    bullets = "\n".join(f"- {kw} 相关风险" for kw in checker.RISK_KEYWORDS)
     return (
-        f"引子提到权限判断。\n\n八类风险与 `.codestable/reference/assurance.md` 逐行对应：{listing}。\n\n"
+        "引子提到权限判断。\n\n八类风险与 `.codestable/reference/assurance.md` 对应：\n"
+        f"{bullets}\n\n"
         "命中后照搬那一行，`+` 连接的每项都要做；加审指在地板 review 之外再加一轮。\n"
         "只命中风险时不切回；不命中带一句 无命中。"
     )
@@ -315,8 +312,8 @@ def test_risk_gate_checker_rejects_keywords_outside_the_gate_section(tmp_path: P
     """
     checker = load_risk_gate_checker()
     listing = " · ".join(checker.RISK_KEYWORDS)
-    gutted = "八类风险与 `assurance.md` 逐行对应：见附录。\n命中后每项都要做；加审在地板之外；不切回；无命中也记一句。"
-    appendix = f"\n## 附录\n\n逐行对应：{listing}\n"
+    gutted = "八类风险与 `assurance.md` 对应：见附录。\n命中后每项都要做；加审在地板之外；不切回；无命中也记一句。"
+    appendix = f"\n## 附录\n\n分类：{listing}\n"
     fake = _fake_lane_files(tmp_path, gutted, tail=appendix)
 
     for lane in checker.LANES:
@@ -330,16 +327,16 @@ def test_risk_gate_checker_never_fails_open_without_a_terminator(tmp_path: Path)
     checker = load_risk_gate_checker()
     listing = " · ".join(checker.RISK_KEYWORDS)
     fake = tmp_path / "skills"
-    for relpath, heading in checker.LANES.values():
+    for relpath, heading, _nested in checker.LANES.values():
         target = fake / relpath
         target.parent.mkdir(parents=True, exist_ok=True)
         # Heading present, no following boundary anywhere, keywords far below.
-        target.write_text(f"{heading}\nno boundary follows\n逐行对应：{listing}\n", encoding="utf-8")
+        target.write_text(f"{heading}\nno boundary follows\n列表：{listing}\n", encoding="utf-8")
 
     for lane in checker.LANES:
         result = checker.check_lane(fake, lane)
         assert result["ok"] is False, (lane, result)
-        assert "unbounded" in result.get("reason", ""), (lane, result)
+        assert "no following boundary" in result.get("reason", ""), (lane, result)
 
 
 def test_risk_gate_checker_requires_the_counterweight(tmp_path: Path) -> None:
@@ -445,3 +442,35 @@ def test_scenario_coverage_checker_accepts_a_distinct_scenario(tmp_path: Path) -
 
     assert payload["ok"] is True
     assert payload["regressions"] == []
+
+
+def test_risk_gate_checker_reports_distinct_slice_failures(tmp_path: Path) -> None:
+    """Missing / duplicated / unterminated must be distinguishable, not one string."""
+    import sys as _sys
+
+    _sys.path.insert(0, str(skill("codestable-maintainer") / "tools"))
+    from sections import describe_failure
+
+    heading = "### Gate"
+    assert "missing" in describe_failure("nothing here\n", heading)
+    assert "appears 2 times" in describe_failure(f"{heading}\na\n{heading}\nb\n## end\n", heading)
+    assert "no following boundary" in describe_failure(f"{heading}\nbody\n", heading)
+
+
+def test_canon_parity_catches_a_new_assurance_row(tmp_path: Path) -> None:
+    """A ninth canon row must fail, or the lanes silently stop mirroring it."""
+    checker = load_risk_gate_checker()
+    fake = tmp_path / "skills"
+    target = fake / checker.ASSURANCE
+    target.parent.mkdir(parents=True, exist_ok=True)
+
+    rows = "\n".join(f"| risk {i} | safeguard {i} |" for i in range(len(checker.RISK_KEYWORDS)))
+    target.write_text(f"| 风险事实 | 最少保障 |\n|---|---|\n{rows}\n", encoding="utf-8")
+    assert checker.check_canon_parity(fake)["ok"] is True
+
+    target.write_text(
+        f"| 风险事实 | 最少保障 |\n|---|---|\n{rows}\n| risk 9 | safeguard 9 |\n", encoding="utf-8"
+    )
+    result = checker.check_canon_parity(fake)
+    assert result["ok"] is False
+    assert result["canon_rows"] == len(checker.RISK_KEYWORDS) + 1

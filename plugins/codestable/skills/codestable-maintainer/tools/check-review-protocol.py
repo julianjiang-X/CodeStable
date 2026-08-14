@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Verify the reviewer-lineage protocol in execution-conventions.md is intact.
 
-Companion to check-risk-gate.py, same technique and same reason: a substring
+Companion to check-risk-gate.py. Both share sections.py so the parsing is
+hardened once; same reason: a substring
 search over a whole file passes on a decoy comment carrying the keywords and
 fails on a harmless rewording. Each protocol section is sliced by heading and
 checked for the elements that section must carry.
@@ -17,6 +18,9 @@ import argparse
 import json
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from sections import describe_failure, slice_section  # noqa: E402
 
 
 SKILLS_ROOT = Path(__file__).resolve().parents[2]
@@ -62,21 +66,6 @@ REQUIRED = {
 MIN_SECTION_CHARS = 200
 
 
-def section(text: str, heading: str) -> str:
-    start = text.find(heading)
-    if start < 0:
-        return ""
-    body_start = start + len(heading)
-    # Stop at the next heading of the same or higher level.
-    candidates = [
-        pos
-        for pos in (text.find("\n### ", body_start), text.find("\n## ", body_start))
-        if pos > 0
-    ]
-    end = min(candidates) if candidates else len(text)
-    return text[start:end]
-
-
 def check(skills_root: Path) -> dict[str, object]:
     path = skills_root / CONVENTIONS
     if not path.is_file():
@@ -85,13 +74,19 @@ def check(skills_root: Path) -> dict[str, object]:
     text = path.read_text(encoding="utf-8")
     sections: dict[str, object] = {}
     for heading, elements in REQUIRED.items():
-        body = section(text, heading)
-        if not body:
-            sections[heading] = {"ok": False, "reason": "section missing", "missing": list(elements)}
+        body = slice_section(text, heading)
+        if body is None:
+            sections[heading] = {
+                "ok": False,
+                "reason": describe_failure(text, heading),
+                "missing": list(elements),
+            }
             continue
         missing = [e for e in elements if e not in body]
         # Prose, not a stub or a comment that merely mentions the keywords.
-        substantial = len(body) >= MIN_SECTION_CHARS and "<!--" not in body[: len(heading) + 40]
+        # Comments are already stripped by the shared slicer, so length here
+        # measures real prose rather than a padded decoy.
+        substantial = len(body) >= MIN_SECTION_CHARS
         sections[heading] = {
             "ok": not missing and substantial,
             "missing": missing,
