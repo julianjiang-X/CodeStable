@@ -25,6 +25,7 @@ from layout import (  # noqa: E402
     ONBOARD_TOOLS,
     PLUGIN_ROOT,
     REPO_ROOT as ROOT,
+    SKILLS_ROOT,
     skill,
     skill_dirs,
 )
@@ -230,3 +231,41 @@ def test_markdown_documents_stay_within_size_limit() -> None:
     oversized = {name: count for name, count in oversized.items() if count > MAX_DOC_LINES}
 
     assert not oversized, f"documents over {MAX_DOC_LINES} lines must be split: {oversized}"
+
+
+def load_risk_gate_checker():
+    import importlib.util
+
+    path = skill("codestable-maintainer") / "tools" / "check-risk-gate.py"
+    spec = importlib.util.spec_from_file_location("check_risk_gate_for_tests", path)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_fast_lanes_carry_a_complete_risk_gate() -> None:
+    """Volume gates are not risk gates; every fast lane must wire to assurance.md."""
+    payload = load_risk_gate_checker().check(SKILLS_ROOT)
+
+    assert payload["ok"], payload
+    for lane, result in payload["lanes"].items():
+        assert not result["missing_categories"], (lane, result)
+        assert result["takes_full_row"], lane
+        assert result["stays_in_lane"], lane
+
+
+def test_risk_gate_checker_rejects_a_gutted_gate(tmp_path: Path) -> None:
+    """The checker must fail on a decoy that keeps the heading but drops the payload."""
+    checker = load_risk_gate_checker()
+    fake = tmp_path / "skills"
+    for lane, (relpath, heading, _stop) in checker.LANES.items():
+        target = fake / relpath
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(f"# {lane}\n\n{heading}\n\n<!-- assurance.md 全部保障 不切回 -->\n\n---\n", encoding="utf-8")
+
+    payload = checker.check(fake)
+
+    assert payload["ok"] is False
+    for lane, result in payload["lanes"].items():
+        assert result["missing_categories"], lane

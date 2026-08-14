@@ -38,6 +38,9 @@ fix 阶段最容易出问题的不是改代码本身，而是**改的过程中�
 3. **等用户明确说"对，就这样改"才动手**——不允许"我觉得对，直接改了"
 4. 读 `.codestable/attention.md`
 5. **补搜沉淀目录**——快速通道也要查一遍 `compound/`（trick + explore），避免误把已知边界条件当新问题
+   - **风险核对（静默）**——快速通道省掉的是 analysis 文档，**不是风险判断**。一行修复照样可能落在权限判断、迁移路径或并发语义上；这条通道跳过了 analysis，所以根因仍不确定本身就是命中项之一。对要碰的路径做一次静默核对，八类风险与 `.codestable/reference/assurance.md` 风险映射表逐行对应：目标 / 根因不确定或存在真实取舍 · 破坏兼容或多消费者公开契约 · 权限 / 安全 / 隐私 / 凭证 / token / 信任边界 · 持久化数据 / schema / 迁移 · 并发 / 顺序 / 一致性 · 不可恢复的代码外副作用 · 性能敏感路径 · 影响面广或失败可跨模块传播（公共 helper、共享配置、feature flag）。
+     命中后先读 `assurance.md`，**照搬命中那一行列出的全部保障**——格子是复合的，`+` 连接的每项都要做，标着确认的还要 owner 拍板；所谓只加对应保障，限定的是不启用别的行，不是把一行砍成一条。其中加审指在本通道已有的独立 review 之外**再加一轮**对应目的的审查，不是拿地板 review 顶替。在 fix 里，增加的保障通常体现为红到绿之外还要补的那份证据。
+     命中后在 fix-note 写明「风险事实 → 增加的保障」，不命中就带一句 `风险核对：无命中`。只命中风险不因此升级回标准路径；但若核对发现根因判断本身站不住，回 `cs-issue-analyze` 重新定位。
 6. **确认执行拓扑与 review 授权**——按 shared-conventions 第 2.6 节确认并进入独立 worktree 修复；若当前对话还没有明确 subagent / delegation 授权，先用 review authorization judgment checkpoint 提供背景、术语、取舍、默认建议和非自动动作；用户授权 subagent 后继续，只有平台无 subagent 能力时 inline review 才能继续；动代码前运行 `python3 .codestable/tools/codestable-worktree-gate.py --root . --json start --unit .codestable/issues/YYYY-MM-DD-{slug}`；用户明确要求当前 checkout 直接做时可以继续，但要先写 `worktree-override.md` 并在汇报里写清楚 override
 
 ---

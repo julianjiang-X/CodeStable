@@ -75,6 +75,8 @@ tags: []
 
 ## 4. `{slug}-fix-note.md` 快速通道模板
 
+> 快速通道跳过了 analysis，所以风险核对的结论必须落在这里：命中写「风险事实 → 增加的保障」，无命中写 `风险核对：无命中`。
+
 ```markdown
 ---
 doc_type: issue-fix

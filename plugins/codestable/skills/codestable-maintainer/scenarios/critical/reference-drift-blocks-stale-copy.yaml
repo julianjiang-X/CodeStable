@@ -1,0 +1,76 @@
+{
+  "id": "reference-drift-blocks-stale-copy",
+  "fixture": "clean-onboarded-repo",
+  "runs": 1,
+  "actor": {
+    "context": "sterile",
+    "script": [
+      {
+        "action": "read_attention"
+      },
+      {
+        "write": {
+          "path": ".codestable/reference/MANIFEST.json",
+          "content": "{\"version\": \"0.0.1\", \"files\": [\"system-overview.md\"]}\n"
+        }
+      },
+      {
+        "action": "run_doctor"
+      },
+      {
+        "say": "Doctor reports reference_drift version-mismatch: the project copy of .codestable/reference/ came from package 0.0.1 while the copied tools are newer.\nSkills would follow stale shared conventions, so this is P1 and blocks completion until the reference directory is re-copied."
+      }
+    ]
+  },
+  "expect": {
+    "transcript": {
+      "contains": [
+        "version-mismatch",
+        "stale shared conventions",
+        "re-copied"
+      ]
+    },
+    "trajectory": {
+      "required_actions": [
+        "read_attention",
+        "run_doctor"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "merge"
+      ]
+    },
+    "commands": [
+      {
+        "cmd": [
+          "python3",
+          ".codestable/tools/codestable-doctor.py",
+          "--root",
+          ".",
+          "--json"
+        ],
+        "exit_code": 1,
+        "json": [
+          {
+            "path": "ok",
+            "equals": false
+          },
+          {
+            "path": "status",
+            "equals": "blocked"
+          },
+          {
+            "path": "reference_drift.state",
+            "equals": "version-mismatch"
+          },
+          {
+            "path": "findings",
+            "contains_item": {
+              "severity": "P1"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
