@@ -210,6 +210,7 @@ python3 plugins/codestable/skills/codestable-maintainer/tools/agent-behavior-har
 
 - `critical` suite 是确定性行为回归，用场景测试覆盖 routing、worktree、review packet、backlog、spec-governance、compact resume 等高风险行为。
 - `live` suite 可用 `--actor live-codex` 做人工触发的真实 Codex smoke。
+- 新旧包的真实模型对照可手动运行 `live-comparison.py`；固定同一评测器、隔离技能并保留逐次证据，见 [对照协议](plugins/codestable/skills/codestable-maintainer/references/live-comparison-protocol.md)。
 - 调度化 live eval、budget guard、compaction canary、dashboard 仍在 Phase 2，详见 `codestable-maintainer/references/live-eval-phase-2.md`。
 
 ---

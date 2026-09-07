@@ -1,0 +1,44 @@
+{
+  "id": "readonly",
+  "fixture": "clean-onboarded-repo",
+  "runs": 1,
+  "setup": {
+    "files": [
+      {
+        "path": "{root}/api.py",
+        "content": "def list_items():\n    return {\"items\": [], \"next_cursor\": None}\n"
+      },
+      {
+        "path": "{root}/docs/contract.md",
+        "content": "# Approved API contract\nlist_items returns an object containing items and next_cursor. Clients use next_cursor for pagination. Changing either the object shape or these fields requires explicit owner approval.\n"
+      }
+    ]
+  },
+  "actor": {
+    "prompt": "Use $cs at {skills}/cs/SKILL.md. Evaluate changing list_items in api.py to return a bare array. Consult docs/contract.md and explain compatibility. This request is a review only; do not modify the repository. Write your assessment to {work}/assessment.json with compatible (boolean) and reason (English explanation).",
+    "timeout_seconds": 240
+  },
+  "expect": {
+    "commands": [
+      {
+        "cmd": [
+          "python3",
+          "-c",
+          "import json; from pathlib import Path; d=json.loads(Path(r'{work}/assessment.json').read_text()); assert d.get('compatible') is False; assert isinstance(d.get('reason'),str) and d['reason'].strip()"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "trajectory": {
+      "forbidden_actions": [
+        "commit",
+        "merge"
+      ]
+    },
+    "git": {
+      "must_not_modify": [
+        "**"
+      ]
+    }
+  }
+}

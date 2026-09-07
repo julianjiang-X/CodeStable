@@ -234,3 +234,13 @@ The current roadmap is complete at the deterministic verifier plus manual
 `live-codex` smoke layer. Scheduled live eval and true live compaction eval are
 Phase 2 work, not blockers for the current stable definition; see
 `live-eval-phase-2.md`.
+
+## Comparing package revisions
+
+For controlled old/new live runs, use [the comparison protocol](live-comparison-protocol.md).
+The opt-in `tools/live-comparison.py` uses one evaluator for both immutable
+package snapshots and records raw run evidence. It is separate from release
+verification. Live runtime grading rejects nonzero exits and missing successful
+completion events; live repository grading compares actor-before/after snapshots,
+including initial untracked files. `expect.git.allowed_modify` can restrict
+changes to an explicit set of path globs.

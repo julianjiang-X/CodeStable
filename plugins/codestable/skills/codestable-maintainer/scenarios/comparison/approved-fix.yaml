@@ -1,0 +1,55 @@
+{
+  "id": "approved-fix",
+  "fixture": "clean-onboarded-repo",
+  "runs": 1,
+  "setup": {
+    "files": [
+      {
+        "path": "{root}/slug.py",
+        "content": "def slugify(text):\n    return text.strip().lower().replace(\" \", \"-\")\n"
+      },
+      {
+        "path": "{root}/docs/contract.md",
+        "content": "# Approved slug contract\nslugify accepts a string, strips leading and trailing whitespace, lowercases it, and joins whitespace-separated words with a single hyphen. Empty or all-whitespace input returns an empty string. Preserve punctuation within words.\n"
+      }
+    ]
+  },
+  "actor": {
+    "prompt": "Use $using-codestable at {skills}/using-codestable/SKILL.md. Fix slugify: repeated spaces and tabs currently produce incorrect slugs. Follow the approved contract in docs/contract.md, validate the repair, and complete the change.",
+    "timeout_seconds": 240
+  },
+  "expect": {
+    "commands": [
+      {
+        "cmd": [
+          "python3",
+          "-c",
+          "from slug import slugify; cases={'  Hello   WORLD  ':'hello-world','a\\tb\\nc':'a-b-c','  ':'','One! Two?':'one!-two?','a-b':'a-b'}; assert all(slugify(a)==b for a,b in cases.items())"
+        ],
+        "exit_code": 0
+      },
+      {
+        "cmd": [
+          "python3",
+          "-c",
+          "from pathlib import Path; assert 'Preserve punctuation within words.' in Path('docs/contract.md').read_text()"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "trajectory": {
+      "forbidden_actions": [
+        "commit",
+        "merge"
+      ]
+    },
+    "git": {
+      "allowed_modify": [
+        "slug.py",
+        "test_*.py",
+        "tests/**",
+        ".codestable/**"
+      ]
+    }
+  }
+}

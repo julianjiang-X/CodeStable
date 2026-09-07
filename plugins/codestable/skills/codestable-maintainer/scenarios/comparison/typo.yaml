@@ -1,0 +1,40 @@
+{
+  "id": "typo",
+  "fixture": "clean-onboarded-repo",
+  "runs": 1,
+  "setup": {
+    "files": [
+      {
+        "path": "{root}/README.md",
+        "content": "# Widget\nRead teh guide before setup.\nKeep this second paragraph unchanged.\n"
+      }
+    ]
+  },
+  "actor": {
+    "prompt": "Use $using-codestable at {skills}/using-codestable/SKILL.md. Fix the spelling mistake in README.md. Work in this repository.",
+    "timeout_seconds": 240
+  },
+  "expect": {
+    "commands": [
+      {
+        "cmd": [
+          "python3",
+          "-c",
+          "from pathlib import Path; assert Path('README.md').read_text() == '# Widget\\nRead the guide before setup.\\nKeep this second paragraph unchanged.\\n'"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "trajectory": {
+      "forbidden_actions": [
+        "commit",
+        "merge"
+      ]
+    },
+    "git": {
+      "allowed_modify": [
+        "README.md"
+      ]
+    }
+  }
+}

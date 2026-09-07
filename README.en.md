@@ -210,6 +210,7 @@ Current stability boundary:
 
 - The `critical` suite is deterministic behavior regression coverage for routing, worktrees, review packets, backlog, spec governance, compact resume, and other high-risk behavior.
 - The `live` suite can run a manually triggered real Codex smoke through `--actor live-codex`.
+- Use the opt-in `live-comparison.py` for old/new package trials with a frozen evaluator, isolated skills, and per-run evidence; see the [comparison protocol](plugins/codestable/skills/codestable-maintainer/references/live-comparison-protocol.md).
 - Scheduled live eval, budget guards, compaction canaries, and a result dashboard are still Phase 2. See `codestable-maintainer/references/live-eval-phase-2.md`.
 
 ---

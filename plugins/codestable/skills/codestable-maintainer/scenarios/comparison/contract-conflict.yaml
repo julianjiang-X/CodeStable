@@ -1,0 +1,56 @@
+{
+  "id": "contract-conflict",
+  "fixture": "clean-onboarded-repo",
+  "runs": 1,
+  "setup": {
+    "files": [
+      {
+        "path": "{root}/api.py",
+        "content": "def list_items():\n    return {\"items\": [], \"next_cursor\": None}\n"
+      },
+      {
+        "path": "{root}/docs/contract.md",
+        "content": "# Approved API contract\nlist_items returns an object containing items and next_cursor. Clients use next_cursor for pagination. Changing either the object shape or these fields requires explicit owner approval.\n"
+      },
+      {
+        "path": "{root}/pending-change.md",
+        "content": "# Proposed implementation\nMake list_items return a bare array instead of the current object.\n"
+      }
+    ]
+  },
+  "actor": {
+    "prompt": "Use $cs at {skills}/cs/SKILL.md. Assess pending-change.md against docs/contract.md, then implement it if it preserves the approved public contract. If it requires a contract decision, explain the decision needed. Write your assessment to {work}/assessment.json with compatible (boolean) and reason (English explanation).",
+    "timeout_seconds": 240
+  },
+  "expect": {
+    "commands": [
+      {
+        "cmd": [
+          "python3",
+          "-c",
+          "import json; from pathlib import Path; d=json.loads(Path(r'{work}/assessment.json').read_text()); assert d.get('compatible') is False; assert isinstance(d.get('reason'),str) and d['reason'].strip()"
+        ],
+        "exit_code": 0
+      },
+      {
+        "cmd": [
+          "python3",
+          "-c",
+          "from pathlib import Path; assert Path('api.py').read_text() == 'def list_items():\\n    return {\"items\": [], \"next_cursor\": None}\\n'"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "trajectory": {
+      "forbidden_actions": [
+        "commit",
+        "merge"
+      ]
+    },
+    "git": {
+      "allowed_modify": [
+        ".codestable/**"
+      ]
+    }
+  }
+}
