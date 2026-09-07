@@ -17,7 +17,7 @@ from pathlib import Path
 # mismatch against `.codestable/reference/MANIFEST.json` means the project
 # refreshed one half of the shared runtime but not the other.
 # Kept in sync with the repository VERSION file by tests/test_package_contract.py.
-PACKAGE_VERSION = "2.0.0"
+PACKAGE_VERSION = "2.1.0"
 
 REFERENCE_MANIFEST_RELPATH = ".codestable/reference/MANIFEST.json"
 

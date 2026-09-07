@@ -4,6 +4,22 @@
 `cs-onboard/tools/codestable-freshness-check.py` 按 git ref 判断——版本号回答的是"我落后了什么"，
 freshness check 回答的是"我落后了没有"。
 
+## 2.1.0
+
+Astra workflow simplification / Astra 工作流精简：
+
+- Reuse project context, select known stages directly and continue authorized work.
+- Remove routine routing approvals, automatic freshness checks and repeated broad
+  searches. Calibrate verification to risk; keep formal review and publication gates.
+- Shorten descriptions across 27 skills and synchronize shared/stage guidance.
+  Add two manual live scenarios and replace obsolete approval-phrase probes with
+  real gate/protocol checks. See `docs/astra-workflow-validation.md` for limitations.
+
+- 项目上下文复用，直接进入已知阶段并完成授权工作。
+- 取消普通路由审批、自动版本检查和重复广搜；按风险验证，保留正式审查及发布门禁。
+- 精简 27 个技能描述与入口，同步共享和阶段约定。新增两个手动 live 场景，
+  以真实门禁/协议检查替换过期审批句断言。验证边界见上述文档。
+
 ## 2.0.0
 
 **breaking：安装路径变了。** 技能从仓库根目录移到 `plugins/codestable/skills/`，仓库现在是标准
