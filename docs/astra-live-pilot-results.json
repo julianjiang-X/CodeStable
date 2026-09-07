@@ -1,0 +1,583 @@
+{
+  "date": "2026-09-06 America/Los_Angeles",
+  "model": "gpt-6-astra",
+  "effort": "low",
+  "codex_version": "codex-cli 0.153.4",
+  "baseline": "a73ad9b253edffeb33ea7a3c02b2ba1257d36a5b",
+  "candidate": "1f053d17b8881c8cab93a4999ae6ea1959f0886c",
+  "evaluator_sha256": "5138706c469cf691981622d80420484333c8d960bb179d5a32f55cfc624e19d5",
+  "runner_sha256": "cb940d712406372353b48f9e68005dca66815f4371cddebfd9775be1b4f99715",
+  "scenario_sha256": [
+    "8d6064de52685e330d2ec7fc5714de5723f44014e0c2cba3d3159cc40cbb060a",
+    "66bac4acd51c2d4aec9376a6de42c35d889808301e54a722d7795cd3197cb343",
+    "f78b326636fd93c4cd2d6458800ba5364130a0eff975f601c6273f4cff4851b0",
+    "f942daa60a6faa974bff9cce81746b4f9ba3cf6e7e855aae60b0966a8c2d7a04"
+  ],
+  "disabled_features": [
+    "remote_plugin",
+    "apps",
+    "hooks",
+    "shell_snapshot",
+    "memories",
+    "external_agent_memory_import",
+    "plugins",
+    "skill_search",
+    "skill_mcp_dependency_install"
+  ],
+  "metrics": {
+    "baseline": {
+      "runs": 8,
+      "valid_count": 8,
+      "passed": 8,
+      "valid": {
+        "wall_seconds": {
+          "median": 60.742029417000595,
+          "min": 48.98444091700003,
+          "max": 120.27655366699946
+        },
+        "input_tokens": {
+          "median": 152156.5,
+          "min": 114239,
+          "max": 339767
+        },
+        "cached_input_tokens": {
+          "median": 124672.0,
+          "min": 87296,
+          "max": 300032
+        },
+        "output_tokens": {
+          "median": 823.5,
+          "min": 616,
+          "max": 2182
+        },
+        "tool_calls": {
+          "median": 6.5,
+          "min": 4,
+          "max": 12
+        }
+      },
+      "successful": {
+        "wall_seconds": {
+          "median": 60.742029417000595,
+          "min": 48.98444091700003,
+          "max": 120.27655366699946
+        },
+        "input_tokens": {
+          "median": 152156.5,
+          "min": 114239,
+          "max": 339767
+        },
+        "cached_input_tokens": {
+          "median": 124672.0,
+          "min": 87296,
+          "max": 300032
+        },
+        "output_tokens": {
+          "median": 823.5,
+          "min": 616,
+          "max": 2182
+        },
+        "tool_calls": {
+          "median": 6.5,
+          "min": 4,
+          "max": 12
+        }
+      }
+    },
+    "candidate": {
+      "runs": 8,
+      "valid_count": 8,
+      "passed": 8,
+      "valid": {
+        "wall_seconds": {
+          "median": 47.55677825000021,
+          "min": 34.83644095800082,
+          "max": 60.87711649999983
+        },
+        "input_tokens": {
+          "median": 79175.0,
+          "min": 66568,
+          "max": 165558
+        },
+        "cached_input_tokens": {
+          "median": 69952.0,
+          "min": 33792,
+          "max": 143488
+        },
+        "output_tokens": {
+          "median": 799.0,
+          "min": 390,
+          "max": 1102
+        },
+        "tool_calls": {
+          "median": 5.0,
+          "min": 3,
+          "max": 9
+        }
+      },
+      "successful": {
+        "wall_seconds": {
+          "median": 47.55677825000021,
+          "min": 34.83644095800082,
+          "max": 60.87711649999983
+        },
+        "input_tokens": {
+          "median": 79175.0,
+          "min": 66568,
+          "max": 165558
+        },
+        "cached_input_tokens": {
+          "median": 69952.0,
+          "min": 33792,
+          "max": 143488
+        },
+        "output_tokens": {
+          "median": 799.0,
+          "min": 390,
+          "max": 1102
+        },
+        "tool_calls": {
+          "median": 5.0,
+          "min": 3,
+          "max": 9
+        }
+      }
+    }
+  },
+  "runs": [
+    {
+      "ordinal": 1,
+      "arm": "baseline",
+      "scenario": "typo",
+      "repeat": 1,
+      "classification": "pass",
+      "wall_seconds": 63.384803042001295,
+      "usage": [
+        {
+          "input_tokens": 173680,
+          "cached_input_tokens": 148224,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 798,
+          "reasoning_output_tokens": 23
+        }
+      ],
+      "tool_calls": 7,
+      "failures": [],
+      "input_tokens": 173680,
+      "cached_input_tokens": 148224,
+      "output_tokens": 798,
+      "semantic_review": {
+        "substantive_correct": true,
+        "user_clarification_question": false,
+        "reported_workflow_closure_blocked": false
+      }
+    },
+    {
+      "ordinal": 2,
+      "arm": "candidate",
+      "scenario": "typo",
+      "repeat": 1,
+      "classification": "pass",
+      "wall_seconds": 34.83644095800082,
+      "usage": [
+        {
+          "input_tokens": 75754,
+          "cached_input_tokens": 69888,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 400,
+          "reasoning_output_tokens": 0
+        }
+      ],
+      "tool_calls": 5,
+      "failures": [],
+      "input_tokens": 75754,
+      "cached_input_tokens": 69888,
+      "output_tokens": 400,
+      "semantic_review": {
+        "substantive_correct": true,
+        "user_clarification_question": false,
+        "reported_workflow_closure_blocked": false
+      }
+    },
+    {
+      "ordinal": 3,
+      "arm": "candidate",
+      "scenario": "readonly",
+      "repeat": 1,
+      "classification": "pass",
+      "wall_seconds": 38.31121858400002,
+      "usage": [
+        {
+          "input_tokens": 66568,
+          "cached_input_tokens": 47744,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 623,
+          "reasoning_output_tokens": 8
+        }
+      ],
+      "tool_calls": 3,
+      "failures": [],
+      "input_tokens": 66568,
+      "cached_input_tokens": 47744,
+      "output_tokens": 623,
+      "semantic_review": {
+        "substantive_correct": true,
+        "user_clarification_question": false,
+        "reported_workflow_closure_blocked": false
+      }
+    },
+    {
+      "ordinal": 4,
+      "arm": "baseline",
+      "scenario": "readonly",
+      "repeat": 1,
+      "classification": "pass",
+      "wall_seconds": 57.558099959000174,
+      "usage": [
+        {
+          "input_tokens": 150850,
+          "cached_input_tokens": 126592,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 873,
+          "reasoning_output_tokens": 11
+        }
+      ],
+      "tool_calls": 7,
+      "failures": [],
+      "input_tokens": 150850,
+      "cached_input_tokens": 126592,
+      "output_tokens": 873,
+      "semantic_review": {
+        "substantive_correct": true,
+        "user_clarification_question": false,
+        "reported_workflow_closure_blocked": false
+      }
+    },
+    {
+      "ordinal": 5,
+      "arm": "baseline",
+      "scenario": "approved-fix",
+      "repeat": 1,
+      "classification": "pass",
+      "wall_seconds": 113.87082125000052,
+      "usage": [
+        {
+          "input_tokens": 339767,
+          "cached_input_tokens": 300032,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 1940,
+          "reasoning_output_tokens": 58
+        }
+      ],
+      "tool_calls": 12,
+      "failures": [],
+      "input_tokens": 339767,
+      "cached_input_tokens": 300032,
+      "output_tokens": 1940,
+      "semantic_review": {
+        "substantive_correct": true,
+        "user_clarification_question": false,
+        "reported_workflow_closure_blocked": true
+      }
+    },
+    {
+      "ordinal": 6,
+      "arm": "candidate",
+      "scenario": "approved-fix",
+      "repeat": 1,
+      "classification": "pass",
+      "wall_seconds": 56.81265666699983,
+      "usage": [
+        {
+          "input_tokens": 100074,
+          "cached_input_tokens": 73600,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 872,
+          "reasoning_output_tokens": 41
+        }
+      ],
+      "tool_calls": 7,
+      "failures": [],
+      "input_tokens": 100074,
+      "cached_input_tokens": 73600,
+      "output_tokens": 872,
+      "semantic_review": {
+        "substantive_correct": true,
+        "user_clarification_question": false,
+        "reported_workflow_closure_blocked": false
+      }
+    },
+    {
+      "ordinal": 7,
+      "arm": "candidate",
+      "scenario": "contract-conflict",
+      "repeat": 1,
+      "classification": "pass",
+      "wall_seconds": 58.03906050000114,
+      "usage": [
+        {
+          "input_tokens": 82549,
+          "cached_input_tokens": 63360,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 1102,
+          "reasoning_output_tokens": 9
+        }
+      ],
+      "tool_calls": 4,
+      "failures": [],
+      "input_tokens": 82549,
+      "cached_input_tokens": 63360,
+      "output_tokens": 1102,
+      "semantic_review": {
+        "substantive_correct": true,
+        "user_clarification_question": false,
+        "reported_workflow_closure_blocked": false
+      }
+    },
+    {
+      "ordinal": 8,
+      "arm": "baseline",
+      "scenario": "contract-conflict",
+      "repeat": 1,
+      "classification": "pass",
+      "wall_seconds": 85.69952579100027,
+      "usage": [
+        {
+          "input_tokens": 114239,
+          "cached_input_tokens": 87296,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 782,
+          "reasoning_output_tokens": 22
+        }
+      ],
+      "tool_calls": 4,
+      "failures": [],
+      "input_tokens": 114239,
+      "cached_input_tokens": 87296,
+      "output_tokens": 782,
+      "semantic_review": {
+        "substantive_correct": true,
+        "user_clarification_question": false,
+        "reported_workflow_closure_blocked": false
+      }
+    },
+    {
+      "ordinal": 9,
+      "arm": "candidate",
+      "scenario": "typo",
+      "repeat": 2,
+      "classification": "pass",
+      "wall_seconds": 36.164313875000516,
+      "usage": [
+        {
+          "input_tokens": 75801,
+          "cached_input_tokens": 70016,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 390,
+          "reasoning_output_tokens": 0
+        }
+      ],
+      "tool_calls": 5,
+      "failures": [],
+      "input_tokens": 75801,
+      "cached_input_tokens": 70016,
+      "output_tokens": 390,
+      "semantic_review": {
+        "substantive_correct": true,
+        "user_clarification_question": false,
+        "reported_workflow_closure_blocked": false
+      }
+    },
+    {
+      "ordinal": 10,
+      "arm": "baseline",
+      "scenario": "typo",
+      "repeat": 2,
+      "classification": "pass",
+      "wall_seconds": 48.98444091700003,
+      "usage": [
+        {
+          "input_tokens": 133114,
+          "cached_input_tokens": 102912,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 616,
+          "reasoning_output_tokens": 8
+        }
+      ],
+      "tool_calls": 6,
+      "failures": [],
+      "input_tokens": 133114,
+      "cached_input_tokens": 102912,
+      "output_tokens": 616,
+      "semantic_review": {
+        "substantive_correct": true,
+        "user_clarification_question": false,
+        "reported_workflow_closure_blocked": false
+      }
+    },
+    {
+      "ordinal": 11,
+      "arm": "baseline",
+      "scenario": "readonly",
+      "repeat": 2,
+      "classification": "pass",
+      "wall_seconds": 58.099255791999894,
+      "usage": [
+        {
+          "input_tokens": 153463,
+          "cached_input_tokens": 122752,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 849,
+          "reasoning_output_tokens": 0
+        }
+      ],
+      "tool_calls": 6,
+      "failures": [],
+      "input_tokens": 153463,
+      "cached_input_tokens": 122752,
+      "output_tokens": 849,
+      "semantic_review": {
+        "substantive_correct": true,
+        "user_clarification_question": false,
+        "reported_workflow_closure_blocked": false
+      }
+    },
+    {
+      "ordinal": 12,
+      "arm": "candidate",
+      "scenario": "readonly",
+      "repeat": 2,
+      "classification": "pass",
+      "wall_seconds": 37.23852475000058,
+      "usage": [
+        {
+          "input_tokens": 67579,
+          "cached_input_tokens": 33792,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 726,
+          "reasoning_output_tokens": 8
+        }
+      ],
+      "tool_calls": 5,
+      "failures": [],
+      "input_tokens": 67579,
+      "cached_input_tokens": 33792,
+      "output_tokens": 726,
+      "semantic_review": {
+        "substantive_correct": true,
+        "user_clarification_question": false,
+        "reported_workflow_closure_blocked": false
+      }
+    },
+    {
+      "ordinal": 13,
+      "arm": "candidate",
+      "scenario": "approved-fix",
+      "repeat": 2,
+      "classification": "pass",
+      "wall_seconds": 60.87711649999983,
+      "usage": [
+        {
+          "input_tokens": 165558,
+          "cached_input_tokens": 143488,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 1002,
+          "reasoning_output_tokens": 21
+        }
+      ],
+      "tool_calls": 9,
+      "failures": [],
+      "input_tokens": 165558,
+      "cached_input_tokens": 143488,
+      "output_tokens": 1002,
+      "semantic_review": {
+        "substantive_correct": true,
+        "user_clarification_question": false,
+        "reported_workflow_closure_blocked": false
+      }
+    },
+    {
+      "ordinal": 14,
+      "arm": "baseline",
+      "scenario": "approved-fix",
+      "repeat": 2,
+      "classification": "pass",
+      "wall_seconds": 120.27655366699946,
+      "usage": [
+        {
+          "input_tokens": 276767,
+          "cached_input_tokens": 245504,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 2182,
+          "reasoning_output_tokens": 40
+        }
+      ],
+      "tool_calls": 11,
+      "failures": [],
+      "input_tokens": 276767,
+      "cached_input_tokens": 245504,
+      "output_tokens": 2182,
+      "semantic_review": {
+        "substantive_correct": true,
+        "user_clarification_question": false,
+        "reported_workflow_closure_blocked": true
+      }
+    },
+    {
+      "ordinal": 15,
+      "arm": "baseline",
+      "scenario": "contract-conflict",
+      "repeat": 2,
+      "classification": "pass",
+      "wall_seconds": 54.454974291000326,
+      "usage": [
+        {
+          "input_tokens": 119116,
+          "cached_input_tokens": 96128,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 773,
+          "reasoning_output_tokens": 34
+        }
+      ],
+      "tool_calls": 5,
+      "failures": [],
+      "input_tokens": 119116,
+      "cached_input_tokens": 96128,
+      "output_tokens": 773,
+      "semantic_review": {
+        "substantive_correct": true,
+        "user_clarification_question": false,
+        "reported_workflow_closure_blocked": false
+      }
+    },
+    {
+      "ordinal": 16,
+      "arm": "candidate",
+      "scenario": "contract-conflict",
+      "repeat": 2,
+      "classification": "pass",
+      "wall_seconds": 56.8023379160004,
+      "usage": [
+        {
+          "input_tokens": 83416,
+          "cached_input_tokens": 70784,
+          "cache_write_input_tokens": 0,
+          "output_tokens": 1045,
+          "reasoning_output_tokens": 9
+        }
+      ],
+      "tool_calls": 5,
+      "failures": [],
+      "input_tokens": 83416,
+      "cached_input_tokens": 70784,
+      "output_tokens": 1045,
+      "semantic_review": {
+        "substantive_correct": true,
+        "user_clarification_question": false,
+        "reported_workflow_closure_blocked": false
+      }
+    }
+  ],
+  "interpretation": "Objective artifact/runtime results only; substantive review and limitations are in astra-live-pilot.md.",
+  "semantic_review_limits": "Label-blinded review; reported independent-review dispatch failures lack direct raw-event confirmation. Functional correctness and reported workflow closure are separate."
+}

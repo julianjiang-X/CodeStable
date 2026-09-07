@@ -24,3 +24,7 @@ These observations are bounded trials, not a statistical performance claim. The 
 独立差异审查发现 cs-feat-ff 中无正式 unit self-review 豁免与必需 ff-note 冲突。已删除该豁免：使用该技能生成 ff-note 即进入正式 unit，保留独立审查要求；普通微改可直接处理而不进入该技能。审查者已复核并确认解决。
 
 以上为有限试验，不是统计性能结论。首次自动 live-codex 尝试因本机 CLI 无法解析现有 features 配置而未启动，未修改主机配置。新增手动 live 场景可在兼容 CLI 重跑；确定性 harness 验证工具与 fixture 契约，不等于真实模型行为验收。
+
+A later controlled 16-run comparison is recorded in [the live pilot report](astra-live-pilot.md), including repaired scoring, isolation, measured results, and remaining limits.
+
+后续 16 轮受控真实模型对照见[试点评测报告](astra-live-pilot.md)，包含评分修正、隔离方式、实测结果与覆盖边界。
