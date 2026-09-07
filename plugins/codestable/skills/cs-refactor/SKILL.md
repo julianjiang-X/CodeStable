@@ -1,126 +1,36 @@
 ---
 name: cs-refactor
-description: 代码优化的子流程入口，处理"行为不变、结构变"的工作（结构 / 性能 / 可读性），按 scan → design → apply 分步执行每步人工放行。触发：用户说"优化一下 / 重构 / 重写 / 拆一下 / 性能不行 / 代码太长"且不夹带行为改动。不处理新需求 / bug / 跨模块架构重划。
+description: "在保持行为的前提下优化代码结构，按风险验证并记录变化。"
 ---
 
 # cs-refactor
 
-## 启动必读
+读取本会话尚未读过的 `.codestable/attention.md`。只加载任务相关上下文，已读且未改变的资料不重复读取。共享路径、worktree、审查及提交约定见 `.codestable/reference/shared-conventions.md` 第 0、2.6、4 节。
 
-开始任何判断或动作前，先读取 `.codestable/attention.md`；缺失则视为骨架不完整，提示先补齐或运行 `cs-onboard`，不要回退到外部 AI 入口文件。
+保持外部可观察行为并改善具体结构或性能问题。范围明确的小重构走 `cs-refactor-ff`；较大任务用 scan / design / apply 保持可追溯。文件数、行数和浏览器验证需求不单独决定流程。
 
-AI 自己重构有两个稳定失败模式：一是不知道模块真实需求和约束，改出来的东西功能不等价；二是一次吞掉的范围超过上下文承载，改到后面忘了前面的约束。这流程在"想优化"和"动手改"之间塞了扫描清单 + 方法库，让 AI 只接自己能稳定做对的活。
+## 文件与授权
 
-```
-scan（扫优化点清单）→ design（和用户定做哪几条 + 顺序）→ apply（逐条执行，每步人工放行）
-```
+正式 unit 位于 `.codestable/refactors/YYYY-MM-DD-{slug}/`：
 
-> main 协调 / worktree 执行 / 批次后 code review 规则看 `.codestable/reference/shared-conventions.md` 第 2.6 节。
+- `{slug}-scan.md`：问题与候选范围。
+- `{slug}-refactor-design.md`：批准范围与等价验证方案。
+- `{slug}-checklist.yaml`：执行和验证状态。
+- `{slug}-apply-notes.md`、`{slug}-implementation-review.md`：结果证据。
 
-**核心纪律**：行为等价是底线。一旦会改外部可观察行为 → 不走 refactor，走 feature（需求变）或 issue（bug 修）。
+`grill/*.md` 仅在相关时读；只将 `doc_type: grill-context`、`status: accepted`、`source_of_truth: false` 的文件作为 human review context，不能覆盖上述记录或行为等价证据。
 
----
+用户已要求完成具体重构时，不逐阶段、逐条勾选重复审批；只读扫描/评估请求保持只读。实质行为、架构权责或未决范围取舍由 owner 决定。
 
-## Fastforward 模式（小重构）
+## 1. scan
 
-单函数 / 单组件 / 1-3 处优化 / 有测试可自证 / 不需要目视——走完整三阶段太重。触发 `cs-refactor-ff`：直接识别、一次对齐、原地改、跑测试自证，不产 scan / design / checklist。
+从用户指明的文件或模块开始，较大范围按依赖划分可验证批次，不用固定行数阈值让用户缩范围。定位具体重复、职责冲突或性能代价，零项是有效结果，不凑数量。
 
-触发："小重构"、"快速重构"、"简单优化下 XX 函数"、"直接改"、"别那么多步骤"。
+遇到生成源、跨模块或证据不足问题时按需读 `reference/refusal-routing.md`；不要机械中止可完成的定位和准备。输出格式见 `reference/scan-checklist-format.md`。方法细节确需参考时才读 `reference/methods.md` 索引和相关分篇，不强制每项对应方法编号。
 
-**别走** ff：改动跨 > 1 文件 / 预计动点 > 3 处 / 需要目视验证 / 改公开接口（要 Parallel Change）/ 没有测试覆盖 / 跨模块。遇到劝用户走标准流程。ff 开干后发现变复杂切回完整流程从 scan 开始。
+## 2. design
 
----
-
-## 文件放哪儿
-
-```
-.codestable/refactors/{YYYY-MM-DD}-{slug}/
-├── {slug}-scan.md              ← 阶段 1 优化点清单
-├── {slug}-refactor-design.md   ← 阶段 2 执行方案
-├── {slug}-checklist.yaml       ← 阶段 2 生成，阶段 3 推进
-├── grill/                      ← 可选，accepted grill-context，供 human review
-├── {slug}-implementation-review.md ← 阶段 3 完成门禁
-└── {slug}-apply-notes.md       ← 阶段 3 执行记录
-```
-
-目录命名同 feature / issue。slug 短到一眼看出改的是什么（`user-form-split`、`export-perf`）。
-
-为什么单独开目录不混进 features：refactor 产物是"代码当前状态扫描 + 执行记录"时效性强；feature 产物是"为什么这样设计"时效性弱。归档逻辑不一样。
-
-如果目录里有 `grill/*.md`，只把 `doc_type: grill-context` 且 `status: accepted`
-的文件当 human review context 读；它必须 `source_of_truth: false`，不能覆盖
-scan / design / checklist / apply-notes 或行为等价证据。
-
----
-
-## 三个阶段
-
-| 阶段 | 产出 | 谁主导 |
-|---|---|---|
-| 1 scan | scan.md | AI 扫 + 前置检查，用户勾选 |
-| 2 design | refactor-design.md + checklist.yaml | AI 起草，用户整体 review |
-| 3 apply | 代码改动 + apply-notes.md | AI 执行，每步人工放行 |
-
-阶段间有 checkpoint：scan 不勾选不进 design；design 不放行不动代码；apply 里 HUMAN 验证项不点头不推进下一步。
-
----
-
-## 阶段 1：scan
-
-### 先跑前置检查（7 条），命中就停
-
-动笔扫之前先跑一遍。命中任何一条 → **中止 scan，给路由建议**，不要硬凑。7 条检查和输出格式见 `reference/refusal-routing.md`。
-
-零条合法输出——扫完真的没发现值得做的就老实说不要凑。
-
-### 扫描范围锁定
-
-进 scan 前确认：**这次扫哪些文件**。默认：
-
-- 用户点名了具体文件 / 组件 → 就扫那些
-- "这个页面" → 入口组件 + 直接 import 的内部模块，不追公共依赖
-- "这个模块" → 模块目录下的文件，不追出模块边界
-- 范围 > 15 文件或 > 3000 行 → 触发第 6 条前置检查请用户先缩范围
-
-范围里要包含测试文件（用来判断第 2 条前置检查的测试覆盖）。
-
-### 扫的时候看什么
-
-按方法库四层当模板找：
-
-- **L1 行为等价迁移**：函数被很多处调用但接口/实现要改 → Parallel Change；整块老逻辑要被新实现替换 → Strangler Fig
-- **L2 代码级重构**：超长函数（> 50 行 / 圈复杂度 > 10）、重复条件片段、神秘临时变量、多层嵌套 if-else
-- **L3 结构拆分**：组件 > 300 行 / 文件承担多件事 / 容器与展示混在一起 / 相同逻辑多组件各写一份（前端）；Controller 直接调 DB / Service 缺失 / Repository 被绕开（后端）
-- **L4 性能**：重复计算（可 memo）/ N+1 查询 / 列表无虚拟化或分页 / 事件监听无清理 / 大对象深响应（Vue）
-
-完整方法库入口在 `reference/methods.md`，扫描时读取索引和
-`reference/methods-part*.md` 作匹配表。
-
-### 产出格式
-
-`{slug}-scan.md` 两部分：
-
-1. **顶部总览**（一段）：扫描范围 / 发现条数 / 按分类分布 / 按风险分布 / 建议先做哪几条 / 慎做哪几条
-2. **清单条目**（一条一块）：字段顺序和硬约束见 `reference/scan-checklist-format.md`
-
-整份交给用户，**用户勾选 ✓ / ✗**（✗ 写理由）后进阶段 2。**不要替用户勾选**。
-
----
-
-## 阶段 2：design
-
-### 输入
-
-- 用户勾选过的 `{slug}-scan.md`
-- 方法库（每条勾选项必须映射到方法号 M-Ln-NN）
-
-### 做的事
-
-1. **排顺序**——勾选条目有依赖的排前（L1 的 Parallel Change 通常先跑，L2 的提取跟在后面）。独立的按"低风险 + AI 可自证"优先，HUMAN 验证项排后批量处理
-2. **每条补执行细节**：方法号 / 步骤 / 前置条件 / 退出信号 / 验证责任方（AI / HUMAN）/ 回滚策略
-3. **识别前置依赖**——测试覆盖不够的条目前置"补刻画测试"；改公开接口的前置"搜调用方"
-4. **整体 review**：整稿交用户，放行后 `status: approved`
-5. **抽 checklist**：steps 对应执行顺序，checks 对应每步退出信号
+依据已有用户授权选择条目并记录依据；只有未决实质取舍需要用户选择。计划包含依赖顺序、行为等价边界、退出证据和回滚方式，生成 checklist 的 steps / checks 并用 `validate-yaml.py` 校验。已有范围授权且无新取舍时同步 approved 状态，不伪造逐项审批。
 
 ### design 文件结构
 
@@ -159,22 +69,12 @@ summary: {本次要做的几条是什么，一句话}
 - 容易出错的点（跨步骤数据流变化等）
 ```
 
----
 
-## 阶段 3：apply
+## 3. apply
 
-动代码前先按 shared-conventions 第 2.6 节确认执行拓扑：是否在主协调检出讨论、是否已在独立 worktree、分支 / worktree 路径、共享计划面、以及禁止触碰的 sibling worktree。若不在执行 worktree，用 `git worktree add -b codex/{slug} .codex/worktrees/{slug}` 创建 / 使用 linked execution worktree；不要在主协调检出里 `git switch/checkout`。用户明确要求当前 checkout 直接做时才可继续，并在 apply-notes 里写清楚 override。
+按依赖推进 checklist，可自主细分或调整同一批准范围内顺序并记录。确有独立回滚意义的步骤保留退出证据。内部实现选择不重复求批，改变行为或实质架构权责才请求 owner。
 
-若当前对话还没有明确 subagent / delegation 授权，先按 shared-conventions 第 2.6 节的 review authorization judgment checkpoint 提供背景、术语、取舍、默认建议和非自动动作；用户授权 subagent 后继续，只有平台无 subagent 能力时 inline review 才能继续。
-
-### 推进规则
-
-1. **一步一做不批量**——严格按 checklist 顺序，当前步不完成不开下一步
-2. **每步完成走验证**：
-   - AI 自证：跑指定测试 / 类型检查 / lint / grep 无残留旧引用。通过了记 apply-notes 继续
-   - HUMAN 验证：**停下来**汇报"第 N 步已完成，请在 {具体页面 / 操作} 目视确认，确认后我继续"。用户不明确说"继续"就不推进
-3. **偏离当场记**——执行中发现方案没考虑的情况（如有个调用方在动态 import 里），**停下来汇报不发挥**。和用户对齐后追加到 apply-notes，必要时回阶段 2 改 design
-4. **行为等价自检**——每步结束额外问"这一步有没有可能改了外部可观察行为？" 有怀疑就退回当步
+AI 能完成的测试、浏览器或引用核查自行完成；只有必须由用户操作或明确要求的人类判断才标 HUMAN。未取得必要证据时不标 passed，可继续不依赖它的工作。
 
 ### apply-notes 格式
 
@@ -195,64 +95,36 @@ refactor: {YYYY-MM-DD}-{slug}
 ## 步骤 2: ...
 
 ## 独立 code review
-- reviewer: {subagent reviewer；仅平台无 subagent 能力时才写 fresh self-review fallback}
+- reviewer: {实际 reviewer；环境无能力时 fallback 并写明原因}
 - evidence: {slug}-implementation-review.md
 - 结果: {P0/P1 无阻塞 / 已修复清单}
 - P2: {无 / 后续 issue / 用户接受风险}
 ```
 
-### 全部完成后
 
-- 跑全量测试 + 类型检查 + lint
-- 按 shared-conventions 第 2.6 节触发独立 code review：默认用 `build-review-packet.py --stage quality`；如果 refactor 可能偏离 design 的行为边界，追加 `--stage spec`；如果涉及 schema / security / core runtime，追加 `--stage verification` 且必须传 fresh command output。必须使用可用的 subagent reviewer；若当前对话还没有明确 subagent / delegation 授权，先按 shared-conventions 第 2.6 节的 review authorization judgment checkpoint 提供背景、术语、取舍、默认建议和非自动动作。只有平台确实没有 subagent 能力时才允许 fresh self-review fallback。把完整结果写入 `{slug}-implementation-review.md`；P0 / P1 先修到无阻塞，fallback 时在 review 文件和 apply-notes 摘要说明。没有这份 review 文件，不输出 apply 完成汇报
-- 最后一次请用户整体目视确认（前端：打开主要页面点一圈）
-- 确认通过后收尾 commit，message 引用 refactor 目录
+## 验证与审查
 
----
+验证受影响行为、公开契约和声称改善的性能；选择相称测试、类型检查、浏览器或 benchmark，不无条件全量测试加 lint。无新改动或未解决疑问不重复验证。
 
-## 退出条件
+正式 unit 使用独立 subagent review；仅环境确无 subagent 能力时按共享规则使用 fresh self-review fallback 并记录环境原因。保留 `{slug}-implementation-review.md` 的目标、审查方式、验证证据和 findings，P0/P1 先修复并复核。不将 self-review 冒称独立审查。
 
-- [ ] scan 前置检查跑过，命中的已路由，没命中的才进 scan
-- [ ] `{slug}-scan.md` 用户已勾选（✓/✗）
-- [ ] design 每条勾选项映射到方法号
-- [ ] design 用户整体 review 通过 `status: approved`
-- [ ] checklist.yaml 已生成且通过 `validate-yaml.py`
-- [ ] apply 每步都有验证记录（AI 自证贴日志，HUMAN 贴用户确认语录）
-- [ ] `{slug}-implementation-review.md` 已建且 reviewer 为 subagent（仅平台无 subagent 能力时可 fallback）；P0 / P1 已处理或明确无
-- [ ] 全量测试 / 类型检查 / lint 通过
-- [ ] 用户最后一次目视确认通过
+按 shared-conventions 第 2.6 节使用执行 worktree，保留无关改动、共享计划面及既有 override 契约。改动前执行 start gate；完成证据写入后执行 commit gate：
 
----
+```bash
+python3 .codestable/tools/codestable-worktree-gate.py --root . --json start --unit .codestable/refactors/YYYY-MM-DD-{slug}
+python3 .codestable/tools/codestable-worktree-gate.py --root . --json commit --unit .codestable/refactors/YYYY-MM-DD-{slug}
+```
 
-## 容易踩的坑
+正式 review packet 需要时使用：
 
-- **AI 硬凑清单**——前置检查明显命中却找理由绕过，扫出一堆"代码可以更优雅"无量化问题的条目
-- **夹带行为改动**——在重构中间"顺便修了 bug / 优化提示文案"——拆成独立 issue 或 feature
-- **跨步骤合并动作**——一次提交做 2-3 步，失去"单步回滚"能力
-- **把口味项列进清单**——命名偏好 / 引号 / 箭头函数 vs function——走 decisions
-- **扫大模块直接动手**——> 15 文件 / > 3000 行不拆就进 scan，产出没法决策的长清单
-- **HUMAN 验证项自己跳过**——前端效果 AI 看不到，不能用"类型检查过了"替代人工目视
-- **覆盖率不够硬上**——没测试的模块直接改，"行为等价"只是口头承诺
+```bash
+python3 .codestable/tools/build-review-packet.py --root . --unit .codestable/refactors/YYYY-MM-DD-{slug} --stage quality --output /tmp/codestable-review.md --validation "{验证命令} -> {结果}"
+```
 
----
+风险要求的 spec / verification 审查及 fresh command output 仍保留。不要等到 gate 才检查证据是否齐备。
 
-## 与相邻工作流的边界
+## 完成
 
-- **feature**：加新能力 / 改需求。refactor 里冒出"顺便实现 X"停下拆出去
-- **issue**：修 bug / 行为错了。refactor 里发现的 bug 记成新 issue 不偷偷修
-- **decisions**：全项目长期约束（"以后都用 composable"、"禁用 mixin"）。refactor 可引用已有 decision 但不产出 decision
-- **architecture**：跨模块边界重划 / 分层调整。单次 refactor 不跨模块；跨模块要拆成"更新架构 + 记决策 + N 个模块级 refactor"
-- **tricks / learning**：refactor 中发现的手法 → tricks；踩的坑 → learning
+checklist 与证据一致，scan / design / apply-notes / review 反映实际结果且 P0/P1 无阻塞后报告完成。未取得必要人类验证时明确未完成，不伪造通过。继续已有提交/推送授权，完成重构不自动授权合并或发布。
 
----
-
-## 相关文档
-
-- `cs-refactor-ff/SKILL.md` — 小重构超轻量通道
-- `reference/scan-checklist-format.md` — scan 清单条目字段 / 顺序 / 硬约束
-- `reference/refusal-routing.md` — scan 前置检查 7 条 + 路由表
-- `reference/methods.md` + `reference/methods-part*.md` — 方法库（L1-L4 四层分类）
-- `.codestable/reference/shared-conventions.md` — 跨工作流共享口径
-- `.codestable/reference/assurance.md` — 这次要做多重：风险驱动的保障强度选择
-- `.codestable/reference/economy.md` — 最少新增复杂度、有界简化三要素
-- `.codestable/reference/code-design.md` — 模块深度、归属命名、接缝真实性
+新能力与 bug 修复不混入重构；跨模块边界重划若缺少批准，先说明提案和影响，不把提案写入现状 architecture。只提出有具体价值的后续 learning / decision 建议。

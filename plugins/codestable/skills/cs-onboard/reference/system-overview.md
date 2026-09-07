@@ -11,7 +11,7 @@ CodeStable 把这几类场景各配一套子技能，产物放进统一的目录
 
 **根入口**——开放式诉求 / 不知道走哪个时的统一入口:
 
-- `cs` — 介绍体系全貌 + 把诉求路由到正确的 cs-* 子技能。本技能不做事,只做分诊和提示
+- `cs` — 介绍体系全貌 + 把诉求路由到正确的 cs-* 子技能。选择适用流程并继续执行已有授权的工作
 - 全局 interaction modes — 用户显式说 `interview me` / "采访我" 时轻量采访收集上下文；说 `grill me` / "拷问我" 时进入 owner-heavy 压测，并用 `grill-context` 记录每轮上下文，再路由到具体子技能
 
 **做事**——从一段模糊想法走到上线的功能、从一份错误报告走到修好的 bug，或者从限定目标走到验收结果:
@@ -21,9 +21,9 @@ CodeStable 把这几类场景各配一套子技能，产物放进统一的目录
 - `cs-refactor` — 代码优化(行为不变、结构/性能/可读性变),scan → design → apply
 - `cs-goal` — 限定起点和终点的目标达成,先做目标边界对齐并写起点报告，再自主迭代，完成前做功能验收
 
-这些流程都先建立可恢复的上下文，再让 AI 动手；goal 场景把状态放进 `state.yaml`，需要 owner 审批、选择、授权或接受风险但没有阶段报告承载上下文时，先在对应目录写 `approval-report.md`。feature / issue / refactor 则用各自 spec 或 analysis。这样能控制术语冲突、范围失控、改完不留存档这三种 AI 默认会出的问题。
+上下文和产物随任务需要建立。自包含、低风险工作可直接完成并作适当验证；不为了套流程创建正式 unit。需恢复、跨阶段协调或复杂风险控制时使用正式 spec / state。只有未决产品契约、实质范围或授权边界才需要 owner checkpoint，已有授权不重复请求。
 
-默认执行拓扑：在主协调检出（通常是 `main`）讨论需求、写 plan/spec/checklist；真正改代码时为每个 feature / issue / refactor 创建独立 worktree 和独立 `codex/...` 分支，不在主协调检出里 `git switch/checkout`。不同 worktree 不互读未合并代码，只通过 `.codestable/` 下已同步的 plan/spec/roadmap/compound 文档互通意图。每个 worktree 写完一批可验收代码后，输出实现完成汇报前必须用 subagent 做独立 code review，并把证据写入同一目录的 `{slug}-implementation-review.md`；运行 finish gate 生成学习报告和 merge readiness 后，按 attention 的报告语言策略保持人读正文一致，推荐把这些产物作为功能分支最后一个小提交；只有用户明确授权后才合并回 `main`。
+正式 feature / issue / refactor 的执行隔离、implementation review 和 finish gate 见 `execution-conventions.md`；这些仍是现有机器状态契约。轻量工作不自动启用完整 gate，也不声称未满足 gate 的正式 unit 已关闭。合并与发布遵守用户授权。
 
 **沉淀**——把做事过程产生的知识存下来,下次遇到同类问题直接复用:
 
@@ -48,7 +48,7 @@ CodeStable 把这几类场景各配一套子技能，产物放进统一的目录
 
 ## 场景路由
 
-仓库里还没有 `.codestable/` 目录,先用 `cs-onboard` 搭骨架。
+需要持久化 CodeStable 工作流且仓库尚无 `.codestable/` 时，用 `cs-onboard` 搭骨架；普通自包含任务无需先接入。
 
 | 场景 | 子技能 |
 |---|---|
@@ -95,14 +95,11 @@ learning / trick / decision / explore 都是存档文档类型,区别在记录�
 用户说"我想要一个 X 系统"这种大需求,先走 roadmap 拆成若干子 feature,再一条一条走 feature 流程。直接起 feature 会变成巨型 design 塞不下、拆了又没有追踪抓手。
 
 
-## feature 和 issue 的阶段不可跳
+## 选择适合任务的流程
 
-feature 走 brainstorm(可选) → design → implement → acceptance,issue 走 report → analyze → fix。每个阶段有退出条件,上一个没满足,下一个不开始。
-
-AI 最常见的问题是一口气铺几百行代码才让人看——等发现问题已经很难中止。阶段间的人工 checkpoint 就是为了早一步中止。每个 checkpoint 具体检查什么,对应子技能里讲。
-
-例外两种:issue 根因一眼确定时走快速通道,跳过 analyze 直接 fix;feature 范围小时走 `cs-feat-ff`,写完 spec 直接进实现。
-
+标准 feature 走 design → implement → acceptance；issue 根因不明确时先 analyze。
+范围清楚的工作使用 `cs-feat-ff` / issue 快速通道，或直接完成无需正式 unit 的小改。
+流程只承载实际需要的决定、证据与交接；不因阶段切换重复请求授权。正式流程已建立的状态和退出条件仍须满足。
 
 ## 进一步参考
 

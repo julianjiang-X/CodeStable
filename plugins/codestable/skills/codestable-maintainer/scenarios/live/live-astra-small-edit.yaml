@@ -1,0 +1,52 @@
+{
+  "id": "live-astra-small-edit",
+  "fixture": "clean-onboarded-repo",
+  "runs": 1,
+  "setup": {
+    "files": [
+      {
+        "path": "{root}/README.md",
+        "content": "# Widget\nRead teh guide before setup.\n"
+      }
+    ]
+  },
+  "actor": {
+    "prompt": "Use $using-codestable at {skills}/using-codestable/SKILL.md. Fix the typo in README.md. Work only in this fixture repository.",
+    "timeout_seconds": 180
+  },
+  "expect": {
+    "artifacts": {
+      "contains": [
+        {
+          "path": "{root}/README.md",
+          "text": "Read the guide before setup."
+        }
+      ],
+      "must_not_create": [
+        ".codestable/features/*",
+        ".codestable/issues/*",
+        ".codestable/refactors/*",
+        ".codestable/brainstorms/*"
+      ]
+    },
+    "git": {
+      "must_not_modify": [
+        ".codestable/**"
+      ]
+    },
+    "trajectory": {
+      "required_actions": [
+        "codex_exec"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "merge"
+      ],
+      "forbidden_contains": [
+        "codestable-freshness-check.py --json",
+        "pytest",
+        "unittest discover"
+      ]
+    }
+  }
+}

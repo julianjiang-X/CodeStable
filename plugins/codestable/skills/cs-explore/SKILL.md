@@ -1,13 +1,13 @@
 ---
 name: cs-explore
-description: 对仓库做定向代码探索并把"提问→读代码→得结论"沉淀为可检索证据，三种类型 question / module-overview / spike。触发：用户说"先 explore 一下"、"这个仓库里 X 怎么实现"、"快速熟悉这个模块"、"把探索结果存档"。
+description: "定向解释代码或调查模块，需要归档时保存可追溯证据。"
 ---
 
 # cs-explore
 
 ## 启动必读
 
-开始任何判断或动作前，先读取 `.codestable/attention.md`；缺失则视为骨架不完整，提示先补齐或运行 `cs-onboard`，不要回退到外部 AI 入口文件。
+遵循项目入口和 `.codestable/attention.md` 中的约束；已加载且未变化的上下文直接复用。按当前任务读取相关记录和引用，缺少可选骨架不阻塞工作。
 
 同一个问题第一次花两小时查代码，第二次应该五分钟内找到答案——前提是第一次做完留下证据化的记录。cs-explore 把"提问 → 读代码 → 得结论"沉淀成可检索的探索文档。
 
@@ -20,9 +20,9 @@ description: 对仓库做定向代码探索并把"提问→读代码→得结论
 - feature-design / issue-analyze / issue-fix 前先补一轮证据化探索
 - 技术方向还在讨论，需要轻量 spike（只探索不拍板）
 
-本技能只负责"看到了什么"的证据化记录。用户意图是别的（拍板 / 处方 / 修 bug）让用户按场景选对应子技能。
+本技能负责证据化探索。定向问答直接给结论和必要证据；用户要求存档、module-overview 或 spike 报告时再创建探索文档。需要其他阶段时按已有授权继续相关技能，不让用户只为选技能停一轮。
 
-> 共享路径与命名约定看 `.codestable/reference/shared-conventions.md`。产物写入 `.codestable/compound/`，命名 `YYYY-MM-DD-explore-{slug}.md`，frontmatter 带 `doc_type: explore`。
+> 需要归档时按需查 `.codestable/reference/shared-conventions.md`。产物写入 `.codestable/compound/`，命名 `YYYY-MM-DD-explore-{slug}.md`，frontmatter 带 `doc_type: explore`。
 
 ---
 
@@ -60,32 +60,32 @@ frontmatter / 正文结构 / 各节写法说明和示例见同目录 `reference.
 
 用户描述已清楚直接进 Phase 1.5。
 
-### Phase 1.5：查重叠与意图分流（必做）
+### Phase 1.5：复用相关证据
 
-按 `shared-conventions.md` §6 第 5/6 条执行：
+用户提及旧记录或需要归档时按需查重；归档更新遵循 `shared-conventions.md` §6 第 5/6 条：
 
 - 含"更新 / 复查 / 某次 explore / 这个模块之前探过"或指向某份旧 explore → 走**更新或 supersede**。explore 特性：**代码已变导致旧结论失效**时旧文档 `status: outdated` + 新建一份（supersede）；只补证据 / 收紧结论但核心结论未变时走"更新已有"
-- 否则用搜索工具按关键词 / 模块查一遍，命中相近旧 explore 时先读它，能直接回答就告诉用户"已有一份在 {路径}，复用还是重探一遍？"
+- 命中相关旧记录时判断适用范围与时效；以当前代码核验易变的关键结论后复用，不重复询问复用还是重探。
 
 **更新路径**：读旧文档 → 按 Phase 2 补证据 → 改写速答节 → 写回原文件 + `updated: YYYY-MM-DD`。
 
 ### Phase 2：证据化探索
 
-- 用 Glob / Grep / Read **真实读代码**不靠猜
+- 遵循项目的代码定位方式读取当前源码，不靠猜
 - 边读边积累证据；**同步思考每条证据支撑哪个结论**——不支撑任何结论的证据不记录
-- 关键证据 3-8 条，每条都标注 `文件:行号`
-- 多模块协作或 `module-overview` / `spike` 类型 → 准备一张 Mermaid 图放在速答节里
+- 保留足以支撑结论的关键证据并标注 `文件:行号`，不凑条数
+- 调用关系更适合图示时使用 Mermaid；简单关系用文字即可
 - 形成初步结论后主动检查：已有证据能否说服持怀疑态度的人？够了就停不必扩大搜索
 
 为什么"够了就停"：探索不是穷举，是建立到"读者能信"为止的证据链。继续扩大只会让文档变长而不变可信。
 
-### Phase 3：起草与确认
+### Phase 3：交付结果
 
-- **先写速答节，再回填关键证据**——这个顺序很重要：先有结论再回头看证据是否真支持，能逼你检查每条证据的实际效力
-- AI 一次性起草完整文档，用户 review 后确认
-- 有修改按反馈修订后再落盘
+- 先给结论，再给支撑证据、适用范围和未确认部分。
+- 问答可在回复中交付；需要报告时按 `reference.md` 生成并直接归档，无需重复确认。
+- 探索不替 owner 批准产品方向；需要决策时提供有证据的选项。
 
-### Phase 4：归档
+### Phase 4：归档（需要持久报告时）
 
 - 新建：写入 `.codestable/compound/YYYY-MM-DD-explore-{slug}.md`，frontmatter 带 `doc_type: explore`
 - 更新：写回 Phase 1.5 定位的原文件 + `updated: YYYY-MM-DD`
@@ -95,7 +95,7 @@ frontmatter / 正文结构 / 各节写法说明和示例见同目录 `reference.
 
 ### Phase 5：给出下一步建议
 
-证据收齐后一句话提示下一步方向（"要不要基于这份 explore 去设计方案"）。用户说"不用"就跳过——下一步由用户自己决定。
+只在尚有实际后续工作时说明下一步；已授权的后续工作继续执行，不因探索结束而再次索取同一授权。
 
 ---
 
@@ -119,10 +119,8 @@ python3 .codestable/tools/search-yaml.py --dir .codestable/compound --filter doc
 
 - [ ] 已明确探索问题与范围
 - [ ] 速答节给出核心结论（结论前置）
-- [ ] 关键证据 3-8 条，每条标 file:line 并说明支撑哪个结论
-- [ ] 多模块或 module-overview / spike 类型时速答节有 Mermaid 图
-- [ ] 文档已归档到 `compound/`
-- [ ] 已给出后续建议
+- [ ] 关键证据标 file:line 并支撑结论
+- [ ] 需要持久报告时已按文档格式归档到 `compound/`
 
 ---
 
@@ -134,8 +132,7 @@ python3 .codestable/tools/search-yaml.py --dir .codestable/compound --filter doc
 - 证据只写"看起来像"不写 file:line
 - 结论写在证据之后——速答节必须在关键证据节之前
 - 证据节比速答节长数倍——精简证据，不支撑结论的删掉
-- 跨模块流程没 Mermaid 图，只靠文字描述
 - 提前拍板——explore 只记"看到了什么"不下"以后应该怎么做"
 - 直接给处方没证据链——每条结论必须回溯到 file:line
 - 历史 explore 已过期却继续引用，不做 `status` 标注
-- 读写非 `doc_type=explore` 的文档——本技能只负责 explore
+- 把其他类型文档改写成 explore；读取相关设计和实现证据不受此限制

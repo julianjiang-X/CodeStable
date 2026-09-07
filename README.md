@@ -38,7 +38,7 @@ npx skills add https://github.com/julianjiang-X/CodeStable/tree/main/plugins/cod
 /cs
 ```
 
-如果 agent 支持自动 skill 触发，`using-codestable` 会在已接入仓库中检查 `.codestable/attention.md`，并把 goal、feature、bug、refactor、architecture、requirements、roadmap、audit、docs、decision、learning、explore 等生命周期任务默认路由到 `cs`。
+`using-codestable` 按需读取并复用项目上下文。阶段明确时直接使用相关技能；小改和定向问答无需自动建立生命周期单元。`cs` 用于介绍或不明确的路由，已授权工作不重复询问阶段许可。
 
 ---
 
@@ -91,7 +91,7 @@ CodeStable 的判断是：严肃软件工程的混乱，很多时候不是 agent
 
 <table>
 <tr><th>分组</th><th>技能</th><th>用途</th></tr>
-<tr><td><b>自动入口</b></td><td><code>using-codestable</code></td><td>在已接入仓库中把生命周期任务路由到 <code>cs</code></td></tr>
+<tr><td><b>自动入口</b></td><td><code>using-codestable</code></td><td>按需应用项目上下文并选择相关阶段</td></tr>
 <tr><td><b>根入口</b></td><td><code>cs</code></td><td>介绍体系，处理 interview / grill 对话模式，并把开放式诉求路由到正确的 cs 子技能</td></tr>
 <tr><td><b>接入</b></td><td><code>cs-onboard</code></td><td>为新仓库或已有零散文档的仓库创建 / 迁移 CodeStable 骨架</td></tr>
 <tr><td rowspan="2"><b>需求 & 架构</b></td><td><code>cs-req</code></td><td>维护能力愿景文档，支持 draft / current / outdated</td></tr>
@@ -99,7 +99,7 @@ CodeStable 的判断是：严肃软件工程的混乱，很多时候不是 agent
 <tr><td rowspan="3"><b>规划 & 讨论</b></td><td><code>cs-goal</code></td><td>限定起点/终点的目标达成：起点报告、自主迭代、功能验收</td></tr>
 <tr><td><code>cs-roadmap</code></td><td>为大需求生成概设、接口契约和子 feature 清单</td></tr>
 <tr><td><code>cs-brainstorm</code></td><td>想法模糊时先讨论和分诊：直接 design、轻量 feature、或 roadmap</td></tr>
-<tr><td rowspan="5"><b>特性流程</b></td><td><code>cs-feat</code></td><td>新功能子流程入口，只路由不代跑阶段</td></tr>
+<tr><td rowspan="5"><b>特性流程</b></td><td><code>cs-feat</code></td><td>选择功能阶段并继续已授权工作</td></tr>
 <tr><td><code>cs-feat-design</code></td><td>起草 <code>{slug}-design.md</code> 和 <code>{slug}-checklist.yaml</code></td></tr>
 <tr><td><code>cs-feat-impl</code></td><td>按 checklist 推进实现，遇到方案外情况回方案谈</td></tr>
 <tr><td><code>cs-feat-accept</code></td><td>验收实现，并同步 architecture / requirement delta / roadmap 状态</td></tr>
@@ -130,7 +130,7 @@ CodeStable 的判断是：严肃软件工程的混乱，很多时候不是 agent
 ```text
 your-project/
 ├── .codestable/
-│   ├── attention.md                 # 所有 CodeStable 技能启动必读
+│   ├── attention.md                 # 项目上下文，任务内复用
 │   ├── requirements/                # 能力愿景，含 VISION.md
 │   ├── architecture/                # 只记现状的系统地图
 │   ├── roadmap/                     # 大需求规划和子 feature 清单

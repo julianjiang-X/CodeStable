@@ -38,7 +38,7 @@ For daily use, when you are not sure which skill fits, call the root entry:
 /cs
 ```
 
-If your agent supports automatic skill triggering, `using-codestable` checks for `.codestable/attention.md` in onboarded repositories and routes lifecycle tasks to `cs` by default: goals, features, bugs, refactors, architecture, requirements, roadmap work, audits, docs, decisions, learnings, and code exploration.
+`using-codestable` reads and reuses project context as needed. Select a known stage directly; small edits and focused questions need no automatic lifecycle unit. Use `cs` for an overview or unclear routing and continue already-authorized work without repeated stage approval.
 
 ---
 
@@ -91,7 +91,7 @@ CodeStable's bet is simple: in serious software work, chaos often comes not from
 
 <table>
 <tr><th>Group</th><th>Skill</th><th>Purpose</th></tr>
-<tr><td><b>Auto entry</b></td><td><code>using-codestable</code></td><td>Routes lifecycle tasks to <code>cs</code> in onboarded repositories</td></tr>
+<tr><td><b>Auto entry</b></td><td><code>using-codestable</code></td><td>Applies project context and selects the relevant stage</td></tr>
 <tr><td><b>Root entry</b></td><td><code>cs</code></td><td>Introduces the system, handles interview / grill interaction modes, and routes open-ended intents to the right cs sub-skill</td></tr>
 <tr><td><b>Onboard</b></td><td><code>cs-onboard</code></td><td>Create or migrate the CodeStable skeleton for a repository</td></tr>
 <tr><td rowspan="2"><b>Requirements & architecture</b></td><td><code>cs-req</code></td><td>Maintain capability-intent docs with draft / current / outdated states</td></tr>
@@ -99,7 +99,7 @@ CodeStable's bet is simple: in serious software work, chaos often comes not from
 <tr><td rowspan="3"><b>Planning & discussion</b></td><td><code>cs-goal</code></td><td>Bounded goals with start reports, autonomous iteration, and functional acceptance</td></tr>
 <tr><td><code>cs-roadmap</code></td><td>Produce high-level design, interface contracts, and sub-feature lists for large needs</td></tr>
 <tr><td><code>cs-brainstorm</code></td><td>Discuss and triage fuzzy ideas into design, lightweight feature work, or roadmap</td></tr>
-<tr><td rowspan="5"><b>Feature flow</b></td><td><code>cs-feat</code></td><td>Feature sub-flow entry; routes instead of running stages itself</td></tr>
+<tr><td rowspan="5"><b>Feature flow</b></td><td><code>cs-feat</code></td><td>Selects the feature stage and continues authorized work</td></tr>
 <tr><td><code>cs-feat-design</code></td><td>Draft <code>{slug}-design.md</code> and <code>{slug}-checklist.yaml</code></td></tr>
 <tr><td><code>cs-feat-impl</code></td><td>Implement by checklist; return to design when reality falls outside the plan</td></tr>
 <tr><td><code>cs-feat-accept</code></td><td>Verify implementation and sync architecture / requirement deltas / roadmap status</td></tr>

@@ -1,176 +1,54 @@
 ---
 name: cs-issue-fix
-description: issue 流程阶段 3——按已确认根因和方案定点修复、验证、写 {slug}-fix-note.md 落档。两个入口：标准路径从 analyze 来，快速通道从 report 直接来。触发：用户说"开始修 bug"、"按分析修"、"动手改代码"。只动方案声明的文件，不顺手优化。
+description: "按已授权方案修复缺陷，验证根因消除并保存修复证据。"
 ---
 
 # cs-issue-fix
 
-## 启动必读
-
-开始任何判断或动作前，先读取 `.codestable/attention.md`；缺失则视为骨架不完整，提示先补齐或运行 `cs-onboard`，不要回退到外部 AI 入口文件。
-
-根因和方案已经确定（标准路径在 analysis、快速通道在 report 阶段口头确认过），你的活是按方案改代码、验证效果、写下修复记录。
-
-fix 阶段最容易出问题的不是改代码本身，而是**改的过程中冒出的"顺手"冲动**——顺手优化、顺手重构、顺手加抽象。每项单独看说得通，但合在一个 PR 里让别人分不清"这次到底为了修 bug 改了什么"。
-
-> 共享路径与命名约定看 `.codestable/reference/shared-conventions.md` 第 0 节和 `cs-issue` 的"文件放哪儿"。
-> main 协调 / worktree 执行 / 批次后 code review 规则看 `.codestable/reference/shared-conventions.md` 第 2.6 节。
-
----
+读取本会话尚未读过的 `.codestable/attention.md`。只加载任务相关上下文，已读且未改变的资料不重复读取。共享路径、worktree、审查及提交约定见 `.codestable/reference/shared-conventions.md` 第 0、2.6、4 节。
 
 ## 两种入口
 
-### 标准路径（有 analysis）
+### 标准路径
 
-1. **方案已确认**——读 analysis，确认 `doc_type=issue-analysis` 且 `status=confirmed`，第 5 节用户选定了哪个方案
-2. **上下文读全**：analysis 全文 + report 全文 + analysis 第 1 节定位的所有代码 + `.codestable/attention.md` + 沉淀目录搜索：
-   - `python3 .codestable/tools/search-yaml.py --dir .codestable/compound --filter doc_type=trick --filter status=active --query "{关键词}"`——确认修复方式不违背已有库用法 / 模式
-   - 同样命令换 `--filter doc_type=explore`——确认修复点和已有证据不冲突
-3. **确认执行拓扑与 review 授权**——按 shared-conventions 第 2.6 节确认是否在主协调检出讨论、是否已在独立 worktree、分支 / worktree 路径、共享计划面和禁止触碰的 sibling worktree；若当前对话还没有明确 subagent / delegation 授权，先用 review authorization judgment checkpoint 提供背景、术语、取舍、默认建议和非自动动作；用户授权 subagent 后继续，只有平台无 subagent 能力时 inline review 才能继续；若不在执行 worktree，用 `git worktree add -b codex/{slug} .codex/worktrees/{slug}` 创建 / 使用 linked execution worktree，不在主协调检出里 `git switch/checkout`；动代码前运行 `python3 .codestable/tools/codestable-worktree-gate.py --root . --json start --unit .codestable/issues/YYYY-MM-DD-{slug}`
-4. **确认起点**——告诉用户"我将按方案 X 修改 {文件列表}，开始修复"，等用户确认才动手
+读 confirmed analysis、report 和相关代码，核实当前根因证据及已选方案。用户已授权修复时直接执行，不重复确认起点或逐文件求批。仅在根因仍不确定、批准契约冲突或新增实质取舍时补分析并请求必要判断。相关 decision / learning 按需查询，不固定搜索所有归档类型。
 
-### 快速通道（无 analysis，从 report 直接触发）
+### 快速通道
 
-进入这个入口时 AI 在 report 阶段已读过代码并对根因有把握。
-
-1. **明确陈述根因**："`{文件}:{行号}` 的 {具体代码} 存在 {问题描述}"，让用户确认根因判断准确
-2. **给修复方案**——改哪里、怎么改（一两句话，不写完整分析文档）
-3. **等用户明确说"对，就这样改"才动手**——不允许"我觉得对，直接改了"
-4. 读 `.codestable/attention.md`
-5. **补搜沉淀目录**——快速通道也要查一遍 `compound/`（trick + explore），避免误把已知边界条件当新问题
+1. 用复现或现有证据定位根因，简述方向。修 bug 请求包含范围内修复授权，不等待固定确认语句。
+2. 检查实际风险：
    - **风险核对（静默）**——快速通道省掉的是 analysis 文档，**不是风险判断**。一行修复照样可能落在权限判断、迁移路径或并发语义上；这条通道跳过了 analysis，所以根因仍不确定本身就是命中项之一。对要碰的路径做一次静默核对，八类风险与 `.codestable/reference/assurance.md` 风险映射表逐行对应：目标 / 根因不确定或存在真实取舍 · 破坏兼容或多消费者公开契约 · 权限 / 安全 / 隐私 / 凭证 / token / 信任边界 · 持久化数据 / schema / 迁移 · 并发 / 顺序 / 一致性 · 不可恢复的代码外副作用 · 性能敏感路径 · 影响面广或失败可跨模块传播（公共 helper、共享配置、feature flag）。
      命中后先读 `assurance.md`，**照搬命中那一行列出的全部保障**——格子是复合的，`+` 连接的每项都要做，标着确认的还要 owner 拍板；所谓只加对应保障，限定的是不启用别的行，不是把一行砍成一条。其中加审指在本通道已有的独立 review 之外**再加一轮**对应目的的审查，不是拿地板 review 顶替。在 fix 里，增加的保障通常体现为红到绿之外还要补的那份证据。
      命中后在 fix-note 写明「风险事实 → 增加的保障」，不命中就带一句 `风险核对：无命中`。只命中风险不因此升级回标准路径；但若核对发现根因判断本身站不住，回 `cs-issue-analyze` 重新定位。
-6. **确认执行拓扑与 review 授权**——按 shared-conventions 第 2.6 节确认并进入独立 worktree 修复；若当前对话还没有明确 subagent / delegation 授权，先用 review authorization judgment checkpoint 提供背景、术语、取舍、默认建议和非自动动作；用户授权 subagent 后继续，只有平台无 subagent 能力时 inline review 才能继续；动代码前运行 `python3 .codestable/tools/codestable-worktree-gate.py --root . --json start --unit .codestable/issues/YYYY-MM-DD-{slug}`；用户明确要求当前 checkout 直接做时可以继续，但要先写 `worktree-override.md` 并在汇报里写清楚 override
+3. 根因证据不足则回 `cs-issue-analyze` 补定位；先自主取得可取得的证据，不把普通调试交还用户。
 
----
+## 执行与验证
 
-## 实现期间的约束
+修复针对根因，保留无关改动。必要的额外文件或内部结构调整可在原授权范围完成并同步 analysis；改变公开契约或扩大业务范围才需要新的 owner 判断。
 
-### 只改 analysis 里声明的文件
+验证原复现、期望行为及实际受影响路径。优先跑相关测试；可稳定自动复现且能保护真实回归的 bug 增加回归测试。UI 可见行为用浏览器验证，不用 typecheck 代替。通过后无新改动或疑问不重复扩大测试；无法取得的证据明确标未验证。
 
-修复范围来自 analysis 第 5 节"推荐方案"的"影响面"。超出范围的文件——哪怕顺眼——**不动**。
+修复无效时更新根因假设，选择能区分假设的日志、断点、trace 或最小复现，不反复猜改。需要日志脚手架或 fix-note 模板时读 `reference.md`；清理临时敏感日志后交付。
 
-发现范围外值得改的记一条"顺手发现"不改代码：
+## 审查与归档
 
-```markdown
-> 顺手发现：{文件:行号} {问题简述}。不在本次修复范围，可后续另开 issue。
+正式 unit 使用独立 subagent review；仅环境确无 subagent 能力时按共享规则使用 fresh self-review fallback 并记录环境原因。保留 `{slug}-implementation-review.md` 的目标、审查方式、验证证据和 findings，P0/P1 先修复并复核。不将 self-review 冒称独立审查。
+
+验证后写 `{slug}-fix-note.md`：标准路径引用 analysis，快速通道补根因和风险证据。保留 `doc_type: issue-fix`、issue、`path: standard | fast-track`、fix_date、tags 等字段。
+
+按 shared-conventions 第 2.6 节使用执行 worktree，保留无关改动、共享计划面及既有 override 契约。改动前执行 start gate；完成证据写入后执行 commit gate：
+
+```bash
+python3 .codestable/tools/codestable-worktree-gate.py --root . --json start --unit .codestable/issues/YYYY-MM-DD-{slug}
+python3 .codestable/tools/codestable-worktree-gate.py --root . --json commit --unit .codestable/issues/YYYY-MM-DD-{slug}
 ```
 
-为什么这么严：顺手改的代码不在分析里，验收对不上，git blame 分不清哪些改动是为这个 bug。
-
-### 改动最小化
-
-修复只针对根因，**不引入新抽象、新接口、新模式**。如果发现"要把这个改好得先重构 X"——停下来跟用户确认是否在这个 issue 里做重构，还是拆成独立工作。
-
-为什么：bug 修复天然窄场景，引入新抽象意味着只有这一个使用点支撑——典型过早抽象。
-
-### 代码质量反射检查
-
-修 bug 看似动作小但 AI 写修复代码一样会漂——大文件再塞特殊处理、大类再加方法、为绕开边界加 `if` 分支。反射检查见 `shared-conventions.md` 第 7 节。
-
-issue-fix 比 feature-implement 更谨慎：**触发反射信号但结论是"该拆"时默认不在本次 PR 做**——按"改动最小化"记成顺手发现。唯一例外是"不拆就没法干净修这个 bug"，那停下来跟用户确认"修这个 bug 的前置是 {重构动作}，合进来还是拆出去单独做"。
-
-### 每完成一处改动必须汇报
-
-修复汇报模板见同目录 `reference.md`，**不允许含糊汇报**。汇报后停下等用户回复。
-
-### 代码批次完成后必须独立 review
-
-修复代码写完、验证清单通过后，写 `{slug}-fix-note.md` 或输出修复完成汇报前，按 shared-conventions 第 2.6 节生成 review packet 并触发独立 code review：
+正式 review packet 需要时使用：
 
 ```bash
 python3 .codestable/tools/build-review-packet.py --root . --unit .codestable/issues/YYYY-MM-DD-{slug} --stage quality --output /tmp/codestable-review.md --validation "{验证命令} -> {结果}"
 ```
 
-默认做 quality review；如果修复方案可能偏离 report / analysis，追加一次 `--stage spec`；如果涉及 schema / security / core runtime，追加 `--stage verification` 且必须传 fresh command output。
+风险要求的 spec / verification 审查及 fresh command output 仍保留。不要等到 gate 才检查证据是否齐备。
 
-必须使用可用的 subagent reviewer。若当前对话还没有明确 subagent / delegation 授权，先按 shared-conventions 第 2.6 节的 review authorization judgment checkpoint 提供背景、术语、取舍、默认建议和非自动动作；不要等到 review gate 才首次询问。只有平台确实没有 subagent 能力时才允许 fresh self-review fallback，并在 review 文件、修复汇报和 fix-note 里说明替代方式。把完整结果写入 issue 目录的 `{slug}-implementation-review.md`。reviewer 发现 P0 / P1 时先修并复核。没有这份 review 文件，不进入 fix-note / 完成汇报。
-
-review 证据写完后、fix-note / 完成汇报前运行 commit gate：
-
-```bash
-python3 .codestable/tools/codestable-worktree-gate.py --root . --json commit --unit .codestable/issues/YYYY-MM-DD-{slug}
-```
-
----
-
-## 验证清单
-
-修复改完后逐项核对：
-
-- [ ] **复现步骤验证**——按 report 第 2 节走一遍，问题不再出现
-- [ ] **期望行为验证**——report 第 3 节"期望行为"现在确实发生
-- [ ] **影响面回归**——analysis 第 4 节"潜在受害模块"每个走一遍最基本的冒烟路径
-- [ ] **前端改动浏览器验证**（如涉及）——按 `.codestable/attention.md` 的硬要求执行，不能只 typecheck
-- [ ] **相关测试通过**——有测试覆盖到修复区域就跑一遍
-
----
-
-## 修复未生效时：日志调试升级
-
-走完验证清单仍**问题复现**或行为与期望不符——**别在原有猜测上反复试错**，切换到日志调试模式重新收集运行时证据。
-
-为什么切换：反复试错本质是猜测在原假设下还有什么可能性，但如果原假设就错了再猜也是绕圈。日志强制看实际运行时数据，往往一眼看出原假设哪里偏了。
-
-日志调试步骤、用户取日志提示词、循环限制见同目录 `reference.md`。
-
----
-
-## 写 {slug}-fix-note.md
-
-验证通过后在 issue 目录建 `{slug}-fix-note.md`（位置见 `cs-issue` 的"文件放哪儿"），记录完整闭环。标准路径模板和快速通道模板都在同目录 `reference.md`。
-
----
-
-## 退出条件
-
-- [ ] 所有改动文件已提交或列清单
-- [ ] 验证清单全部勾选
-- [ ] `{slug}-implementation-review.md` 已建且 reviewer 为 subagent（仅平台无 subagent 能力时可 fallback）；P0 / P1 已处理或明确无
-- [ ] `{slug}-fix-note.md` 已建并填写完整
-- [ ] 没有未处理的"顺手发现"（都进后续 issue 列表）
-- [ ] 没有范围外改动（或已和用户确认）
-- [ ] 用户明确确认修复完成
-
----
-
-## 收尾提交
-
-按 `shared-conventions.md` 第 4 节"scoped-commit"规则执行。本阶段：
-
-- **提交范围**：修复代码 + `{slug}-fix-note.md` + 本次一并更新的 report / analysis
-- 修复闭环后告诉用户"修复验证已完成，`{slug}-fix-note.md` 已落盘"，紧接着问是否需要 commit
-
----
-
-## 退出后
-
-告诉用户："issue 修复完成，工作流闭环。report + analysis + fix-note 已存档。"
-
-按 `shared-conventions.md` 第 3 节"issue-fix"收尾推荐顺序各问一句（用户"不用"立即跳过）：
-
-1. 暴露了值得复用的坑点 → "沉淀 learning？（`cs-learn`）"
-2. 沉淀出长期约束 / 规约 / 技术决定 → "归档决定？（`cs-decide`）"
-3. 这个 bug 暴露了项目通用的硬约束 / 命令陷阱 / 环境设置（一两行能讲清、CodeStable 技能每次启动都该知道）→ "记到 attention.md？（`cs-note`）"
-4. 最后问是否代为提交。同意时按收尾提交规则执行
-
-建议：把 issue 目录文件和代码改动放同一次提交方便追溯；"顺手发现"另开 `cs-issue-report` 处理别塞这个 PR。
-
-修复中发现问题实际是功能缺失（不是 bug）→ 建议另开 `cs-feat`，别在 issue 工作流里偷偷做新功能。
-
----
-
-## 容易踩的坑
-
-- 修完没走验证清单就宣告"修好了"
-- 顺手改了 analysis 范围外的代码
-- 修复引入新抽象 / 接口但没停下来确认
-- `{slug}-fix-note.md` 没建就宣告完成
-- 发现影响面回归有问题但写"轻微影响可忽略"——要修到干净
-- 前端改动只 typecheck 就报通过
-- 用户没明确说"修复完成"就结束
-- 修复未生效继续原假设上反复猜测试错，不切换到日志调试
-- 日志调试结束后没清理临时 log 就提交
-- 收尾时没问用户是否代为 commit
-- 用户没明确同意就 `git commit`
+一次汇报修复前后行为、证据和限制，不在每处改动后停等回复。继续已有提交/推送授权；未授权的外部动作在具体结果就绪后再请求。新功能和无关优化另记，不混入修复。

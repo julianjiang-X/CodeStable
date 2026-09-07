@@ -79,7 +79,7 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
   `{workflow}/{unit}/grill/round-NNN-{axis}.md`，原 brainstorm 路径保留
   repo-relative 指针。`doc_type: grill-context` 必须带
   `source_of_truth: false`，只能作为 human review context。
-- 项目注意事项入口固定为 `.codestable/attention.md`，所有 CodeStable 子技能启动前必须读取；不再兼容 `AGENTS.md` / `CLAUDE.md` 等外部入口
+- 项目注意事项入口固定为 `.codestable/attention.md`，使用 CodeStable 时读取一次，未变化不重读；同时遵守实际生效的 `AGENTS.md` / `CLAUDE.md` 等项目入口，冲突时按指令优先级处理
 
 ### 报告语言策略
 
@@ -99,7 +99,7 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 
 **只升不降**：删到 ≤5 份也不折回平铺。
 
-**触发时谁负责**：`cs-arch` 的 `backfill` / `update` 模式在 Phase 6 落盘前主动检查并搬迁；命中阈值时这次操作要把"本次新加 / 改的 + 已有同类全部"一起搬，并同步改 `ARCHITECTURE.md` 链接（搬迁本身要在 Phase 5 给用户 review，不偷偷做）。`check` 模式不主动搬迁，但发现 ≥6 仍平铺时在报告末尾列为观察项。
+**触发时谁负责**：`cs-arch` 的 `backfill` / `update` 模式在 Phase 6 落盘前主动检查并搬迁；命中阈值时这次操作要把"本次新加 / 改的 + 已有同类全部"一起搬，并同步改 `ARCHITECTURE.md` 链接（记录搬迁和链接更新；超出授权范围才询问）。`check` 模式不主动搬迁，但发现 ≥6 仍平铺时在报告末尾列为观察项。
 
 改 `cs-onboard/reference/shared-conventions.md` 模板，新项目 onboard 时带上新版本；已有项目手动同步 `.codestable/reference/shared-conventions.md`。
 
@@ -135,13 +135,13 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 
 **design 的职责**：
 
-- 提取 `steps`（4-8 步，每步独立可验证退出信号）：后端节奏 = 编排骨架 → 计算节点逐个填 → 接通持久化 → 测试覆盖；前端 = 静态结构 → 交互逻辑 → 状态接入 → 联调收尾
+- 提取 `steps`（按工作规模划分，每步有可验证退出信号）：后端节奏 = 编排骨架 → 计算节点逐个填 → 接通持久化 → 测试覆盖；前端 = 静态结构 → 交互逻辑 → 状态接入 → 联调收尾
 - 提取 `checks`：第 1 节"明确不做"→ 范围守护；第 2.1 接口 → 名词契约；第 2.2 主流程 + 流程级约束 → 编排骨架；第 2.3 挂载点 → 挂载点；第 3 节场景清单 → 验收场景
 
 **implement 的职责**：
 
 - 按 `steps` 顺序执行，每步完成把 status `pending` → `done`
-- 实现到具体文件级时需要拆分某步、或发现微重构是其前置（参考第 7 节反射检查）→ 跟用户对齐后追加 / 拆分 steps，**不偷偷做**
+- 在已授权范围内可追加 / 拆分 steps、完成必要的局部重构并记录原因；改变产品契约、范围或风险承诺时才请求 owner 决策
 - 不改写 `checks`
 
 **acceptance 的职责**：只更新 `checks[].status`（`pending` → `passed` / `failed`），不重写 `steps`。
@@ -188,41 +188,22 @@ planned  → dropped      （cs-roadmap update 模式，用户决定不做时改
 packet 和 subagent 执行选择已拆到
 `.codestable/reference/execution-conventions.md`。子技能只在本文件记录目录
 和生命周期共享口径；涉及实际改代码、review、commit、finish 或 merge 前，
-必须读取 execution conventions。
+按需读取 execution conventions 对应章节；同一任务内未变化不重读。
 
-## 3. 阶段收尾推荐
+## 3. 阶段收尾
 
-**feature-acceptance** 收尾按顺序判断：
-
-1. `cs-learn`：沉淀经验
-2. `cs-decide`：长期约束 / 选型
-3. `cs-guide`：开发者 / 用户指南 / API 参考
-4. `scoped-commit`
-
-**issue-fix** 收尾按顺序判断：
-
-1. `cs-learn`：坑点
-2. `cs-decide`：暴露的长期约束
-3. `scoped-commit`
-
-**feature-ff** 收尾按顺序判断（比标准 acceptance 短，没有 architecture / req 回写动作）：
-
-1. `cs-learn`：动手过程暴露的坑
-2. `cs-decide`：动手过程拍板的长期约束
-3. `scoped-commit`
-
-**统一规则**：一律一句话提示；用户说"不用"立即跳过；不强制；上游主动提示，下游承接执行。
+只更新本次行为或契约变化实际影响的文档。出现可复用的经验、长期决定或用户指南变化时，使用对应沉淀技能；没有新增知识就不生成文档或逐项询问。已授权提交时直接完成 scoped-commit。
 
 ## 4. 收尾提交（scoped-commit）
 
-acceptance / issue-fix 走完后把本次产物提交为一个 commit：
+acceptance / issue-fix 走完后，在已有提交授权内按独立逻辑变更提交：
 
 - **范围**：本次工作改到的代码 + 相关 spec 文档 + 本次实际更新过的架构 doc + 本次实际更新过的 roadmap items.yaml / 主文档
 - **不该进**：和本次工作无关的顺手修改；属于"下次另起 feature / issue"的扩大范围
-- **提交前确认**：用户没明确同意不要 `git commit`
+- **提交授权**：当前任务已授权 commit / push 时不重复询问；没有提交授权时交付可审阅改动，不能从完成实现推断 merge / deploy 授权
 - **commit message**：一句话说清"做了什么"，不贴 spec 目录路径
 
-提交前先运行 commit planner，确认 dirty tree 需要几个逻辑 commit：
+dirty tree 混有多类产物或提交边界不明确时，用只读 commit planner 辅助划分：
 
 ```bash
 python3 .codestable/tools/plan-commits.py --root . --json
@@ -234,9 +215,9 @@ planner 只读，不替你 stage。它会把 code/docs/tests、migrations/databa
 
 ## 5. 归档检索规则
 
-feature-design / issue-analyze / issue-fix 动手前到 `.codestable/compound/` 搜已有沉淀：
+需要历史约束、架构背景或复用经验时，定向检索相关归档：
 
-- 总是先搜 `architecture/` 和 `compound/`
+- 按任务关键词定位 `architecture/` 或 `compound/` 相关条目；自包含的小改无需遍历归档
 - 在 `compound/` 用 `doc_type` 过滤（learning / trick / decision / explore）
 - 搜到的结果只作参考输入，不盲目套用——可能已 `outdated` 或不适合当前上下文
 - 搜到和当前方向冲突的 decision → **必须**正面回应"为什么仍然这么做"或调整方向
@@ -261,7 +242,7 @@ feature-design / issue-analyze / issue-fix 动手前到 `.codestable/compound/` 
 2. **宁缺毋滥**——用户说不出理由的节直接省略，不要 AI 编造
 3. **不替用户写实质内容**——AI 负责起草结构和串联语言，实质结论必须来自用户或可追溯的代码证据
 4. **attention.md 检查**——写完后若沉淀暴露出"每次启动都该知道"的一两行硬约束，提示用户用 `cs-note` 追加到 `.codestable/attention.md`；不要直接改外部 AI 入口
-5. **起草前先查重叠**——动手写前用 `search-yaml.py --query` 查语义相近的旧文档。命中就把候选列给用户在三条路径里选：
+5. **起草前先查重叠**——动手写前用 `search-yaml.py --query` 查语义相近的旧文档。按用户意图选择以下路径；实质结论冲突才请用户决定：
    - **更新已有**（默认优先）：沿用原文件名和原创建日期，**不新建**；frontmatter 补 `updated: YYYY-MM-DD`；超出小修在文末加"YYYY-MM-DD 更新"简述
    - **supersede**：旧文档保留原文，`status: superseded` + `superseded-by: {新文件名}`，正文顶部加 `**[已取代]** 见 {新 slug}`；新文档 frontmatter 带 `supersedes: {旧文件名}`
    - **确实是不同主题**：新建，文末"相关文档"列出已有那条说明区别
@@ -275,22 +256,6 @@ feature-design / issue-analyze / issue-fix 动手前到 `.codestable/compound/` 
 三态判据、不可自证晋级规则、应用侧核实与命中报告格式、50 条预算与机械 guard 优先，
 完整口径见 `.codestable/reference/evidence-lifecycle.md`。
 
-## 7. 写代码时的反射检查
+## 7. 局部实现判断
 
-`cs-feat-impl` 和 `cs-issue-fix` 共用。AI 默认会往"大函数 / 大文件 / god class / 处处特殊分支"漂，这一节把漂移截在发生那一刻。
-
-**不是阈值，是触发器**——硬数字会诱发为拆而拆把自然聚合的代码切碎。每条都是"遇到 X 情况就停下来问自己"。
-
-| 触发场景 | 停下来问自己 |
-|---|---|
-| 要往一个已经很长的文件追加代码时 | 文件承担几件事？新加的是已有职责延伸还是第 N+1 件事？是第 N+1 就默认新建文件 |
-| 要给已经很多方法的类加方法时 | 新方法是核心职责的自然扩展，还是把类推向"什么都能干"？ |
-| 写的函数已超过一屏时 | 函数在做几件事？几件事就拆 |
-| 要加 `if (特殊情况) { 特殊处理 }` 分支时 | 抽象维度选错了？正确做法可能是把特殊路径和通用路径分成不同函数 / 策略 / 类 |
-| 要 copy-paste 一段代码时 | 能抽成共用还是只字面相似？能抽就抽 |
-| 要给函数加第 4+ 个参数时 | 函数做的事是不是太多了？参数列表是 API 恶化的早期信号 |
-| 要新写"万能工具类 / helper"时 | 真没归属还是只是想不起来放哪儿就先堆 util？ |
-
-**停下来之后**：反射检查只把问题提出来，结论用户定。停下来想清楚的动作（拆 / 新建 / 重命名 / 抽共用）会让改动超出现有 steps 范围 → 跟用户对齐再决定（纳入当前推进 / 记顺手发现留后续）。
-
-不许偷偷拆完继续写，也不许忽略信号硬冲。默认动作是停、问、再继续。
+在既有职责内完成最小完整改动。文件长度、参数数目或出现分支本身不是重构理由；职责混杂、重复逻辑或错误抽象确实妨碍当前任务时，可在授权范围内局部调整并验证。扩大公共契约、架构方向或产品范围的变化另行说明并取得必要决定，不为每次拆函数或重命名中断执行。

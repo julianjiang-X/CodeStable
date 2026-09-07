@@ -1,15 +1,15 @@
 ---
 name: cs-feat
-description: 新功能开发的子流程入口，把"加个 X 能力"从想法走到验收闭环。触发：用户说"做新功能"、"加个 X"、"实现 XX"。只做路由，根据已有产物决定走 brainstorm / design / fastforward / implement / acceptance。不处理 bug。
+description: "选择并继续新功能的设计、快速实现、实现或验收阶段。"
 ---
 
 # cs-feat
 
 ## 启动必读
 
-开始任何判断或动作前，先读取 `.codestable/attention.md`；缺失则视为骨架不完整，提示先补齐或运行 `cs-onboard`，不要回退到外部 AI 入口文件。
+遵循项目入口和 `.codestable/attention.md` 中的约束；已加载且未变化的上下文直接复用。按当前任务读取相关记录和引用，缺少可选骨架不阻塞工作。
 
-新功能流程在"需求"和"代码"之间塞了一份方案文件，让两边有交接点——AI 直接拿到需求就写代码会出三个老问题：名字跟原代码对不上、改着改着改出范围、改完不留存档。
+功能流程保留需求、设计和验收的可追溯关系；按任务风险选择必要阶段。明确的小需求可用 fastforward，已有充分设计不重新展开。
 
 ```
 (想法模糊先去 cs-brainstorm 分诊) → 方案设计（名词层 + 编排层 + 验收契约 + 推进策略切片）→ 分步实现 → 验收闭环
@@ -17,7 +17,7 @@ description: 新功能开发的子流程入口，把"加个 X 能力"从想法�
 
 brainstorm 是讨论层独立入口，会分诊：case 1（清楚 → 直接 design）/ case 2（小需求继续讨论 → 落 brainstorm note）/ case 3（大需求 → 移交 `cs-roadmap`）。只有 case 2 在 feature 目录产出 brainstorm note。
 
-本技能不写代码不写文档，只做一件事：看当前 feature 走到哪步，告诉用户该触发哪个子技能。
+本技能确定当前 feature 的阶段，然后在同一任务中继续对应子技能。用户只询问路由时再只解释选择。
 
 ---
 
@@ -41,7 +41,7 @@ brainstorm 是讨论层独立入口，会分诊：case 1（清楚 → 直接 des
 的文件当 human review context 读；它必须 `source_of_truth: false`，不能覆盖
 design / checklist / acceptance 或 requirement。
 
-实现 feature 时顺手发现的 bug → 记成新 issue，**不在 feature PR 里偷偷修**——验收时分不清范围，git blame 找不到为什么改。
+实现时发现无关 bug，单独报告或按授权记录 issue；完成已授权功能必需的修复可纳入方案并保留依据，不顺手扩大范围。
 
 ---
 
@@ -50,25 +50,25 @@ design / checklist / acceptance 或 requirement。
 | 阶段 | 子技能 | 产出 | 谁主导 |
 |---|---|---|---|
 | 0 brainstorm（可选，独立入口） | `cs-brainstorm` | case 2 时产出 brainstorm note | AI 思考伙伴，用户拍板 |
-| 1 方案设计 | `cs-feat-design` | design.md + checklist.yaml | AI 起草，用户整体 review |
+| 1 方案设计 | `cs-feat-design` | design.md + checklist.yaml | AI 起草，未决产品选择由 owner 裁决 |
 | 2 分步实现 | `cs-feat-impl` | 代码 + 阶段汇报 | AI 按方案执行 |
-| 3 验收闭环 | `cs-feat-accept` | acceptance.md | AI 逐层核对，用户终审 |
+| 3 验收闭环 | `cs-feat-accept` | acceptance.md | AI 核对证据，按需人工验收 |
 
-阶段间有人工 checkpoint。上一阶段没拿到用户明确放行，下一阶段别开始——防止 AI 一口气从需求跑到代码、跑出来才发现走偏。
+阶段边界用于核对契约与证据，不重复索取已有授权。正式 design / checklist 状态必须如实更新；未决产品方向、契约变化或明确要求的人工验收仍交 owner 决定，不能将尚未批准的提案标为 approved。
 
 阶段 0 可选且是 feature 流程的**外部入口**——`cs-brainstorm` 同时服务 feature 和 roadmap。case 3（大需求）讨论被移交给 `cs-roadmap` 不再回 feature 流程；roadmap 拆出子 feature 后从 `cs-feat-design` 的"从 roadmap 条目起头"入口进来。
 
 ### Fastforward 模式
 
-需求清楚 + 范围小时走完整四阶段太啰嗦。fastforward 把 design 压成 4 节（需求摘要 / 设计方案 / 验收标准 / 推进步骤），用户一次确认后直接实现。触发："快速模式"、"fastforward"、"直接开干"、"别那么多步骤"，去 `cs-feat-ff`。
+需求明确且风险有限时，使用 `cs-feat-ff` 保留精简 design 与验收记录后继续实现。用户说“快速模式”“fastforward”“直接开干”“别那么多步骤”也是此入口；已授权且无未决选择时不再要求阶段确认。
 
-**别走** fastforward：跨多个子系统、有术语冲突风险、推进步骤超过 4 步——这些情况跳过 design 意味着 AI 和用户没共同确认过同一份方案，实现完容易发现彼此理解不一样。
+公共契约未定、实质术语冲突或跨子系统风险需要展开时，采用标准 design；步骤数量本身不决定流程重量。
 
 ---
 
 ## 路由：用户现在该走哪个子技能
 
-进入本技能先 Glob 一下 `.codestable/features/` 看已有产物。**不要只听用户口头描述**——用户说"设计写完了"不一定真完整，自己读一遍。
+优先检查用户指定或任务相关的 feature 记录，只读取判断阶段所需内容。已有证据足够时不遍历所有 feature，也不通读无关产物。
 
 | 当前状态 | 触发哪个子技能 |
 |---|---|
@@ -85,13 +85,13 @@ design / checklist / acceptance 或 requirement。
 | 代码已写完要验收 | `cs-feat-accept` |
 | 用户说"我想要一个 X 系统"大需求 | 转 `cs-brainstorm` 分诊（大概率 case 3 → `cs-roadmap`） |
 | roadmap 里某条子 feature 该启动 | `cs-feat-design` 的"从 roadmap 条目起头"入口 |
-| 不确定 design 是否完整 | 自己读一遍，按上面对号 |
+| 不确定 design 是否完整 | 定向核对相关契约与状态后继续；实质缺口才询问 |
 
 ### 怎么判断该不该走阶段 0
 
-判断信号不是"用户描述字数少"，是用户能不能清楚说出三件事：要解决的真问题 / 核心行为 / 一条明确的"不做什么"。三项有一项模糊就值得 brainstorm。
+仅当要解决的问题、关键行为或实质范围边界不清时才需要 brainstorm；不要求用户为了满足模板而补一条“不做什么”。
 
-但别强推——用户明确说"想清楚了直接做设计"就尊重。不确定时问一句让用户选。**宁可漏判，别误判**——逼一个想清楚的用户做发散是浪费。
+用户明确要求直接设计时直接进入；常规流程选择自主完成，不额外询问技能偏好。
 
 ### brainstorm vs intent
 
@@ -100,7 +100,7 @@ design / checklist / acceptance 或 requirement。
 - brainstorm：用户脑子里模糊，AI 问用户答。判 case 3 时移交 `cs-roadmap` 不回 feature；只有 case 2 产出 brainstorm note
 - intent：用户自己想好大致做法（100 字描述 + 相关数据结构），懒得口述就写成 `{slug}-intent.md` 给 AI 读
 
-用户模糊触发"开一个新需求"时默认问"你想先聊清楚（brainstorm）还是自己写草稿（intent）？"，别自己挑。
+用户要求自己写草稿时创建 intent；否则根据已知需求继续，仅询问影响功能边界的缺失信息。
 
 ---
 
@@ -110,7 +110,7 @@ design / checklist / acceptance 或 requirement。
 - issue：本来应该好的东西坏了（bug / 异常 / 文档错误）
 - goal：用户定义起点和验收终点，让 AI 自主迭代直到完成或阻塞；goal 可包住 feature / issue / refactor，但状态归 `.codestable/goals/`
 
-灰色地带：feature 实现时发现的 bug 记成新 issue，不在 feature PR 顺手修。
+灰色地带：区分功能必需的修复与无关 bug，前者保留依据，后者不擅自扩入当前工作。
 
 ---
 

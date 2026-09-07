@@ -1,13 +1,13 @@
 ---
 name: cs-guide
-description: 写或更新对外文档，包含开发者指南、用户指南和公开 API / 组件 / 命令参考。产物在项目 docs/ 目录。触发：用户说"写文档"、"开发者指南"、"用户指南"、"API 文档"、"组件文档"，或 feature-acceptance 收尾时推送。
+description: "编写或更新开发者、用户与 API 指南，保持与行为及已批准契约一致。"
 ---
 
 # cs-guide
 
 ## 启动必读
 
-开始任何判断或动作前，先读取 `.codestable/attention.md`；缺失则视为骨架不完整，提示先补齐或运行 `cs-onboard`，不要回退到外部 AI 入口文件。
+遵循项目入口和 `.codestable/attention.md` 中的约束；已加载且未变化的上下文直接复用。按当前任务读取相关记录和引用，缺少可选骨架不阻塞工作。
 
 代码解决问题，文档让别人能用它解决问题。spec 记录"做了什么、为什么这么做"，但下游开发者和终端用户不需要、也不应该读 spec——他们需要面向自己角色的、可发布文档。
 
@@ -23,7 +23,7 @@ description: 写或更新对外文档，包含开发者指南、用户指南和�
 
 **模式选择从读者任务出发**：要完成一个场景用 guide；要查一个公开表面用 api-reference。API reference 是本技能的模式，不是新的 CodeStable 实体。
 
-> `docs/dev/`、`docs/user/`、`docs/api/` 是默认约定，项目已有自己的 docs 结构就以项目为准——开始前先确认。
+> `docs/dev/`、`docs/user/`、`docs/api/` 是默认约定，项目已有自己的 docs 结构就以项目为准。
 
 ---
 
@@ -50,10 +50,7 @@ description: 写或更新对外文档，包含开发者指南、用户指南和�
 
 文件命名 `{slug}.md`（英文小写连字符，**无日期前缀**）——文档持续更新按主题或条目管理。
 
-如果文档 wording 会改变用户、开发者或后续 agent 对能力边界的理解，
-先在关联 feature / roadmap / issue unit 写 `approval-report.md`；没有现成 unit
-时用 `.codestable/brainstorms/{slug}/approval-report.md`。owner 批准前不要改
-`docs/**`。
+已授权的文档修改直接起草、落盘并核验。若发现尚未决定的产品能力或公共契约变化，先完成不依赖该决定的工作，在关联 unit 的阶段报告中说明具体选项与影响，请 owner 裁决；只有现有报告不足以承载审批上下文时才补 `approval-report.md`。措辞修正或同步已批准契约不增加审批。
 
 检索：
 
@@ -175,17 +172,17 @@ A: ...
 
 ## 工作流步骤
 
-1. **明确任务范围**——模式（dev / user / api / 组合）+ 覆盖范围（新写还是更新）+ 信息来源（方案 doc 已有吗？同 component / entry 已有文档？需要读哪些代码？）
-2. **收集输入**——读方案 doc（重点第 0 节术语、第 2 节接口契约、第 1 节用户可见行为）+ `search-yaml.py` 搜 docs/ 确认有无已有文档。API reference 同时搜新 `api-reference` 和旧 `lib-api-ref`。发现已有文档标 `outdated` → 任务定性为**更新**
-3. **api-reference 专项**——需要批量生成时先确认条目粒度，生成或更新 `docs/api/manifest.yaml`，样板 2-3 篇经用户确认后再批量。每个条目必须独立读源码，不能复制上一个改名
-4. **起草**——按对应模式结构起草，frontmatter `status: draft`。约束：只写面向目标读者的内容——**不要把方案 doc 里"实现提示"或内部设计搬过来**；术语与方案 doc 第 0 节一致；代码示例必须来自实际代码不虚构接口
-5. **用户 review**——展示草稿，逐节确认覆盖范围 / 描述准确性 / 是否有读者看不懂的地方；若会改变公共合同，先写 `approval-report.md` 并 owner-stop
-6. **落盘**——用户放行且无 pending approval 后：写入路径；`status: current` + `last_reviewed` 当天；更新已有文档时小修直接改，大改（结构重组 / 读者定位调整）先把旧文档 `status: outdated` 留作参考再新写一份
+1. **明确范围**——根据请求确定读者、覆盖范围和新建或更新模式。
+2. **收集输入**——定向查找同主题现有文档，读取相关契约、术语和代码；兼容旧 `lib-api-ref` 类型，已有文档优先更新，证据足够时停止搜索。
+3. **批量 API 参考**——维护 `docs/api/manifest.yaml`，按确定的粒度处理；只有读者定位或范围未定时才用样例对齐。每个条目须有对应源码依据，可批量读取共享来源，不复制改名。
+4. **起草**——按读者需要裁剪模板，只使用真实接口和示例；文档不能借机改变产品契约。
+5. **核验与落盘**——检查来源、示例和链接，直接写入授权目标并汇报。已核验且无未决审批时设 `status: current`、`last_reviewed` 为当天；用户只要草稿或确有未决契约时保留 `draft` 并说明缺口。
+6. **维护版本**——优先更新 canonical 文件；确需独立历史版本时标 `outdated` 及替代关系，避免同时存在两个有效版本。
 
 API reference 硬规则：
 
 - 以源码为事实源，不靠猜
-- 每个条目独立读源码，不复制改名
+- 每个条目有对应源码依据，不复制改名
 - 源码结构特殊（动态导出 / 代码生成）暂标 `skipped` 加 note
 - 不把 spec 信息（不变量 / 测试约束 / 根因分析）写进 API 文档
 
@@ -208,7 +205,7 @@ API reference 硬规则：
 
 - 把方案 doc 里"实现提示"原文搬进 dev-guide——那是内部 spec
 - 没检查已有 guide 就新建——可能两份冲突
-- 写完 `status` 还是 `draft`——落盘必须改 `current`
+- 未核验或待裁决文档误标 `current`；已完成且无未决事项的文档仍标 `draft`
 - 代码已更新相关 guide 还是 `current`——应标 `outdated` 并推送更新
 - dev-guide 和 user-guide 内容高度重叠——其中一份定位有误
 - 没读源码就写 API 参考——API reference 核心价值是准确反映源码

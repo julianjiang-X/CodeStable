@@ -1,13 +1,13 @@
 ---
 name: cs-roadmap
-description: 把"大到塞不进单个 feature"的需求做成完整事前规划：概设 + 接口契约 + 子 feature 拆解清单，放在 `.codestable/roadmap/{slug}/`。两种模式 new / update。触发：用户说"我想要一个 X 系统"、"帮我把这块需求拆一下"、"开一份 roadmap"，或 feature-design 阶段发现需求太大。
+description: "把跨多个功能的需求拆为路线图、模块与接口契约。"
 ---
 
 # cs-roadmap
 
 ## 启动必读
 
-开始任何判断或动作前，先读取 `.codestable/attention.md`；缺失则视为骨架不完整，提示先补齐或运行 `cs-onboard`，不要回退到外部 AI 入口文件。
+读取本任务尚未加载的 `.codestable/attention.md`，遵循项目约束；用户明确指令优先于技能指南。其他记录按需读取。缺少本阶段必要输入时说明具体缺口，不为无关工作重建骨架。
 
 `.codestable/roadmap/` 是项目的"规划层"——每个子目录承载一块大需求，主文档由三块构成：
 
@@ -51,7 +51,7 @@ description: 把"大到塞不进单个 feature"的需求做成完整事前规划
 
 ## 单目标规则
 
-每次只动一份 roadmap。一次扔出"我想要 X 和 Y"先选一个，另一个下次。理由同 req / arch——一次吐多份用户 review 不过来。
+独立目标分别记录，用户同时授权多个目标时按依赖在同一任务推进。
 
 ---
 

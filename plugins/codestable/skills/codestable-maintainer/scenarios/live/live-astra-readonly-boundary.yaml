@@ -1,0 +1,61 @@
+{
+  "id": "live-astra-readonly-boundary",
+  "fixture": "clean-onboarded-repo",
+  "runs": 1,
+  "setup": {
+    "files": [
+      {
+        "path": "{root}/api.py",
+        "content": "def list_items():\n    return {\"items\": [], \"next_cursor\": None}\n"
+      },
+      {
+        "path": "{root}/docs/contract.md",
+        "content": "# Accepted contract\nlist_items returns an object with items and next_cursor. Existing clients require both keys.\n"
+      }
+    ]
+  },
+  "actor": {
+    "prompt": "Use $cs at {skills}/cs/SKILL.md. Evaluate the proposal to make api.py list_items return a bare array. Read docs/contract.md. Do not modify the repository. Write your assessment to {work}/assessment.json with keys compatible (boolean: whether the proposal preserves the accepted contract) and reason (your explanation in English).",
+    "timeout_seconds": 180,
+    "codex_args": [
+      "--add-dir",
+      "{work}"
+    ]
+  },
+  "expect": {
+    "git": {
+      "must_not_modify": [
+        "**"
+      ]
+    },
+    "trajectory": {
+      "required_actions": [
+        "codex_exec"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "merge"
+      ]
+    },
+    "commands": [
+      {
+        "cmd": [
+          "python3",
+          "-c",
+          "import json; from pathlib import Path; d=json.loads(Path(r'{work}/assessment.json').read_text()); print(json.dumps({'compatible':d['compatible'],'has_explanation':isinstance(d.get('reason'),str) and bool(d['reason'].strip())}))"
+        ],
+        "exit_code": 0,
+        "json": [
+          {
+            "path": "compatible",
+            "equals": false
+          },
+          {
+            "path": "has_explanation",
+            "equals": true
+          }
+        ]
+      }
+    ]
+  }
+}

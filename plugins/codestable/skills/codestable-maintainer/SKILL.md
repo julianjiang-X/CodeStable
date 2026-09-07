@@ -1,6 +1,6 @@
 ---
 name: codestable-maintainer
-description: Maintain the CodeStable skill library and harness. Use when changing CodeStable source skills, shared references, onboarded tools, validator scripts, README skill lists, installed skill copies, when making pushed CodeStable changes available locally, or when planning CodeStable harness improvements. Enforces source-repo edits, remote push, fresh-clone verification, and main-only installed-copy sync.
+description: "Maintain CodeStable source skills, harness and releases; verify pushed branches and deploy real installed copies only from remote main."
 ---
 
 # CodeStable Maintainer

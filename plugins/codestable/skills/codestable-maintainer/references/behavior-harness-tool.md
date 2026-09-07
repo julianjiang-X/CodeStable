@@ -136,6 +136,14 @@ also flags entries that gained coverage so the list cannot go stale.
 python3 plugins/codestable/skills/codestable-maintainer/tools/check-scenario-coverage.py
 ```
 
+The two critical scenarios `review-authorization-before-code` and
+`subagent-permission-boundary` explicitly authorize only read-only preparation
+and exclude delegation. Their command probes execute the real unit completion
+gate and reviewer-protocol checker under distinct fixtures. Scripted passes
+prove those tool / structure contracts and scenario consistency, not that a
+model understands permission. Each includes `actor.prompt` for a separate live
+run of the actual authorization decision; only that run tests model behavior.
+
 Under `live-codex` the same `transcript` and `trajectory` blocks grade a real
 agent, which is what they are for. **Do not delete them as dead weight because
 they look inert in CI** — they are the behavioral specification that activates
@@ -181,10 +189,11 @@ The current critical suite covers:
   treating tests alone as enough;
 - completed implementation units require implementation review evidence before
   closeout;
-- review authorization is requested before code work when the current thread has
-  not already chosen the review path;
-- subagent review evidence cannot be forged before current-thread review
-  authorization;
+- preparation-only tasks with explicitly excluded delegation inspect the real
+  completion gate and stop for the missing review authorization; existing
+  authorization in other tasks is reused rather than requested again;
+- review evidence cannot be forged, and preparation-only tasks do not modify
+  code, commit, merge, or claim formal completion;
 - CodeStable maintainer work starts in the source repo, then commits, pushes,
   fresh-clone verifies, and syncs installed copies;
 - CodeStable entry checks can warn when installed skills lag latest source

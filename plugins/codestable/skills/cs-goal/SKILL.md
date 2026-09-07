@@ -1,6 +1,6 @@
 ---
 name: cs-goal
-description: 目标达成工作流——处理有明确起点/终点、验收结果或预算边界的自主迭代任务。触发：用户给出 desired outcome / acceptance result / budget，或说"帮我达成这个 goal"、"run until accepted"、"self-iterate"、"autonomous iteration"，或在有 bounded done signal 时要求"先 grill me 再开干"。产物写入 `.codestable/goals/`，包含目标起点报告、iteration 报告和完成前功能验收。
+description: "推进有明确起点、终点和验收结果的自主迭代任务，记录进展并完成功能验收。"
 ---
 
 # cs-goal

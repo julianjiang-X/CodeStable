@@ -1,4 +1,4 @@
 interface:
   display_name: "Using CodeStable"
-  short_description: "自动检测 onboard 仓库并路由到 CodeStable 流程"
-  default_prompt: "使用 $using-codestable 在编码任务开始时检测仓库并路由 CodeStable 流程。"
+  short_description: "按需应用项目 CodeStable 上下文并选择相关工作流"
+  default_prompt: "使用 $using-codestable 应用项目约束并按任务需要选择工作流。"

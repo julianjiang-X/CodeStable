@@ -1,13 +1,13 @@
 ---
 name: cs-arch
-description: 维护 `.codestable/architecture/` 这份只记现状的系统地图，三种模式 update / check / backfill。触发：用户说"刷新 architecture"、"做架构检查"、"补这个模块的架构文档"、"方案和代码对得上吗"，或 feature 阶段需要先做架构动作。不写未来规划（走 cs-roadmap）。
+description: "核验或更新项目架构记录，说明模块职责、边界与实现漂移。"
 ---
 
 # cs-arch
 
 ## 启动必读
 
-开始任何判断或动作前，先读取 `.codestable/attention.md`；缺失则视为骨架不完整，提示先补齐或运行 `cs-onboard`，不要回退到外部 AI 入口文件。
+读取本任务尚未加载的 `.codestable/attention.md`，遵循项目约束；用户明确指令优先于技能指南。其他记录按需读取。缺少本阶段必要输入时说明具体缺口，不为无关工作重建骨架。
 
 `.codestable/architecture/` 是项目"地图"——design 写方案前读它定位、issue-analyze 做根因时读它理解模块边界、新人读它知道系统大致长什么样。本技能是"起草 / 刷新 / 体检"三件事的统一入口。
 

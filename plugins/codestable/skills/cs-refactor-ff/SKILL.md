@@ -1,41 +1,17 @@
 ---
 name: cs-refactor-ff
-description: refactor 流程的超轻量通道——直接识别 1-3 条低风险优化、一次确认、原地改、跑测试自证。触发：用户说"快速重构"、"小重构"、"简单优化下 XX 函数"、"别那么多步骤"，且改动在单函数 / 单组件局部、有测试可自证。
+description: "完成范围明确的低风险结构优化，以相关验证确认行为保持。"
 ---
 
 # cs-refactor-ff
 
-## 启动必读
+读取本会话尚未读过的 `.codestable/attention.md`。只加载任务相关上下文，已读且未改变的资料不重复读取。共享路径、worktree、审查及提交约定见 `.codestable/reference/shared-conventions.md` 第 0、2.6、4 节。
 
-开始任何判断或动作前，先读取 `.codestable/attention.md`；缺失则视为骨架不完整，提示先补齐或运行 `cs-onboard`，不要回退到外部 AI 入口文件。
+任务状态或执行环境不明确时才运行 `codestable-doctor.py --root . --json`。
 
-用户说"优化一下这个函数"而改动明显很小（单函数变长、组件里抽个 composable、一段重复代码合并）时走完整三阶段太重。fastforward 让 AI 像平时一样直接改但守住底线——行为等价、引用经典方法、跑测试自证。
+## 适用范围
 
-很轻：没有 scan 清单、没有 design doc、没有 checklist，改完一句话汇报就行。
-
-> main 协调 / worktree 执行 / 批次后 code review 规则看 `.codestable/reference/shared-conventions.md` 第 2.6 节。ff 很轻，但改代码仍默认走独立 worktree；用户明确说直接改当前 checkout 时可以继续并在汇报里说明 override。
-
-动手前至少运行一次 doctor：
-
-```bash
-python3 .codestable/tools/codestable-doctor.py --root . --json
-```
-
-若当前对话还没有明确 subagent / delegation 授权，先按 shared-conventions 第 2.6 节的 review authorization judgment checkpoint 提供背景、术语、取舍、默认建议和非自动动作；用户授权 subagent 后继续，只有平台无 subagent 能力时 inline review 才能继续。
-
-如果本次会留下 `.codestable/refactors/YYYY-MM-DD-{slug}/` 记录，则改代码前对该 unit 运行 start gate；汇报前运行 commit gate。
-
----
-
-## 入场 3 条硬检查（不过就退完整流程）
-
-任一不过就退到 `cs-refactor`：
-
-1. **行为真的不变吗？** 用户描述夹带"顺便支持 X / 改成 Y"——这是行为改动不是 refactor，让用户拆出去走 feature / issue
-2. **范围真的小吗？** 超过 1 个文件 / 单文件超过 100 行改动 / 预计改动点超过 3 处——退完整流程
-3. **有测试能自证吗？** 目标代码有覆盖（单测 / 集成测 / 类型检查能抓到）——没测试就退完整流程，或先做一个 characterization test 再回来
-
-完整 scan 阶段是 7 条入场检查，这里压成最关键 3 条——剩下 4 条（跨模块 / 全口味 / 生成代码 / 扫不完）在"范围真的小吗"里已被隐含排除。
+目标是保持外部行为。新能力或 bug 修复使用对应流程；范围明确、等价证据容易取得时直接执行。少量跨文件移动或浏览器验证不自动升级；证据不足时先补相称刻画测试或观察。
 
 ### 第 4 条：风险核对（不过不退流程，加保障）
 
@@ -51,116 +27,44 @@ python3 .codestable/tools/codestable-doctor.py --root . --json
 
 行为等价不代表风险为零：**等价的是行为，不是失败代价。**
 
----
 
-## 用经典方法不发挥
+## 执行与验证
 
-fastforward 不读完整方法库，但要守住"**每一处改动都能对应到一个经典重构方法**"。AI 心里想不出"我这步是 Extract Function / Memoization / Guard Clauses / ..." 里的哪一个 → 这次不是简单重构退完整流程查方法库。
+简述方向后完成已授权工作，不重复求批；只读评估请求不授权修改。沿用模块职责，不混入无关优化。经典重构方法按需参考，不强制方法编号或完整方法库阅读。
 
-常用方法（覆盖 fastforward 80% 场景）：
+按实际风险选择测试、类型检查、引用核查或浏览器操作；通过后无新改动/失败/疑问不重复扩大测试。性能优化必须有适合实际负载的证据，不凭代码变短宣称提速。
 
-- **Extract Function**：> 5 行、内聚、能命名的片段 → 抽出独立函数
-- **Extract Variable**：复杂表达式 → 命名变量或 query
-- **Guard Clauses**：开头多层嵌套 if 检查 → 提前 return 拉平
-- **Decompose Conditional**：复杂 if 条件 → 命名为布尔函数
-- **Extract Composable / hook**：组件里封闭的状态 + 副作用 → 独立 composable / hook
-- **Memoization**：重复计算 → computed / useMemo
-- **Cancellation**：副作用缺 cleanup → 加 onUnmounted / useEffect return
+无正式 unit 的低风险工作可 fresh self-review。正式 unit 使用独立 subagent review；仅环境确无 subagent 能力时按共享规则使用 fresh self-review fallback 并记录环境原因。保留 `{slug}-implementation-review.md` 的目标、审查方式、验证证据和 findings，P0/P1 先修复并复核。不将 self-review 冒称独立审查。
 
-想做的动作不在这几种里、不是开箱即用的经典方法（涉及 Parallel Change / Strangler Fig / 分层纠偏）→ 退完整流程。
+简要报告变化、证据、实际审查方式和「风险事实 → 增加的保障」或 `风险核对：无命中`。
 
----
+## 文件与门禁
 
-## 流程
+默认不建 scan / design / checklist。用户要求留记录时写 `.codestable/refactors/YYYY-MM-DD-{slug}/{slug}-refactor-note.md`，正式 review 证据放同 unit 的 `{slug}-implementation-review.md`。存在正式 unit 时：
 
-### 1. 一次对齐
+按 shared-conventions 第 2.6 节使用执行 worktree，保留无关改动、共享计划面及既有 override 契约。改动前执行 start gate；完成证据写入后执行 commit gate：
 
-一句话回用户：**"我打算做 {方法名}，动 {具体文件/函数}，改动点 {N} 处，预计影响 {范围}，执行位置 {worktree/当前 checkout}。确认就开干。"**
-
-确认就下一步。用户说"还有个 X 要改"——评估 X 是否破坏入场 3 条，破坏了就退完整流程。
-
-### 2. 改
-
-按经典方法步骤改。不产出 design doc / checklist，代码直接落盘。
-
-### 3. 自证
-
-- 跑测试（单元 / 集成 / 类型检查 / lint）
-- grep 检查旧引用是否清理干净（做了 Extract / Inline 这类）
-- 改了前端状态逻辑跑类型检查 + 已有测试；**不做 UI 目视验证**——要 UI 目视就不该走 fastforward
-
-### 4. 一句话汇报
-
-```
-✓ 已完成。方法：{方法名}。改动：{文件路径:行号范围}。验证：{跑了什么测试 / 通过情况}。风险核对：{无命中 | 风险事实 → 增加的保障}。Review：{subagent reviewer，P0/P1 无阻塞；只有平台无 subagent 能力时才写 fresh self-review fallback；如有记录文件则列路径}。
+```bash
+python3 .codestable/tools/codestable-worktree-gate.py --root . --json start --unit .codestable/refactors/YYYY-MM-DD-{slug}
+python3 .codestable/tools/codestable-worktree-gate.py --root . --json commit --unit .codestable/refactors/YYYY-MM-DD-{slug}
 ```
 
-有偏离 / apply 过程中发现想再改点别的 → **停下问用户不发挥**。
-
-汇报前按 shared-conventions 第 2.6 节做独立 code review；如果本次有 refactor 记录目录，先生成 review packet：
+正式 review packet 需要时使用：
 
 ```bash
 python3 .codestable/tools/build-review-packet.py --root . --unit .codestable/refactors/YYYY-MM-DD-{slug} --stage quality --output /tmp/codestable-review.md --validation "{验证命令} -> {结果}"
 ```
 
-必须使用可用的 subagent reviewer。若当前对话还没有明确 subagent / delegation 授权，先按 shared-conventions 第 2.6 节的 review authorization judgment checkpoint 提供背景、术语、取舍、默认建议和非自动动作。只有平台确实没有 subagent 能力时才用 fresh self-review fallback 并写明。若用户要求为 ff 留记录，review 证据也写进同一 refactor 目录的 `{slug}-implementation-review.md`。没有记录目录的极小重构仍要给 reviewer `git diff --stat`、相关 diff 和验证结果。
+风险要求的 spec / verification 审查及 fresh command output 仍保留。不要等到 gate 才检查证据是否齐备。
 
-若本次创建了 refactor 记录目录，review 证据写完后运行：
-
-```bash
-python3 .codestable/tools/codestable-worktree-gate.py --root . --json commit --unit .codestable/refactors/YYYY-MM-DD-{slug}
-```
-
----
-
-## 文件产出
-
-默认**不建 `.codestable/refactors/` 目录**——fastforward 的价值就在不留存档。
-
-例外：用户明确"这次要留个记录" → 建 `.codestable/refactors/{YYYY-MM-DD}-{slug}/{slug}-refactor-note.md`，内容就是上面那句汇报 + 一段"做了什么 / 为什么"。不写 design / checklist。
-
----
+继续已有提交/推送授权，完成重构不自动授权合并。
 
 ## 什么时候跳出 fastforward
 
-改到一半出现以下任一，**停下告诉用户"比预期复杂，建议切回完整流程"**：
+范围或依赖无法在轻量工作中清楚界定，或等价验证需要迁移计划，是实际规模信号；以规模信号为准转 `cs-refactor`。保留已有证据与改动，不自动 restore 或提交。新增实质 owner 取舍才请求决定，其他计划可在原授权内补齐继续。
 
-- 改动点从 3 个涨到 5+
-- 发现要动的文件不止 1 个
-- 冒出一个不在常用方法清单里的动作
-- 发现没有测试能覆盖
-- 用户追加"顺便改一下 X"带入行为改动
-- 改完 AI 自证失败且不是简单修正能搞定
-
-切回：触发 `cs-refactor` 从 scan 开始。已改的部分要么提交保留、要么 `git restore` 回到干净状态再扫。
-
-**规模决定还要不要留在 ff，风险决定要不要加保障。** 上面六条是规模信号，命中就切回。
-
-改到一半才发现碰上入场第 4 条的风险类别时：**只命中风险、规模仍然合格**就不切回，按那一节加保障后继续；**同时还命中上面任一条规模信号**（比如为处理该风险要多改一个文件），以规模信号为准，切回完整流程。
-
----
-
-## 不做什么
-
-- **不写 scan / design / checklist** —— 写了就违背 fastforward 存在的理由
-- **不跨多文件改** —— 跨文件就不是"小重构"
-- **不做需要 HUMAN 目视的改动** —— 前端渲染 / 交互 / 性能感知要人看的走完整流程
-- **不碰公开接口** —— 改公开接口要走 Parallel Change，不是 fastforward 能做的
-
----
-
-## 容易踩的坑
-
-- **把"小"判断得太宽**：用户说"小重构"但实际动 3 个文件——AI 要老实说"这不算小"
-- **跳过入场 3 条检查就开干**：这个技能的意义就在这 3 条
-- **自证偷懒**：只跑类型检查不跑单元测试，或完全不 grep 旧引用
-- **改中发挥**：看到邻居代码也"顺手改改"——fastforward 范围在确认那一刻就锁死
-- **行为改动伪装成重构**：加新参数、改返回值格式——这是行为改动伪装不了
-
----
+只命中风险而规模可控时不切回，按风险段加保障；新行为不能伪装成重构。
 
 ## 相关
 
-- `cs-refactor/SKILL.md` — 完整 refactor 流程
-- `cs-refactor/reference/methods.md` + `methods-part*.md` — 完整方法库
-- `.codestable/reference/system-overview.md` — CodeStable 体系总览
+完整计划见 `cs-refactor/SKILL.md`，方法细节按需读其 `reference/methods.md`。

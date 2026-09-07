@@ -1,13 +1,13 @@
 ---
 name: cs-feat-ff
-description: feature 流程的超轻量通道——不写 design / checklist 直接动手，但先指引 AI 查 CodeStable 知识库再开工。触发：用户说"快速模式"、"fastforward"、"别那么多步骤"、"直接开干"，且需求小到不值得走 design 流程。
+description: "直接实现范围明确的小功能，按风险验证并记录结果；复杂契约转设计阶段。"
 ---
 
 # cs-feat-ff
 
 ## 启动必读
 
-开始任何判断或动作前，先读取 `.codestable/attention.md`；缺失则视为骨架不完整，提示先补齐或运行 `cs-onboard`，不要回退到外部 AI 入口文件。
+读取本会话尚未读过的 `.codestable/attention.md`。只加载任务相关上下文，已读且未改变的资料不重复读取。共享路径、worktree、审查及提交约定见 `.codestable/reference/shared-conventions.md` 第 0、2.6、4 节。
 
 用户让你做小功能时本来 AI 就会直接动手——这个技能**不改变这件事**。它只做一件事：动手前把项目里已沉淀的 CodeStable 知识指给你，按需搜一下，写出来的代码就比裸写多一层保护；动手后回写一份**最简的 `{slug}-ff-note.md`** 让这次工作可追溯、可被 cs-arch / cs-req backfill 看到、能纳入 scoped-commit 提交。
 
@@ -19,7 +19,7 @@ description: feature 流程的超轻量通道——不写 design / checklist 直
 
 ## 动手前先扫一眼 .codestable/
 
-Glob `.codestable/` 发现可用目录和文档，按需取用：
+只按当前疑问读取相关资料，已掌握的上下文不重复搜索：
 
 - **`architecture/`** — ARCHITECTURE.md 总入口 + 子系统 doc。改跨模块的东西前看一眼避免违反边界
 - **`compound/`** — learning / trick / decision / explore 四类沉淀：
@@ -43,13 +43,13 @@ Glob `.codestable/` 发现可用目录和文档，按需取用：
 3. **这次碰的东西有风险吗？** → 按下面"什么时候跳出 fastforward"的**风险升级**做一次静默核对；命中就照 `assurance.md` 加保障，不命中继续
 4. **这次是否需要独立 worktree？** → 默认按 shared-conventions 第 2.6 节走 worktree；需要执行分支时创建 / 使用 linked worktree，不在主协调检出里 `git switch/checkout`；用户明确说直接改当前 checkout 时可以继续，但汇报要写清楚
 
-动手前至少运行一次 doctor，确认没有已有 worktree / review / follow-up 阻塞：
+任务状态或执行环境不明确时运行 doctor，定位相关阻塞，不为每次微改重复全局检查：
 
 ```bash
 python3 .codestable/tools/codestable-doctor.py --root . --json
 ```
 
-若当前对话还没有明确 subagent / delegation 授权，先按 shared-conventions 第 2.6 节的 review authorization judgment checkpoint 提供背景、术语、取舍、默认建议和非自动动作；用户授权 subagent 后继续，只有平台无 subagent 能力时 inline review 才能继续。
+复用当前会话已有授权；审查按 shared-conventions 第 2.6 节执行，不为低风险工作新增委派审批。
 
 fastforward 通常动手后才生成 `{slug}-ff-note.md`，所以不提前造空 unit。写完 ff-note 和 review 证据后，对最终 unit 跑 commit gate：
 
@@ -57,7 +57,7 @@ fastforward 通常动手后才生成 `{slug}-ff-note.md`，所以不提前造空
 python3 .codestable/tools/codestable-worktree-gate.py --root . --json commit --unit .codestable/features/YYYY-MM-DD-{slug}
 ```
 
-命中就把结论融进实现（**按约束来写**，不是抄）。没命中按自己判断写很正常。搜不到换几个关键词再试。
+命中就把结论融进实现（**按约束来写**，不是抄）。没命中按自己判断写；只有疑问未解决才扩展关键词。
 
 ---
 
@@ -98,30 +98,19 @@ design / implement 的硬约束在 fastforward 的精简版。没 design doc 不
 
 只改要改的函数。同文件里别的函数丑 / 命名怪——**除非和这次冲突，否则别碰**。新代码风格匹配当前文件已有写法。看到值得改的别处 → "顺手发现：{文件:行号} {问题}，不在本次范围"让用户决定。
 
-### 新逻辑默认放新文件
+### 逻辑归属
 
-会被其他地方引用 → 新文件；只一处用的小工具函数 → 就近放。
+按现有模块职责放逻辑，是否新建文件由内聚性和调用关系决定。
 
-### 不打补丁分支
+### 实现判断
 
-冒出 `if (特殊情况) { 特殊处理 }` → **停**。这种分支基本只因为思路没覆盖到这种情况，硬写下去得到的是"为让代码能跑而加的特殊逻辑"。要么改数据结构让它不需要特殊处理，要么明确承认是边界情况并注释说明为什么特殊。
-
-### 反射信号触发就停
-
-- 往 > 300 行文件追加 / 往 > 10 个方法的类加方法
-- 函数做的事越来越多超过一屏
-- 写第二段"跟上面那段基本一样改了两个变量"的代码
-- 函数参数加到第 4 个
-- 往 `utils.ts` / `helpers.ts` 万能 util 堆东西
-- 新起概念名时先 grep 同名 / 近义命名
-
-完整清单看 `.codestable/reference/shared-conventions.md` 第 7 节。
+正常错误路径和边界分支直接实现，实质行为取舍才请求 owner。必要内部命名、拆分和去重按职责与风险判断，不因文件行数、参数数量或条件分支自动中断。验证按风险选择；通过后无新改动、失败或疑问不重复扩大测试。
 
 ---
 
 ## 写完回写 `{slug}-ff-note.md`
 
-代码写完、验证完、按 shared-conventions 第 2.6 节生成 review packet 并做完独立 code review、用户确认效果 OK **之后**才动这一步——动手前先建空壳会破坏 ff 的轻体感。
+实现和相称验证后写简短记录，不等待重复效果确认。正式 unit 使用独立 subagent review，环境确无能力时按共享规则 fallback 并记录原因。本技能生成 ff-note，即进入正式 unit；普通无 unit 微改可直接处理，不进入本技能。风险要求的加审仍保留。需要 packet 时使用：
 
 ```bash
 python3 .codestable/tools/build-review-packet.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --stage quality --output /tmp/codestable-review.md --validation "{验证命令} -> {结果}"
@@ -156,7 +145,7 @@ tags: [...]
 - ...
 
 ## 怎么验证的
-{1-2 句：跑了哪些验证 / 浏览器走通了哪条路径 / 跑了什么测试；风险核对命中时必须写「风险事实 → 增加的保障」，无命中写"风险核对：无命中"；独立 code review 必须是 subagent reviewer，只有平台没有 subagent 能力时才写明 fresh self-review fallback；P0/P1 是否无阻塞}
+{1-2 句：跑了哪些验证 / 浏览器走通了哪条路径 / 跑了什么测试；风险核对命中时必须写「风险事实 → 增加的保障」，无命中写"风险核对：无命中"；实际审查方式及结论；P0/P1 是否无阻塞，self-review 不伪称独立审查}
 
 ## 顺手发现（可选，不阻塞）
 - {文件:行号} {问题简述} — 不在本次范围
@@ -172,7 +161,7 @@ tags: [...]
 
 - **不写 design doc / checklist / acceptance**——这就是 fastforward 的意义。要写就去 `cs-feat-design`
 - **不跟用户确认方案**——用户让你做小功能就是不想等你开会
-- **不在 `.codestable/` 里留 `{slug}-ff-note.md` 之外的新文件**——除非发现值得沉淀的坑 / 技巧，另起对话用 `cs-learn` / `cs-trick` 写
+- 只保留简短 ff-note 和正式 unit 门禁需要的 review 证据，不生成无关文档。
 
 ---
 
@@ -182,10 +171,10 @@ tags: [...]
 
 ### 规模跳出 → 切回完整流程
 
-干到一半发现下面任一情况，**停下来告诉用户"这比想象的复杂，建议切回完整流程"**：
+以下范围变化需要更完整计划；在已有授权内转 `cs-feat-design` 继续，新增实质选择才请求 owner：
 
 - 改动涉及 3 个以上子系统
-- 需要引入新术语或和现有术语冲突
+- 需要改变既有领域概念或有未决术语冲突
 - 要动 `.codestable/architecture/` 既定的模块边界
 - 用户追加的要求让范围翻倍
 
@@ -220,7 +209,7 @@ tags: [...]
 
 ## 退出条件
 
-- [ ] 代码写完且用户确认效果 OK
+- [ ] 代码写完，期望行为有相称证据
 - [ ] 批次完成后已用 subagent 做独立 code review（仅平台无 subagent 能力时可 fallback）；P0 / P1 已处理或明确无
 - [ ] 风险核对已做：命中则 ff-note 里有「风险事实 → 增加的保障」且该行保障全部落实，无命中则汇报里有 `风险核对：无命中`
 - [ ] `{slug}-ff-note.md` 已落盘且四节填齐（顺手发现可省）
@@ -233,19 +222,15 @@ tags: [...]
 按 `.codestable/reference/shared-conventions.md` 第 4 节"scoped-commit"规则执行。本通道：
 
 - **提交范围**：本次代码改动 + `{slug}-ff-note.md`
-- ff-note 落盘后告诉用户"已就绪，是否代为 commit？"，用户明确同意才执行
+- 沿用本会话提交/推送授权；没有相关授权时，结果就绪后再请求。
 
-按 `shared-conventions.md` 第 3 节"feature-ff"收尾推荐顺序逐项一句话提示（用户"不用"立即跳过）：
-
-1. 暴露的坑 → "沉淀 learning？（`cs-learn`）"
-2. 拍板的长期约束 → "归档决定？（`cs-decide`）"
-3. 最后问是否代为 scoped-commit
+仅提出有具体复用价值的沉淀建议，不固定逐项询问收尾清单。
 
 ---
 
 ## 容易踩的坑
 
-- 完全跳过知识检索就写——这个技能的唯一理由就是让你搜一下再写
+- 存在已知约束疑问却未经核实就改；不为无疑问的微改强制搜索
 - 把搜到的 learning / decision 当"参考"而不是"约束"——decision 拍过板，违反要么重新 decision 要么别做
 - 开始写 design doc——fastforward 就是不写 design
 - 发现任务变复杂还硬在 fastforward 推——切回成本远低于带着错误方案改到底

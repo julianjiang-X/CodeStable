@@ -6,10 +6,16 @@ human approval reports.
 
 ## Core Rule
 
-Before asking the owner to choose, approve, authorize, accept risk, sign off,
-merge, deploy, override a gate, or answer an interview / grill checkpoint that
-changes route, scope, or next work, write a human-readable approval report in
-the relevant `.codestable` unit.
+Use existing user authorization throughout the task. Routine implementation,
+verification, workflow selection, and reversible edits within scope do not need
+fresh approval. Ask only when a material product / scope decision is unresolved,
+an action needs authorization not already given, or an enforced gate genuinely
+requires an owner decision. Complete independent preparation first so the owner
+can review a concrete choice.
+
+For such decisions, use the existing canonical stage report or write a concise
+human-readable approval report in the relevant `.codestable` unit. A simple
+missing fact can be asked directly; it does not require a new unit or report.
 
 Routine grill pressure-test rounds use `grill-context` docs instead. A
 `grill-context` preserves owner discussion for human review, but it is not an
@@ -48,22 +54,22 @@ Use the closest durable workflow directory:
 - brainstorm / interview: `.codestable/brainstorms/{slug}/approval-report.md`
 - root route choice with no existing unit:
   `.codestable/brainstorms/{slug}/approval-report.md`
-- unknown route: create or choose the unit first; if impossible, stop and ask
-  only for the missing unit identity.
+- unknown route: choose the closest applicable unit; do not ask the owner to
+  resolve a routine directory or workflow choice.
 
 ## Triggers
 
-Write `approval-report.md` for:
+Use a report when the owner must decide:
 
-- interview / grill checkpoints whose answer approves, rejects, or changes
-  route, scope, risk, or next work;
-- route choice between plausible workflows or canonical specs;
-- review authorization, implementation subagent authorization, or inline-review fallback;
-- external docs wording that changes public capability boundaries;
-- worktree override, gate override, destructive action, secrets, external purchase,
-  merge, deploy, or risk acceptance;
-- blocker / owner-stop decisions;
-- choosing what to fix, defer, drop, migrate, or rehabilitate.
+- unresolved product contracts, material scope changes, or incompatible canonical specs;
+- destructive / irreversible actions, purchases, merge, deploy, or external effects
+  outside existing authorization;
+- a required gate override, accepted risk, or a blocker requiring owner action.
+
+An interview / grill answer needs an approval report only when it makes one of
+these decisions. Review, implementation delegation, route selection, and routine
+fixes within authorized scope do not create approval checkpoints by themselves.
+Respect platform delegation permissions; never invent permission from this file.
 
 ## Template
 
@@ -99,8 +105,9 @@ created_at: YYYY-MM-DD
 
 Omit `Decision History` for the first approval in a unit. `Options` should be
 concrete and mutually exclusive. Mark the recommended option explicitly.
-`Non-Automatic Actions` must say what will not happen automatically, such as
-commit, merge, deploy, rewrite long-lived specs, or accept risk.
+`Non-Automatic Actions` identifies actions still outside current authorization.
+Do not list already-authorized work as awaiting another permission. Keep required
+headings for tool compatibility; write only the context needed to decide.
 
 ## After Approval
 

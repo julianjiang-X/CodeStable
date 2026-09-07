@@ -1,13 +1,13 @@
 ---
 name: cs-feat-accept
-description: feature 流程阶段 3——验收闭环：对照 design 核实现 + 归并 architecture / requirement delta / roadmap 状态，最后产出 {slug}-acceptance.md。触发：用户说"功能写完了验收一下"、"做最后检查"、"准备 merge"、"出验收报告"。前置依赖 cs-feat-impl 完成。
+description: "对照批准设计验收功能，记录行为证据、差距与收尾状态。"
 ---
 
 # cs-feat-accept
 
 ## 启动必读
 
-开始任何判断或动作前，先读取 `.codestable/attention.md`；缺失则视为骨架不完整，提示先补齐或运行 `cs-onboard`，不要回退到外部 AI 入口文件。
+读取本会话尚未读过的 `.codestable/attention.md`。只加载任务相关上下文，已读且未改变的资料不重复读取。共享路径、worktree、审查及提交约定见 `.codestable/reference/shared-conventions.md` 第 0、2.6、4 节。
 
 代码已经写完，但流程没结束。本阶段做四件事，缺一不可：
 
@@ -60,8 +60,8 @@ governance：
 
 1. **代码确实实现到位**——git status / 最近提交看到本功能改动，否则退回 implement
 2. **方案 doc 完整**——frontmatter `doc_type=feature-design` / `feature` 一致 / `status=approved` / `summary` 非空 / `tags` ≥ 2；标准 design 第 0/1/2/3 节 + 第 4 节已填写
-3. **`{slug}-checklist.yaml`**——存在且 `feature` 一致；`steps` 全 `done`（有 `pending` 退回 implement）；`checks` 非空全 `pending`
-4. **上下文读全**——方案 doc 全文（重点：第 1 节明确不做、2.1 接口示例、2.2 流程级约束、2.3 挂载点、第 3 节场景）+ checklist + 第 4 节提到的所有架构 doc + 本次代码改动（git log / diff）+ feature 目录下已有 `*-req-delta.md` / clarifications / analyze findings
+3. **`{slug}-checklist.yaml`**——存在且 `feature` 一致；`steps` 全 `done`（有 `pending` 退回 implement）；`checks` 非空；恢复任务保留已有有效状态
+4. **按需读取上下文**——方案验收相关部分（重点：第 1 节明确不做、2.1 接口示例、2.2 流程级约束、2.3 挂载点、第 3 节场景）+ checklist + 第 4 节提到的所有架构 doc + 本次代码改动（git log / diff）+ feature 目录下已有 `*-req-delta.md` / clarifications / analyze findings
 5. **断点恢复**——`{slug}-acceptance.md` 已存在且部分填好 → 从下一个未完成节继续，跳过 checks 中已 `passed` 的项；汇报"上次做到第 X 节，从第 Y 节继续"
 
 **Fastforward design 验收报告映射表**：
@@ -85,7 +85,7 @@ governance：
 `codestable-doctor.py` / `codestable-backlog.py` 会把这种 summary-only 文档标为
 blocking `bilingual-report-policy` backlog。
 
-逐节填写**别跳节**。报告路径在 feature 目录下（位置看 `shared-conventions.md` 第 0 节）。
+保留可追溯验收维度，无关项写不适用，重复证据可合并呈现。报告路径在 feature 目录下（位置看 `shared-conventions.md` 第 0 节）。
 
 ```markdown
 # {功能名称} 验收报告
@@ -107,7 +107,7 @@ blocking `bilingual-report-policy` backlog。
 **流程图核对**（第 2.2 节开头 mermaid 图）：
 - [ ] 图中节点 / 调用关系在代码均有实际落点（grep 确认）
 
-发现偏差**先修代码或回填方案 doc**。报告里写"已知偏差暂不处理"是反模式——下次按方案找代码会被绊倒。
+偏差先修范围内实现；仅为记录已批准变更回填方案，不能用回填替代行为变更审批。报告里写"已知偏差暂不处理"是反模式——下次按方案找代码会被绊倒。
 
 ## 2. 行为与决策核对
 
@@ -153,7 +153,7 @@ Fastforward 方案没有挂载点清单 → 现场 grep 盘点本次改动命中
 - 术语 X：代码命中 N 处全部一致 ✓
 - 防冲突：禁用词 grep 无命中 ✓
 
-发现不一致 → 改代码，别在报告里写"已知差异"。
+领域概念不一致时修正；内部变量无需逐项进入术语表。
 
 ## 5. 架构归并
 
@@ -227,9 +227,9 @@ requirements 的机会。
 
 ## 核对节奏
 
-逐节做。每节完成后**逐条更新 `{slug}-checklist.yaml` 的 `checks`**：通过 → `passed`，失败 → `failed`（先修代码 / 方案再改回 `passed`）。所有 checks 全 `passed` 后报告才算完成。
+按契约核对，复用当前候选已有有效证据，仅有新改动、失败或疑问才重跑验证。同步更新 `{slug}-checklist.yaml` 的 `checks`**：通过 → `passed`，失败 → `failed`（先修代码 / 方案再改回 `passed`）。所有 checks 全 `passed` 后报告才算完成。
 
-第 1/2 节最容易暴露偏离，先做。第 2 节挂载点反向核对**必须实际 grep + 沙盘推演**，不能凭印象勾选。第 5/6/7 节是写文件的动作，不是自评。
+第 1/2 节最容易暴露偏离，先做。存在挂载点或卸载契约时定向核查引用与残留，不能凭印象勾选。第 5/6/7 节是写文件的动作，不是自评。
 
 ---
 
@@ -244,7 +244,7 @@ requirements 的机会。
 - [ ] 第 7 节 roadmap 回写有结论：跳过（非 roadmap 起头）/ 已更新（items.yaml + 主文档同步，yaml 通过校验）
 - [ ] checklist 所有 checks 都 `passed`
 - [ ] 如果 attention 要求 English first / Chinese second，则 `{slug}-acceptance.md` 是完整英文报告后接完整中文报告，不是中文摘要
-- [ ] 用户终审确认
+- [ ] 用户明确设置终审 checkpoint 或仍有待 owner 决定时请求终审
 
 ---
 
@@ -252,14 +252,7 @@ requirements 的机会。
 
 告诉用户："验收报告已就绪，架构文档已归并，cs-feat 工作流走完。后续 BUG 走 issue 流程。"
 
-按 `shared-conventions.md` 第 3 节收尾推荐顺序逐项一句话提示（用户说"不用"立刻跳过）：
-
-1. 复用价值的坑点 / 经验 → "需要沉淀 learning 吗？（`cs-learn`）"
-2. 长期约束 / 技术选型 → "需要归档决定吗？（`cs-decide`）"
-   - **特检**：design 第 2.5 节是否有"建议沉淀的 convention"段。有就把那条规则原文念给用户："design 2.5 建议沉淀这条 convention：『{规则一句话}』，跑通了，要不要现在 `cs-decide` 归档？"——这种是 design 阶段就识别出的稳定模式，比一般"问问看"更应该主动提
-3. 接口变更 / 用户可见行为变更 / 公开 API 变更 → "需要更新对外文档吗？（`cs-guide`：dev-guide / user-guide / api-reference）"
-4. 第 8 节有 attention.md 候选 → 逐条问"候选 X 加到 attention.md 吗？" 用户明确同意 → 触发 `cs-note` 走分节归类 / 查重 / 软上限检查（不在 accept 里手写，避免和 cs-note 各搞一套口径）；**一次一条**
-5. 最后问是否代为 scoped-commit
+仅在确有长期价值时建议 learning / decision / attention 沉淀，不固定逐项提问。已授权的必要文档更新继续完成，提交/推送沿用已有授权，验收不自动授权合并或发布。
 
 收尾提交规则看 `shared-conventions.md` 第 4 节。提交范围：功能代码 + 方案 doc + 验收报告 + 本次实际更新的架构 doc / req doc / roadmap items.yaml + 主文档。
 
@@ -276,5 +269,5 @@ requirements 的机会。
 - 架构 doc 需要更新而只写"建议以后更新"——归并是当下动作不是建议
 - 第 7 节只改 items.yaml 没同步主文档，两份不一致
 - frontmatter 有 `roadmap` 却在第 7 节写"跳过"——有值就必须回写
-- 报告写完没让用户终审就宣告完成
+- 仍有未验证契约或待 owner 决定却宣告完成
 - 用户没明确同意就 `git commit`

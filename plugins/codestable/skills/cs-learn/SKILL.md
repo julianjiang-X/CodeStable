@@ -1,13 +1,13 @@
 ---
 name: cs-learn
-description: 把踩过的坑或好做法沉淀成可检索的 learning 文档，两条轨道 pitfall（坑）/ knowledge（默认做法）。触发：用户说"沉淀知识"、"learning"、"把这次经验记下来"，或 acceptance / fix 收尾时推送。
+description: "将已验证的踩坑经验整理为可检索记录，用于复盘或明确要求沉淀。"
 ---
 
 # cs-learn
 
 ## 启动必读
 
-开始任何判断或动作前，先读取 `.codestable/attention.md`；缺失则视为骨架不完整，提示先补齐或运行 `cs-onboard`，不要回退到外部 AI 入口文件。
+读取本任务尚未加载的 `.codestable/attention.md`，遵循项目约束；用户明确指令优先于技能指南。其他记录按需读取。缺少本阶段必要输入时说明具体缺口，不为无关工作重建骨架。
 
 每次做 feature 或修 issue 都会留下 spec 文件。但 spec 记录的是"做了什么"和"怎么做的"，**不会记录"踩了什么坑"和"发现了什么更好的做法"**。没有沉淀的团队总在重复解决同一个问题。
 

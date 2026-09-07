@@ -6,34 +6,24 @@ worktree, review, finish, and handoff rules.
 
 ## Main Coordination And Worktree Execution
 
-CodeStable separates discussion / planning from code edits:
+Use the lightest execution path that preserves the task's actual constraints.
+Self-contained work without a formal unit needs appropriate validation, not an
+invented worktree / approval / review package.
 
-- **Main coordination checkout**: where the owner discusses requirements and
-  writes design / analysis / roadmap / checklist, usually the `main` checkout.
-- **Execution worktree**: where code changes happen. Each feature / issue /
-  refactor uses its own git worktree and `codex/...` branch unless the owner
-  explicitly approves direct edits in the current checkout.
+For a formal feature / issue / refactor unit, keep its code isolated in an
+execution worktree and `codex/...` branch. The coordination checkout carries
+shared plans. An existing authorized execution checkout can be reused; create a
+worktree autonomously when isolation is needed. Follow an owner's explicit
+checkout choice and record any required worktree-gate override honestly.
 
-Goal work may use `.codestable/goals/YYYY-MM-DD-{slug}` as the wrapper unit, but
-code edits still obey the feature / issue / refactor worktree rules when those
-flows apply.
-
-## Short Correct Usage
-
-1. Start: `cs {goal}`. The agent routes to feature / issue / refactor / explore
-   / goal.
-2. Implement: `开 worktree 实现`. The agent starts in an execution worktree and
-   runs the start gate.
-3. Review: `允许 subagent`. Completed code batches require independent review.
-4. Commit: `提交这批实现`. Run validation, commit planner, and commit gate.
-5. Finish: `finish worktree`. Run finish gate and record merge readiness.
-6. Solidify finish artifacts: commit the generated finish report files.
-7. Merge: only after explicit owner approval.
+Goal work follows the child feature / issue / refactor contracts when such units
+exist. Read only the sections below relevant to the current operation.
 
 ## Shared Planning Surface
 
-Worktrees must not read sibling unmerged code diffs. Shared intent travels
-through:
+Use this worktree and synchronized plans as the execution baseline. Read sibling
+unmerged code only when the user requests comparison or explicit stacked work;
+do not treat it as approved or integrated. Shared intent travels through:
 
 - `.codestable/goals/**`
 - `.codestable/features/**`, `.codestable/issues/**`, `.codestable/refactors/**`
@@ -41,9 +31,9 @@ through:
 - `.codestable/compound/**`
 - owner-designated temporary coordination docs
 
-If an execution worktree discovers the plan must change, sync the plan change
-back through the shared planning surface or stop for owner judgment with an
-`approval-report.md` when no stage report already carries the decision context.
+Record derived plan changes within authorized scope on the shared planning
+surface. Ask for owner judgment only for unresolved product / scope / risk
+decisions; use the existing stage report or `approval-report.md`.
 
 ## Before Creating An Execution Worktree
 
@@ -67,32 +57,27 @@ reason in the goal iteration and follow the lightest applicable execution path.
 
 ## Worktree Rules
 
-- Read only the shared planning surface and this worktree's code.
-- Read sibling intent only after it is synchronized into shared docs.
-- Stop for owner judgment when plan conflicts appear.
+- Execute against this worktree and synchronized shared plans.
+- Escalate material product / scope conflicts; resolve routine implementation choices.
 - Treat missing env / secrets as environment blockers, not code failures.
 
 ## Independent Code Review
 
-Every execution worktree must trigger independent review before reporting a
-completed implementation batch. Review is a completion gate, not a commit-time
-afterthought.
+Review effort follows risk. Self-contained work outside a formal execution unit
+can use inline review and the smallest authoritative validation. Do not create a
+subagent merely to review a trivial batch or repeat an already-sufficient check.
 
-If the current conversation has no subagent / delegation authorization, ask with
-owner judgment context before implementation review. When this is not already
-captured in a stage report, write `{unit}/approval-report.md` first:
+Formal execution units still require an independent implementation review before
+completion: the current worktree / finish tools validate that artifact. Group a
+coherent implementation candidate for review rather than dispatching on every
+small edit. Additional spec, security, or verification reviews follow the actual
+risk requirements in `assurance.md`; a fast lane does not remove those safeguards.
 
-```text
-Context: CodeStable requires independent implementation review before completion.
-Term: Subagent Review = a separate reviewer agent performs read-only review.
-Why it matters: P0/P1 issues may otherwise surface after completion.
-Options:
-1. Subagent Review (recommended) - dispatch a reviewer before completion.
-2. Inline Review - valid only if this platform has no subagent support.
-Default: Subagent Review.
-Non-automatic: This does not commit, merge, push, or accept findings.
-Question: Which review authorization should CodeStable use?
-```
+Use delegation only when available and permitted by the current environment and
+user instructions. Reuse existing authorization; do not create a separate
+approval checkpoint for a review that is already authorized. If permission is
+actually missing and formal closure depends on it, prepare the candidate and
+review packet before asking, identifying the specific gate requirement.
 
 Generate the smallest useful review packet:
 
@@ -101,11 +86,6 @@ python3 .codestable/tools/build-review-packet.py --root . --unit .codestable/fea
 ```
 
 Do not include `.env`, tokens, secrets, or local credentials.
-
-Implementation review is the floor and always runs. Whether to add further
-review stages (spec, security, verification) is decided by actual risk, not by
-task shape — see `.codestable/reference/assurance.md`. Line count, file count,
-and task kind are not risk proxies.
 
 Review results land in `{slug}-implementation-review.md` with
 `reviewer: subagent`. Use `reviewer: self` only when the platform truly lacks
@@ -157,54 +137,24 @@ follow-up or replacement by the lineage rules below.
 
 ### Reviewer Health
 
-Bind the reviewer to its run and record the run identity. The run is **healthy**
-when the target is still valid, capability still fits, and the reviewer is
-`running` — or is `Awaiting` with a queryable run identity that still resolves
-as active.
-
-- While healthy, wait for the terminal report. Do not cancel, re-create, or
-  dispatch a parallel reviewer just because a better dispatch method appeared.
-- The round **fails without consuming budget** only when the run clearly failed
-  or terminated with no report, is idle / `Awaiting` with no recoverable run
-  identity, capability no longer fits, or the target became invalid.
-- On failure, check the review packet and agent state first, then choose one
-  bounded retry, a different dispatch method, or owner escalation. Do not blindly
-  re-dispatch.
+Keep a healthy reviewer running and retain its run identity. Do not replace an
+active reviewer just to change dispatch methods. On a failed run with no report,
+check agent / packet state and make one bounded retry or escalate. Failed runs
+without reports do not consume the three-round review budget.
 
 ### Reviewer Is A Leaf
 
-The reviewer is a leaf executor:
-
-- it must not create, delegate to, or wake any sub-agent;
-- it must not re-dispatch review to another flow;
-- every invocation must return a terminal result. When context is insufficient
-  it returns `NeedsContext` with the missing items and the scope already
-  checked — never `idle`, `Awaiting`, or no result;
-- blocking findings unresolved means it must not report "pass".
-
-Fixing is the main thread's job, not the reviewer's.
+The reviewer must not create, delegate to, or wake any sub-agent. It returns a
+terminal report with findings or `NeedsContext` identifying missing evidence and
+scope already checked. The main thread owns fixes; unresolved blocking findings
+cannot be reported as a pass.
 
 ### When The Reviewer Returns No Report
 
-Reviewers ending on `Idle.` or a bare "report delivered" line while the analysis
-itself completed is a **common** failure, not a theoretical one. Restating the
-rule above in the dispatch prompt does not reliably prevent it. So the caller
-recovers rather than re-runs:
-
-1. **Read the agent's transcript before concluding anything.** The report is
-   usually present in an earlier assistant message; the final message is what
-   got lost. Extract the longest assistant text block from the run's `.jsonl`
-   and check whether it is a complete report.
-2. **A recovered report is a valid terminal report.** Consume it, and do not
-   spend a round re-dispatching for something already produced.
-3. Only when the transcript truly holds no report does the round count as
-   failed-without-report — then apply the reviewer-health rules above (one
-   bounded retry, a different dispatch method, or owner escalation).
-4. Never substitute your own judgment for the missing report and never report
-   review results the reviewer did not produce.
-
-Token cost is the reason this matters: a completed analysis re-run from scratch
-costs a full review for output that already exists.
+If the final message lacks a report, inspect the accessible transcript once.
+A complete recovered report is a valid terminal report. Never invent findings or
+rerun completed analysis solely because the final message is empty. When no
+report is recoverable, use the bounded recovery in Reviewer Health.
 
 ## Context Packets
 
@@ -214,7 +164,7 @@ For multi-stage handoff:
 python3 .codestable/tools/build-context-packet.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --audience handoff --output /tmp/codestable-handoff.md --decided "{已决定}" --remaining "{下一步}"
 ```
 
-For human-facing reports:
+For human-facing handoffs that need a generated context packet:
 
 ```bash
 python3 .codestable/tools/build-context-packet.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --audience human-reviewer --language {en-or-zh} --output /tmp/codestable-human-review.md --decided "{decided}" --remaining "{next step}" --evidence "{verification evidence}"
@@ -225,7 +175,7 @@ language. If the project's report language policy is not covered by the tool's
 `--language` choices, write or adapt the human-facing report in the project
 language instead of passing the raw attention prose as a CLI value.
 
-Run sufficiency gate before sending:
+When using a generated handoff packet, run its sufficiency gate before sending:
 
 ```bash
 python3 .codestable/tools/check-context-sufficiency.py --file /tmp/codestable-human-review.md --strict --json
@@ -233,7 +183,7 @@ python3 .codestable/tools/check-context-sufficiency.py --file /tmp/codestable-hu
 
 ## Finish And Commit Gates
 
-Before finish / merge:
+For a formal unit, before finish / merge:
 
 ```bash
 python3 .codestable/tools/codestable-finish-worktree.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --json --validation "{验证命令} -> {结果}"
@@ -243,7 +193,7 @@ Finish gate writes learning, context-check, merge-readiness, and inbox records.
 If a branch changes after the finish report, state becomes `stale-report` and
 finish must rerun.
 
-Commit finish artifacts as a small final commit when the gate passes:
+Within existing commit authorization, commit finish artifacts when the gate passes:
 
 ```bash
 git add .codestable/features/YYYY-MM-DD-{slug}/{slug}-learning-report.md \
@@ -252,7 +202,7 @@ git add .codestable/features/YYYY-MM-DD-{slug}/{slug}-learning-report.md \
 git commit -m "docs: add {slug} finish report"
 ```
 
-Before commit or final report:
+For a formal execution unit, before commit or completion report:
 
 ```bash
 python3 .codestable/tools/codestable-worktree-gate.py --root . --json commit --unit .codestable/features/YYYY-MM-DD-{slug}
@@ -274,8 +224,8 @@ python3 .codestable/tools/codestable-worktree-inbox.py --root . --snooze codex_s
 
 ## Subagent Implementation Choice
 
-Review requires subagents when available. Implementation subagents are optional
-and should be proposed when work crosses more than three subsystems, needs
-parallel slices, touches high-risk migration / concurrency / runtime contracts,
-or exceeds single-thread context. The main thread keeps integration,
-verification, and final review ownership.
+Delegate only a concrete, bounded task that can proceed independently while the
+main thread does useful work, and only when delegation is authorized. Independent
+review of a risky candidate or parallel investigation of distinct uncertainties
+can help; task size or subsystem count alone does not justify agents. Keep
+integration, verification, and final reporting with the main thread.

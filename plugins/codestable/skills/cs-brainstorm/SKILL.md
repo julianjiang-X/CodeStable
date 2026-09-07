@@ -1,6 +1,6 @@
 ---
 name: cs-brainstorm
-description: 想法还模糊时的讨论入口，做分诊后路由到 feature-design / feature-brainstorm / roadmap。AI 是思考伙伴不是记录员。触发：用户说"有个想法还没想清楚"、"先 brainstorm 一下"、"聊一聊这块"、"方向还在摇摆"，或在无 bounded goal 时说 "interview me" / "grill me"。不处理 bug 和重构。
+description: "讨论尚未明确的产品或技术方向并比较方案，支持显式 interview 或 grill。"
 ---
 
 # cs-brainstorm
@@ -41,7 +41,7 @@ owner。case 2 用 feature 目录；case 4 和无既有 unit 的路由选择用
 
 ### 开聊前检查
 
-每次都做：
+首次需要分诊时检查，复用已有上下文：
 
 1. **扫一眼仓库**——先读 `.codestable/attention.md`；如果用户提到 `interview me` / `grill me` / "采访我" / "拷问我"，读 `.codestable/reference/interaction-modes.md`（如果有）；Glob `.codestable/` 发现 architecture / features / roadmap / brainstorms / compound / requirements，读架构总入口、看已有 feature 和 roadmap 和 brainstorm、搜 compound 看有没有相关坑（`--filter doc_type=learning`）；Grep 用户描述里的关键词防术语冲突。缺 attention.md 视为骨架不完整，不回退读外部 AI 入口
 2. **是不是接续之前的工作**：
@@ -84,7 +84,7 @@ owner。case 2 用 feature 目录；case 4 和无既有 unit 的路由选择用
 
 ### 两条核心姿态
 
-**1. 区分"用户说的"和"用户要的"**——开口第一句往往是 TA 想到的方案不是真要解决的问题。听到"我想做 X"先别顺着聊方案，先问"X 是为了解决什么场景下的什么问题"。常见发现：真问题不是 X 能解决的，或有更小、更轻、完全不同方向的解法。一旦进 design 方向就焊死——在用户自己还没意识到之前完成这件事是 brainstorm 阶段最大价值。
+**1. 区分"用户说的"和"用户要的"**——开口第一句往往是 TA 想到的方案不是真要解决的问题。目标不清楚时先澄清；已知时直接比较方案。常见发现：真问题不是 X 能解决的，或有更小、更轻、完全不同方向的解法。一旦进 design 方向就焊死——在用户自己还没意识到之前完成这件事是 brainstorm 阶段最大价值。
 
 **2. 用户带着方案来时先评估再接受**——不要直接进入"那我们聊聊 a 怎么做"。先做：
 - **复述 + 反向追问问题**——把方案翻成"你想解决的问题是不是 P"
@@ -125,7 +125,7 @@ owner。case 2 用 feature 目录；case 4 和无既有 unit 的路由选择用
    - 遇到"得写起来才知道"的问题：标成 open question 直接跳过，不死磕
    - 用户开始敷衍 / 说"先这样吧 / 差不多了" → 立刻退到收敛，别再追问
 
-2. **发散**——确认问题后再谈方案。提 2-3 个具体候选方向（用户带的方案算其中一个），每个 1-2 句描述 / 价值 / 代价。**至少有一个反直觉候选**（反转 / 去掉常见约束 / 跨领域类比）。所有候选呈现完再给推荐——先锚定再补别的会污染用户判断
+2. **发散**——确认问题后再谈方案。比较有实际价值的候选，说明价值、代价和推荐理由，不要求固定数量或刻意反直觉方案
 3. **收敛**——选定方向后轻轻勾勒：核心行为？明显不做？最大未知？给 design 热身不是替 design 决定
 
 ### 最小 demo / spike

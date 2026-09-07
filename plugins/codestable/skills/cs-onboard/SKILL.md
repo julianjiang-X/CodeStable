@@ -1,6 +1,6 @@
 ---
 name: cs-onboard
-description: 把新仓库或有零散文档的仓库接入 CodeStable 体系，两条路径自动判断：空仓库从零搭骨架，已有文档走审计 + 迁移映射。触发：用户说"在这个项目里用 CodeStable"、"搭 CodeStable 结构"、"初始化 CodeStable"、"迁移到 CodeStable"。
+description: "接入或升级项目的 CodeStable 目录、共享参考与工具，保留既有规范。"
 ---
 
 # cs-onboard

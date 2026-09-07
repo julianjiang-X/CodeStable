@@ -23,12 +23,12 @@
 {按 {slug}-report.md 第 2 节复现步骤走一遍，结果是否符合期望行为?}
 
 ### 独立 code review
-{implementation-review 文件路径；subagent reviewer；P0/P1 是否无阻塞；P2 如何处理；仅平台无 subagent 能力时才写 fresh self-review fallback}
+{implementation-review 文件路径；实际审查方式；P0/P1 是否无阻塞；P2 如何处理；self-review 不冒称独立审查}
 ```
 
-## 2. 日志调试升级
+## 2. 按需日志调试
 
-当修复未生效时：
+当日志是区分当前根因假设的有效手段时：
 
 1. 宣告当前方案未解决问题
 2. 确定打点位置
@@ -37,9 +37,9 @@
 5. 清理日志打点
 6. 以修订后的根因重新进入修复流程
 
-如果经过 2 轮日志调试仍未定位到根因，建议回到 `cs-issue-analyze`。
+证据推翻根因时回到 `cs-issue-analyze`；根据新证据调整方法，不固定重试轮数。
 
-### 用户取日志提示词
+### 无法自行取得日志时的用户提示词
 
 ```text
 请按以下步骤复现问题并粘贴日志:

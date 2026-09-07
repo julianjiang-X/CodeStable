@@ -12,14 +12,11 @@
 
 **最小闭环** = 理解事实 → 最小完整改动 → 最窄权威验证 → 交付。
 
-## CodeStable 的地板
+## 正式流程与轻量工作
 
-上面的公式决定地板**之上**加多少。CodeStable 保留两条不因风险低而取消的地板：
+自包含且不需要正式 unit 的工作按实际风险选择验证和 inline review，不自动创建委派或报告。正式 execution unit 仍须提供独立实现 review，现有 worktree / finish 工具校验该产物；不要把缺少 required review 的 unit 标为完成。见 `execution-conventions.md`。
 
-1. **独立实现 review**（`execution-conventions.md` → Independent Code Review）——执行 worktree 完成实现批次前必须触发；
-2. **owner 授权门槛**——真实取舍、危险操作、跨会话授权按 `approval-conventions.md` 走。
-
-这两条是 CodeStable 选择的机械 guard，不参与风险核对。其余保障一律按本文件的风险映射决定，不预设档位。
+用户授权持续有效。只有未决的产品契约、实质范围或尚未授权的外部 / 危险操作需要 owner 决定，按 `approval-conventions.md` 准备上下文。
 
 ## 风险核对（静默、有界）
 
@@ -44,7 +41,7 @@
 | 性能回退或性能敏感路径变化 | 定向 profile、基线或前后对比；SLO、成本或传播范围重大 / 不确定时再加审 |
 | 改动影响面广或失败可跨模块传播 | 扩大到受影响回归；只有消费者或失败范围仍不确定、失败代价高时才做全量验证 |
 
-"加审"指在地板的实现 review 之外，再增加一轮对应目的的独立审查（spec review / 安全 review / 验证 review），按 `execution-conventions.md` 的 reviewer lineage 规则执行。
+"加审"指实际命中表中相应风险条件后，在实现 review 之外，再增加一轮对应目的的独立审查（spec review / 安全 review / 验证 review），按 `execution-conventions.md` 的 reviewer lineage 规则执行。
 
 ## 不是风险的代理指标
 
@@ -62,13 +59,13 @@
 2. 按本文件重算一遍——把不对应任何未排除风险的门槛去掉；
 3. 仍需保留的门槛，只说明阻止降级的**具体风险**，不复述流程规定。
 
-地板（独立 review、owner 授权）不在可降级范围内；要改地板走 `cs-decide` 记录决策，不在单次任务里临时豁免。
+正式 unit 的机器状态要求、下表实际命中风险要求的保障与实际授权边界仍须满足；改变工具契约需明确修改并测试工具，不能靠省略报告假装门禁通过。
 
 ## 连续性不是风险门槛
 
 跨会话、多人交接或用户要求留痕，只增加**记录载体**（spec 文件、context packet），不提升保障强度。
 
-普通改动选择成本最低且足够权威的验证；已有定向测试足够时，不叠加全量套件、浏览器 smoke 与额外 review。
+普通改动选择成本最低且足够权威的验证；已有定向测试足够且无新增风险要求时，不叠加全量套件、浏览器 smoke 与额外 review。检查通过且没有新改动、失败或未决风险时停止追加验证。
 
 ## design 被触发时的最低内容
 

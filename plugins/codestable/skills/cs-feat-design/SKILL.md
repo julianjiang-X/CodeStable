@@ -1,13 +1,13 @@
 ---
 name: cs-feat-design
-description: feature 流程阶段 1——为新功能起草 {slug}-design.md 作为后续实现和验收的唯一输入，拍板后抽出 checklist。触发：用户说"开始设计方案"、"写 design doc"、"准备实现 XX"，前提是已知道做什么、为谁、怎么算成功。
+description: "为新功能起草设计和验收清单，将明确方向转为实现契约。"
 ---
 
 # cs-feat-design
 
 ## 启动必读
 
-开始任何判断或动作前，先读取 `.codestable/attention.md`；缺失则视为骨架不完整，提示先补齐或运行 `cs-onboard`，不要回退到外部 AI 入口文件。
+读取本任务尚未加载的 `.codestable/attention.md`，遵循项目约束；用户明确指令优先于技能指南。其他记录按需读取。缺少本阶段必要输入时说明具体缺口，不为无关工作重建骨架。
 
 这一阶段的产出是一份方案文件 `{slug}-design.md`，加上从中抽出的行动清单 `{slug}-checklist.yaml`。这两份东西后面会被两个阶段消费——implement 照着推进、acceptance 照着核对，所以这里写错或写漏，下游就跟着错。
 
