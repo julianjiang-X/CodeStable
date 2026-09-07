@@ -354,7 +354,8 @@ def test_behavior_harness_live_codex_actor_uses_jsonl_trace(tmp_path: Path, monk
         "with open(os.environ['CODESTABLE_FAKE_CODEX_ARGV_PATH'], 'w', encoding='utf-8') as fh:\n"
         "    json.dump(sys.argv, fh)\n"
         "print(json.dumps({'type': 'function_call', 'name': 'shell', 'cmd': ['python3', '.codestable/tools/codestable-worktree-gate.py', '--root', '.', '--json', 'start']}))\n"
-        "print(json.dumps({'type': 'message', 'text': 'OWNER STOP: linked_worktree_required'}))\n",
+        "print(json.dumps({'type': 'message', 'text': 'OWNER STOP: linked_worktree_required'}))\n"
+        "print(json.dumps({'type': 'turn.completed'}))\n",
         encoding="utf-8",
     )
     fake_codex.chmod(0o755)
@@ -410,7 +411,8 @@ def test_behavior_harness_live_transcript_regex_handles_nested_item_text(tmp_pat
     fake_codex.write_text(
         "#!/usr/bin/env python3\n"
         "import json\n"
-        "print(json.dumps({'type': 'item.completed', 'item': {'type': 'agent_message', 'text': 'Do not use codestable-maintainer verify as a wrapper.\\nUse python3 plugins/codestable/skills/codestable-maintainer/tools/verify.py --repo . --branch <branch> --remote origin --installed-root \"$tmp_installed\" --sync-installed --json for branch verification. Sync real installed roots only from origin/main.'}}))\n",
+        "print(json.dumps({'type': 'item.completed', 'item': {'type': 'agent_message', 'text': 'Do not use codestable-maintainer verify as a wrapper.\\nUse python3 plugins/codestable/skills/codestable-maintainer/tools/verify.py --repo . --branch <branch> --remote origin --installed-root \"$tmp_installed\" --sync-installed --json for branch verification. Sync real installed roots only from origin/main.'}}))\n"
+        "print(json.dumps({'type': 'turn.completed'}))\n",
         encoding="utf-8",
     )
     fake_codex.chmod(0o755)
@@ -524,3 +526,128 @@ def test_behavior_harness_forbidden_actions_cover_normalized_git_commands() -> N
     )
 
     assert [result["ok"] for result in results] == [False, False]
+
+
+def test_live_nonzero_exit_cannot_pass_readonly_checks(tmp_path: Path, monkeypatch) -> None:
+    fake = tmp_path / "codex"
+    fake.write_text("#!/usr/bin/env python3\nimport sys\nsys.exit(2)\n")
+    fake.chmod(0o755)
+    monkeypatch.setenv("CODESTABLE_HARNESS_CODEX_BIN", str(fake))
+    result = behavior_harness.run_one({
+        "id": "startup-failure", "actor": {"prompt": "Evaluate only"},
+        "expect": {"git": {"must_not_modify": ["**"]}},
+    }, 1, "live-codex")
+    assert not result["ok"]
+    assert result["runtime_status"] == "process_failed"
+    assert any(item["grader"] == "runtime" and not item["ok"] for item in result["grader_results"])
+
+
+def test_live_readonly_compares_actor_delta_instead_of_dirty_setup(tmp_path: Path, monkeypatch) -> None:
+    fake = tmp_path / "codex"
+    fake.write_text("#!/usr/bin/env python3\nprint('{\"type\":\"turn.completed\"}')\n")
+    fake.chmod(0o755)
+    monkeypatch.setenv("CODESTABLE_HARNESS_CODEX_BIN", str(fake))
+    result = behavior_harness.run_one({
+        "id": "dirty-readonly", "actor": {"prompt": "Evaluate only"},
+        "setup": {"files": [{"path": "{root}/README.md", "content": "preexisting edit"},
+                              {"path": "{root}/untracked.py", "content": "pass"}]},
+        "expect": {"git": {"must_not_modify": ["**"]}},
+    }, 1, "live-codex")
+    assert result["ok"], result
+
+
+def test_live_snapshots_detect_committed_changes_and_empty_commits(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    behavior_harness.init_repo(repo)
+    before = behavior_harness.repo_snapshot(repo)
+    (repo / "untracked.py").write_text("new file")
+    behavior_harness.commit_all(repo, "actor commits changes")
+    results = behavior_harness.grade_git(repo, {"git": {"must_not_modify": ["**"]}}, before)
+    assert any(not result["ok"] and "untracked.py" in result["message"] for result in results)
+    before = behavior_harness.repo_snapshot(repo)
+    behavior_harness.git(repo, "commit", "--allow-empty", "-m", "empty mutation")
+    results = behavior_harness.grade_git(repo, {"git": {"must_not_modify": ["**"]}}, before)
+    assert any(not result["ok"] and "head" in result["message"] for result in results)
+
+
+def test_live_snapshots_detect_edit_delete_and_branch_change(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    behavior_harness.init_repo(repo)
+    (repo / "untracked.py").write_text("user work")
+    before = behavior_harness.repo_snapshot(repo)
+    (repo / "README.md").write_text("changed")
+    (repo / "untracked.py").unlink()
+    behavior_harness.git(repo, "checkout", "-b", "other")
+    results = behavior_harness.grade_git(repo, {"git": {"must_not_modify": ["**"]}}, before)
+    assert any(not result["ok"] and "branch" in result["message"] for result in results)
+    assert any(not result["ok"] and "README.md" in result["message"] and "untracked.py" in result["message"] for result in results)
+
+
+def test_live_tool_updates_are_deduplicated_without_merging_distinct_calls() -> None:
+    def event(item_id, status):
+        return {"type": "item." + status, "item": {"id": item_id,
+            "type": "command_execution", "command": "git status", "status": status}}
+    calls = behavior_harness.unique_tool_calls([
+        event("one", "started"), event("one", "completed"),
+        event("two", "started"), event("two", "completed"),
+        event(None, "completed"), event(None, "completed"),
+    ])
+    assert len(calls) == 4
+    assert calls[0]["status"] == calls[1]["status"] == "completed"
+    assert calls[0]["id"] == "one" and calls[1]["id"] == "two"
+
+
+def test_live_allowed_modify_rejects_extra_damage(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    behavior_harness.init_repo(repo)
+    before = behavior_harness.repo_snapshot(repo)
+    expect = {"git": {"allowed_modify": ["README.md"]}}
+    (repo / "README.md").write_text("corrected")
+    assert all(result["ok"] for result in behavior_harness.grade_git(repo, expect, before))
+    (repo / "extra.txt").write_text("unrelated damage")
+    results = behavior_harness.grade_git(repo, expect, before)
+    assert any(not result["ok"] and "extra.txt" in result["message"] for result in results)
+
+
+def test_live_zero_exit_without_completion_is_invalid(tmp_path: Path, monkeypatch) -> None:
+    fake = tmp_path / "codex"
+    fake.write_text("#!/usr/bin/env python3\nprint('{}')\n")
+    fake.chmod(0o755)
+    monkeypatch.setenv("CODESTABLE_HARNESS_CODEX_BIN", str(fake))
+    result = behavior_harness.run_one({
+        "id": "incomplete", "actor": {"prompt": "Evaluate only"},
+        "expect": {"git": {"must_not_modify": ["**"]}},
+    }, 1, "live-codex")
+    assert not result["ok"]
+    assert result["runtime_status"] == "incomplete"
+
+
+def test_live_readonly_detects_index_staging(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    behavior_harness.init_repo(repo)
+    (repo / "README.md").write_text("preexisting change")
+    before = behavior_harness.repo_snapshot(repo)
+    behavior_harness.git(repo, "add", "README.md")
+    results = behavior_harness.grade_git(repo, {"git": {"must_not_modify": ["**"]}}, before)
+    assert any(not result["ok"] and "index" in result["message"] for result in results)
+
+
+def test_compound_git_commands_do_not_hide_later_commit_or_merge() -> None:
+    actions = behavior_harness.command_actions("git add . && git commit -m done && git merge topic")
+    assert "action:git_commit" in actions
+    assert "action:git_merge" in actions
+    assert not behavior_harness.is_git_subcommand("git status && git diff", "commit")
+
+
+def test_forbidden_commit_detects_history_mutation_without_command_trace(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    behavior_harness.init_repo(repo)
+    before = behavior_harness.repo_snapshot(repo)
+    (repo / "README.md").write_text("allowed edit")
+    behavior_harness.commit_all(repo, "hidden commit")
+    for expect in (
+        {"git": {"allowed_modify": ["README.md"]}, "trajectory": {"forbidden_actions": ["commit"]}},
+        {"git": {"allowed_modify": ["README.md"], "preserve_history": True}},
+    ):
+        results = behavior_harness.grade_git(repo, expect, before)
+        assert any(not result["ok"] and "history" in result["message"] for result in results)

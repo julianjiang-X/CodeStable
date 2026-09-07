@@ -646,6 +646,23 @@ def collect_tool_calls(event: object) -> list[dict[str, object]]:
     return calls
 
 
+def unique_tool_calls(events: list[object]) -> list[dict[str, object]]:
+    """Count started/completed updates once, retaining the latest item state."""
+    calls: list[dict[str, object]] = []
+    positions: dict[str, int] = {}
+    for event in events:
+        for call in collect_tool_calls(event):
+            item_id = call.get("id")
+            if item_id is not None:
+                key = str(item_id)
+                if key in positions:
+                    calls[positions[key]].update({k: v for k, v in call.items() if v is not None})
+                    continue
+                positions[key] = len(calls)
+            calls.append(call)
+    return calls
+
+
 def command_text(cmd: object) -> str:
     if isinstance(cmd, list):
         return " ".join(str(part) for part in cmd)
@@ -679,7 +696,9 @@ def is_git_subcommand(text: str, subcommand: str, depth: int = 0) -> bool:
             if option.startswith("-"):
                 cursor += 1
                 continue
-            return option == subcommand
+            if option == subcommand:
+                return True
+            break
     return False
 
 
@@ -768,8 +787,7 @@ def run_live_codex_actor(root: Path, work: Path, scenario: dict[str, object]) ->
             transcript.append(stderr)
         transcript.append(f"CODEX TIMEOUT after {timeout}s")
         tool_calls = [timeout_call]
-        for event in events:
-            tool_calls.extend(collect_tool_calls(event))
+        tool_calls.extend(unique_tool_calls(events))
         trajectory = trajectory_from_tool_calls(tool_calls[1:])
         trajectory.append("codex_timeout")
         return transcript, trajectory, tool_calls
@@ -779,11 +797,12 @@ def run_live_codex_actor(root: Path, work: Path, scenario: dict[str, object]) ->
     if result.stderr:
         transcript.append(result.stderr)
     tool_calls = [{"cmd": cmd, "returncode": result.returncode, "stdout": result.stdout, "stderr": result.stderr}]
-    for event in events:
-        tool_calls.extend(collect_tool_calls(event))
+    tool_calls.extend(unique_tool_calls(events))
     trajectory = trajectory_from_tool_calls(tool_calls[1:])
     if result.returncode != 0:
         trajectory.append(f"codex_exit:{result.returncode}")
+    elif not any(isinstance(event, dict) and event.get("type") == "turn.completed" for event in events):
+        trajectory.append("codex_incomplete")
     return transcript, trajectory, tool_calls
 
 
@@ -854,6 +873,11 @@ def grade_trajectory(expect: dict[str, object], trajectory: list[str]) -> list[d
 
 
 def grade_runtime(expect: dict[str, object], trajectory: list[str]) -> list[dict[str, object]]:
+    exits = [action for action in trajectory if action.startswith("codex_exit:") and action != "codex_exit:0"]
+    if exits:
+        return [grade_result("runtime", False, "codex process failed: " + ", ".join(exits))]
+    if "codex_incomplete" in trajectory:
+        return [grade_result("runtime", False, "codex exited without turn.completed")]
     checks = expect.get("runtime", {})
     allow_timeout = isinstance(checks, dict) and bool(checks.get("allow_timeout"))
     if "codex_timeout" not in trajectory:
@@ -893,17 +917,35 @@ def grade_artifacts(root: Path, work: Path, expect: dict[str, object]) -> list[d
     return results
 
 
-def grade_git(root: Path, expect: dict[str, object]) -> list[dict[str, object]]:
+def grade_git(root: Path, expect: dict[str, object], before: dict[str, object] | None = None) -> list[dict[str, object]]:
     checks = expect.get("git", {})
     if not isinstance(checks, dict):
         return []
-    dirty = dirty_paths(root)
+    after = repo_snapshot(root) if before is not None else None
+    dirty = (changed_snapshot_paths(before["files"], after["files"])
+             if before is not None and after is not None else dirty_paths(root))
     results: list[dict[str, object]] = []
+    trajectory_checks = expect.get("trajectory", {})
+    forbidden = trajectory_checks.get("forbidden_actions", []) if isinstance(trajectory_checks, dict) else []
+    preserve_history = checks.get("preserve_history") or any(
+        action in {"commit", "merge", "action:git_commit", "action:git_merge"} for action in forbidden
+    )
+    if before is not None and after is not None and preserve_history:
+        results.append(grade_result("repo-state", before["head"] == after["head"], "preserves git history"))
+    if before is not None and after is not None and any(
+        pattern in {"*", "**"} for pattern in checks.get("must_not_modify", []) or []
+    ):
+        for field in ("head", "branch", "index"):
+            results.append(grade_result("repo-state", before[field] == after[field], f"preserves git {field}"))
     for pattern in checks.get("must_not_modify", []) or []:
         matches = [path for path in dirty if fnmatch.fnmatch(path, str(pattern))]
         results.append(grade_result("repo-state", not matches, f"does not modify {pattern!r}: {matches}"))
     for pattern in checks.get("must_modify", []) or []:
         results.append(grade_result("repo-state", any(fnmatch.fnmatch(path, str(pattern)) for path in dirty), f"modifies {pattern!r}"))
+    if "allowed_modify" in checks:
+        allowed = checks["allowed_modify"]
+        unexpected = [path for path in dirty if not any(fnmatch.fnmatch(path, str(pattern)) for pattern in allowed)]
+        results.append(grade_result("repo-state", not unexpected, f"modifies only allowed paths: {unexpected}"))
     return results
 
 
@@ -956,6 +998,21 @@ def file_hash_snapshot(root: Path) -> dict[str, str]:
     return hashes
 
 
+def repo_snapshot(root: Path) -> dict[str, object]:
+    files: dict[str, str] = {}
+    for path in root.rglob("*"):
+        relative = path.relative_to(root)
+        if ".git" in relative.parts:
+            continue
+        if path.is_symlink():
+            files[relative.as_posix()] = "symlink:" + os.readlink(path)
+        elif path.is_file():
+            files[relative.as_posix()] = f"{path.stat().st_mode:o}:" + file_digest(path)
+    return {"files": files, "head": git(root, "rev-parse", "HEAD").stdout.strip(),
+            "branch": git(root, "symbolic-ref", "-q", "HEAD").stdout.strip(),
+            "index": git(root, "ls-files", "--stage").stdout}
+
+
 def changed_snapshot_paths(before: dict[str, str], after: dict[str, str]) -> list[str]:
     changed: list[str] = []
     for path in sorted(set(before) | set(after)):
@@ -999,6 +1056,7 @@ def run_one(scenario: dict[str, object], run_index: int, actor_mode: str, keep: 
     setup_files(repo, work_root, scenario)
     before = files_snapshot(repo)
     external_before = file_hash_snapshot(work_root)
+    actor_before = repo_snapshot(repo) if actor_mode == "live-codex" else None
     transcript_lines, trajectory, tool_calls, actor_adapter = run_actor(repo, work_root, scenario, actor_mode)
     transcript = "\n".join(transcript_lines)
     expect = scenario.get("expect") if isinstance(scenario.get("expect"), dict) else {}
@@ -1006,9 +1064,9 @@ def run_one(scenario: dict[str, object], run_index: int, actor_mode: str, keep: 
     grader_results.extend(grade_transcript(expect, transcript, trajectory))
     grader_results.extend(grade_trajectory(expect, trajectory))
     grader_results.extend(grade_runtime(expect, trajectory))
+    grader_results.extend(grade_git(repo, expect, actor_before))
     grader_results.extend(grade_commands(repo, work_root, expect))
     grader_results.extend(grade_artifacts(repo, work_root, expect))
-    grader_results.extend(grade_git(repo, expect))
     grader_results.extend(grade_external(work_root, external_before, expect))
     diff_stat = git(repo, "diff", "--stat").stdout
     payload = {
@@ -1016,6 +1074,9 @@ def run_one(scenario: dict[str, object], run_index: int, actor_mode: str, keep: 
         "run": run_index,
         "actor_mode": actor_mode,
         "actor_adapter": actor_adapter,
+        "runtime_status": ("process_failed" if any(item.startswith("codex_exit:") for item in trajectory)
+                           else "incomplete" if "codex_incomplete" in trajectory
+                           else "timeout" if "codex_timeout" in trajectory else "completed"),
         "fixture": fixture,
         "repo": repo.as_posix() if keep else None,
         "turns": transcript_lines,
