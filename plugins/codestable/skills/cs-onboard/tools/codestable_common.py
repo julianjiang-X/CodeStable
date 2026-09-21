@@ -884,6 +884,34 @@ def unit_has_canceled_lifecycle_status(root: Path, rel_path: str) -> bool:
     return any(file_has_canceled_status(path) for path in unit_lifecycle_status_files(root, unit_dir))
 
 
+def is_answered_review_authorization(path: Path, lines: list[str]) -> bool:
+    """Only completed approval metadata can contextualize a conditional review policy."""
+    if path.name != "approval-report.md" or not lines or lines[0].strip() != "---":
+        return False
+    try:
+        end = next(i for i in range(1, len(lines)) if lines[i].strip() == "---")
+    except StopIteration:
+        return False
+    fields = {}
+    for line in lines[1:end]:
+        key, separator, value = line.partition(":")
+        if separator:
+            fields[key.strip()] = value.strip().strip("\"'")
+    return (
+        fields.get("status") == "approved"
+        and fields.get("reason") == "review-authorization"
+        and bool(re.fullmatch(r"\d{4}-\d{2}-\d{2}", fields.get("answered_at", "")))
+    )
+
+
+def is_conditional_review_policy(text: str) -> bool:
+    matches = list(re.finditer(r"human review required", text, re.IGNORECASE))
+    return bool(matches) and all(
+        re.match(r"\s+only\s+(?:for|if|when)\b", text[match.end():], re.IGNORECASE)
+        for match in matches
+    )
+
+
 def scan_backlog(root: Path) -> list[BacklogItem]:
     codestable = root / ".codestable"
     if not codestable.exists():
@@ -907,10 +935,17 @@ def scan_backlog(root: Path) -> list[BacklogItem]:
             if violation:
                 line_no, text = violation
                 items.append(BacklogItem(kind=BILINGUAL_POLICY_KIND, path=rel_path, line=line_no, text=text))
+        answered_review_policy = is_answered_review_authorization(path, lines)
         in_attention_candidates = False
         in_follow_up_section = False
+        section_heading = ""
         for line_no, line in enumerate(lines, start=1):
             stripped = line.strip()
+            heading = MARKDOWN_HEADING_RE.match(stripped)
+            if heading:
+                section_heading = heading.group(2).lower()
+                in_attention_candidates = False
+                in_follow_up_section = False
             if ATTENTION_CANDIDATES_HEADING_RE.search(stripped):
                 in_attention_candidates = True
                 continue
@@ -924,7 +959,7 @@ def scan_backlog(root: Path) -> list[BacklogItem]:
                     continue
                 else:
                     bullet = MARKDOWN_BULLET_RE.match(line)
-                    if bullet:
+                    if bullet and not re.match(r"\[[xX]\]\s", bullet.group(1)):
                         items.append(
                             BacklogItem(
                                 kind="attention-candidate",
@@ -941,6 +976,8 @@ def scan_backlog(root: Path) -> list[BacklogItem]:
                     bullet = MARKDOWN_BULLET_RE.match(line)
                     if bullet:
                         text = bullet.group(1).strip()
+                        if re.match(r"\[[xX]\]\s", text):
+                            continue
                         items.append(
                             BacklogItem(
                                 kind="follow-up",
@@ -952,6 +989,17 @@ def scan_backlog(root: Path) -> list[BacklogItem]:
                         continue
             for kind, pattern in BACKLOG_PATTERNS:
                 if pattern.search(line):
+                    if (
+                        kind == "human-review"
+                        and answered_review_policy
+                        and section_heading == "decision needed"
+                        and is_conditional_review_policy(stripped)
+                    ):
+                        continue
+                    if kind == "follow-up" and re.fullmatch(
+                        r"(?:[-*]\s+)?follow[- ]ups?\s+applied\s*:", stripped, re.IGNORECASE
+                    ):
+                        continue
                     if is_resolved_backlog_match(kind, stripped):
                         continue
                     items.append(BacklogItem(kind=kind, path=rel_path, line=line_no, text=stripped))
