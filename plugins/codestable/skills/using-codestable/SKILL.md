@@ -19,6 +19,31 @@ installing the framework. Explain missing stage inputs and continue independent
 work. Check library freshness only when updating or diagnosing CodeStable;
 source and installation changes use `codestable-maintainer`.
 
-Without an attention file, continue ordinary work; use `cs-onboard` when setup is
-requested. Respect requests to skip CodeStable. Narrowly delegated agents use
-the supplied scope without restarting routing.
+CodeStable applies to repositories that carry `.codestable/attention.md`.
+Without that file, do ordinary work: do not load `cs-*` workflows, create
+`.codestable/` records or copy shared tools, unless the user names a CodeStable
+skill or asks for setup (`cs-onboard`). Personal tooling, coursework, device
+setup and one-off operations stay outside CodeStable even when the task looks
+like a bug fix or a feature. Respect requests to skip CodeStable. Narrowly
+delegated agents use the supplied scope without restarting routing.
+
+## Standing owner rules
+
+In an onboarded repository, when the owner states a scope or authorization rule
+(whose work to touch, what not to push, merge or open as a PR, what to leave
+alone), record it in the same turn and say so in one line, so the owner does
+not have to say it twice. A rule for one unit of work goes in that unit's
+record; a rule that holds across tasks goes in `.codestable/attention.md`. Write
+the actions it covers and the reason; when no reason was given, write "owner
+instruction, reason not stated" instead of inventing one. In a repository that
+is not onboarded, follow the rule for the session and do not create
+`.codestable/` for it. Other candidate facts follow `cs-note`. When the reason
+behind a recorded caution no longer holds, propose removing it instead of
+working around it.
+
+## Reporting
+
+Write for a reader who has not seen the work. Say "verified" only for the path
+that was actually exercised, and name what was not run. End with the next step;
+when it is inside existing authorization, do it instead of listing it and
+waiting.

@@ -1,6 +1,6 @@
 ---
 name: cs-guide
-description: "编写或更新开发者、用户与 API 指南，保持与行为及已批准契约一致。"
+description: "编写或更新开发者、用户与 API 指南，保持与行为及已批准契约一致。仅用于已接入 CodeStable 的仓库，或用户点名时。"
 ---
 
 # cs-guide

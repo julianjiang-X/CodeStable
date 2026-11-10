@@ -1,6 +1,6 @@
 ---
 name: cs-issue-report
-description: "记录可复现问题的现象、期望与影响，用于新报告或补充已有报告。"
+description: "记录可复现问题的现象、期望与影响，用于新报告或补充已有报告。仅用于已接入 CodeStable 的仓库，或用户点名时。"
 ---
 
 # cs-issue-report

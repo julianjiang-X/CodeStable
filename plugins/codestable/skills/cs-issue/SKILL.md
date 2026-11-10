@@ -1,6 +1,6 @@
 ---
 name: cs-issue
-description: "选择并继续缺陷报告、根因分析或修复阶段，复用相关现有记录。"
+description: "选择并继续缺陷报告、根因分析或修复阶段，复用相关现有记录。仅用于已接入 CodeStable 的仓库，或用户点名时。"
 ---
 
 # cs-issue

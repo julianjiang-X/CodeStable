@@ -1,6 +1,6 @@
 ---
 name: cs-learn
-description: "将已验证的踩坑经验整理为可检索记录，用于复盘或明确要求沉淀。"
+description: "将已验证的踩坑经验整理为可检索记录，用于复盘或明确要求沉淀。仅用于已接入 CodeStable 的仓库，或用户点名时。"
 ---
 
 # cs-learn

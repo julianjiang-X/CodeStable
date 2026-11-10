@@ -4,6 +4,26 @@
 `cs-onboard/tools/codestable-freshness-check.py` 按 git ref 判断——版本号回答的是"我落后了什么"，
 freshness check 回答的是"我落后了没有"。
 
+## Unreleased
+
+Claude model iteration / Claude 模型迭代（Fable 5.2、Opus 5.5、Sonnet 5.5）：
+
+- Apply CodeStable only in onboarded repositories or on explicit request.
+- Record owner-stated scope and authorization rules at first statement; keep
+  cautions scoped, reasoned and pruned.
+- Report what was and was not exercised, end with the next step, and take it
+  when authorized.
+- State what happens at the review round budget; pre-authorize one converging
+  extra round.
+- Lead discussion with a position in `cs-brainstorm` and `cs-feat-design`.
+  Evidence and limits: `docs/claude-models-iteration.md`.
+
+- 仅在已接入的仓库或用户明确要求时启用 CodeStable。
+- owner 说出的范围与授权规矩当场记录；谨慎条款写明范围和原因，原因不成立时清理。
+- 汇报写明跑过和没跑的内容，末尾给出下一步，已有授权时直接做。
+- 写明审查轮次到上限后的处理；收敛中的额外一轮预先授权。
+- `cs-brainstorm` 与 `cs-feat-design` 先给主张再讨论。依据与局限见上述文档。
+
 ## 2.1.0
 
 Astra workflow simplification / Astra 工作流精简：

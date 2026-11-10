@@ -1,6 +1,6 @@
 ---
 name: cs-arch
-description: "核验或更新项目架构记录，说明模块职责、边界与实现漂移。"
+description: "核验或更新项目架构记录，说明模块职责、边界与实现漂移。仅用于已接入 CodeStable 的仓库，或用户点名时。"
 ---
 
 # cs-arch

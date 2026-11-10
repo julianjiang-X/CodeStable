@@ -1,6 +1,6 @@
 ---
 name: cs-decide
-description: "记录已接受的技术选型、架构决定和长期约束，保留理由与替代关系。"
+description: "记录已接受的技术选型、架构决定和长期约束，保留理由与替代关系。仅用于已接入 CodeStable 的仓库，或用户点名时。"
 ---
 
 # cs-decide

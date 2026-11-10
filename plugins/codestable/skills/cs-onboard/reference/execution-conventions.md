@@ -126,14 +126,27 @@ follow-up or replacement by the lineage rules below.
 
 ### Round Budget
 
-- At most **3 rounds with a terminal report per stage**. Replacing the reviewer
-  does not reset the count.
+- At most **3 rounds with a terminal report per stage**, extendable once to a
+  fourth round under the rule below. Replacing the reviewer does not reset the
+  count.
 - Replace the reviewer only when: the original run failed or is unrecoverable;
   capability no longer fits; target, scope, design, or core path changed
   materially; the reviewer declares it cannot stay independent; or the owner
   asks for a second opinion. Replacement creates a fresh reviewer.
-- If blocking findings or disagreement survive the budget, escalate to the owner.
-  Do not keep trading rounds and do not declare completion.
+- After round 3, decide by what remains; reaching the budget is not by itself a
+  reason to stop and ask. Apply the first case that matches:
+  1. No blocking finding in the latest report: close the stage and record the
+     remaining items as follow-ups.
+  2. Blocking findings remain and round 3 converged (fewer or narrower findings
+     than round 2): one further round is already authorized. Run it, and record
+     that the budget was extended and why. This extension happens once per
+     stage.
+  3. Otherwise (round 3 did not converge, there is disagreement, or blocking
+     findings survive the extra round): escalate to the owner once, with the
+     open findings, a recommendation and what continues meanwhile. Keep doing
+     work that does not depend on the answer.
+- Do not run a fifth round without the owner, and do not declare completion
+  while a blocking finding is open.
 
 ### Reviewer Health
 
@@ -221,6 +234,19 @@ Snooze accepted merge deferrals:
 ```bash
 python3 .codestable/tools/codestable-worktree-inbox.py --root . --snooze codex_slug --until 2026-06-12T00:00:00Z --json
 ```
+
+## Owner Rules And Reports
+
+When the owner states a scope or authorization rule, record it in the same turn
+and say so in one line: in the unit's record when it covers that unit, in
+`.codestable/attention.md` when it holds across tasks. Write the actions it
+covers and the reason, or "owner instruction, reason not stated".
+
+Write reports for a reader who has not seen the work. Say "verified" only for
+the path that was actually exercised, and name what was not run. End with the
+next step; when it is inside existing authorization, do it instead of listing
+it and waiting. A stage boundary that needs owner approval is not inside
+existing authorization.
 
 ## Subagent Implementation Choice
 

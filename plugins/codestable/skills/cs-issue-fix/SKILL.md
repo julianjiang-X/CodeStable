@@ -1,6 +1,6 @@
 ---
 name: cs-issue-fix
-description: "按已授权方案修复缺陷，验证根因消除并保存修复证据。"
+description: "按已授权方案修复缺陷，验证根因消除并保存修复证据。仅用于已接入 CodeStable 的仓库，或用户点名时。"
 ---
 
 # cs-issue-fix

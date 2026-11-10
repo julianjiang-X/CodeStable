@@ -1,6 +1,6 @@
 ---
 name: cs-trick
-description: "将已验证的编程方法整理为处方性参考，说明适用边界与项目证据。"
+description: "将已验证的编程方法整理为处方性参考，说明适用边界与项目证据。仅用于已接入 CodeStable 的仓库，或用户点名时。"
 ---
 
 # cs-trick

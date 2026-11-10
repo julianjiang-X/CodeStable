@@ -1,6 +1,6 @@
 ---
 name: cs-feat-ff
-description: "直接实现范围明确的小功能，按风险验证并记录结果；复杂契约转设计阶段。"
+description: "直接实现范围明确的小功能，按风险验证并记录结果；复杂契约转设计阶段。仅用于已接入 CodeStable 的仓库，或用户点名时。"
 ---
 
 # cs-feat-ff

@@ -12,7 +12,7 @@
         "action": "freeze_review_target"
       },
       {
-        "say": "Three terminal review rounds are done in this stage and one blocking finding is still open.\nThe budget is exhausted; replacing the reviewer would not reset the count.\nEscalating to the owner for a decision instead of trading another round or declaring completion."
+        "say": "Three terminal review rounds and the one pre-authorized extra round are done in this stage and one blocking finding is still open.\nThe budget is exhausted; replacing the reviewer would not reset the count.\nEscalating to the owner for a decision instead of trading another round or declaring completion.\nWork that does not depend on the answer continues meanwhile."
       },
       {
         "owner_stop": "review_round_budget_exhausted"
@@ -24,7 +24,8 @@
       "contains": [
         "budget is exhausted",
         "would not reset the count",
-        "Escalating to the owner"
+        "Escalating to the owner",
+        "pre-authorized extra round"
       ],
       "forbidden": [
         "declaring it complete",

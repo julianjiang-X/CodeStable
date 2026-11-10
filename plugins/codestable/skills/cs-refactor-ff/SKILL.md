@@ -1,6 +1,6 @@
 ---
 name: cs-refactor-ff
-description: "完成范围明确的低风险结构优化，以相关验证确认行为保持。"
+description: "完成范围明确的低风险结构优化，以相关验证确认行为保持。仅用于已接入 CodeStable 的仓库，或用户点名时。"
 ---
 
 # cs-refactor-ff

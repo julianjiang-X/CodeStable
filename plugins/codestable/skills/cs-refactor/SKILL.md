@@ -1,6 +1,6 @@
 ---
 name: cs-refactor
-description: "在保持行为的前提下优化代码结构，按风险验证并记录变化。"
+description: "在保持行为的前提下优化代码结构，按风险验证并记录变化。仅用于已接入 CodeStable 的仓库，或用户点名时。"
 ---
 
 # cs-refactor

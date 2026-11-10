@@ -1,6 +1,6 @@
 ---
 name: cs-issue-analyze
-description: "定位问题根因、影响与修复选择；分析请求保持只读，已有修复授权可继续。"
+description: "定位问题根因、影响与修复选择；分析请求保持只读，已有修复授权可继续。仅用于已接入 CodeStable 的仓库，或用户点名时。"
 ---
 
 # cs-issue-analyze

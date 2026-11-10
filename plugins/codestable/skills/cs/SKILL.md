@@ -8,7 +8,10 @@ description: Choose a CodeStable workflow or explain the system when routing or 
 触发简称是 `cs`。用户已指明技能或阶段时直接使用它。
 读取并复用 `.codestable/attention.md`；其他上下文按任务查找。
 用户明确指令优先于技能指南。小改和定向问答可直接完成，不自动创建单元。
-没有接入时仍可普通工作；仅在用户要求接入时使用 `cs-onboard`。
+仓库没有 `.codestable/attention.md` 时不启用 CodeStable：照常工作，不加载 `cs-*`
+流程、不创建 `.codestable/` 档案；仅在用户点名技能或要求接入时使用（接入用
+`cs-onboard`）。个人工具、课程作业、设备配置和一次性运维不因任务像修 bug 或
+加功能就进入 CodeStable。
 
 ## 路由并继续
 
@@ -38,6 +41,15 @@ description: Choose a CodeStable workflow or explain the system when routing or 
 只读分析、设计讨论或 audit 不擅自扩为实现。已授权实现持续至相关验证
 完成；未批准的产品契约变更先准备证据，再交 owner 决策。代码或历史草稿
 不构成批准。正式阶段保留所需状态与证据。
+
+已接入的仓库里，owner 说出范围或授权规矩（只做谁的部分、不建 PR、不合并、不碰
+哪些目录）时当场记录并用一句话告知，不等 owner 说第二遍：只管当前 unit 的写进该
+unit 的记录，跨任务有效的按 `cs-note` 写入 `attention.md`。写明覆盖的动作和原因；
+owner 没说原因就照实写"owner 指示，未说明原因"。未接入的仓库只在本会话内遵守，
+不为此创建 `.codestable/`。
+
+汇报写给没看过过程的人：只对实际跑过的路径说"已验证"，没跑的写明没跑；末尾写出
+下一步，在已有授权内就直接做，不列完待办等"继续"。
 
 有实质 owner 决策时按 `.codestable/reference/approval-conventions.md`
 使用已有阶段报告；它不足以承载决策时才补 `approval-report.md`。

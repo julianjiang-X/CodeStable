@@ -1,6 +1,6 @@
 ---
 name: cs-feat-impl
-description: "按已批准设计与清单实现功能，验证行为并记录正式审查证据。"
+description: "按已批准设计与清单实现功能，验证行为并记录正式审查证据。仅用于已接入 CodeStable 的仓库，或用户点名时。"
 ---
 
 # cs-feat-impl

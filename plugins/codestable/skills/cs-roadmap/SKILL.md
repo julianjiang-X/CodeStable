@@ -1,6 +1,6 @@
 ---
 name: cs-roadmap
-description: "把跨多个功能的需求拆为路线图、模块与接口契约。"
+description: "把跨多个功能的需求拆为路线图、模块与接口契约。仅用于已接入 CodeStable 的仓库，或用户点名时。"
 ---
 
 # cs-roadmap

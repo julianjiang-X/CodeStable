@@ -1,6 +1,6 @@
 ---
 name: cs-feat-accept
-description: "对照批准设计验收功能，记录行为证据、差距与收尾状态。"
+description: "对照批准设计验收功能，记录行为证据、差距与收尾状态。仅用于已接入 CodeStable 的仓库，或用户点名时。"
 ---
 
 # cs-feat-accept

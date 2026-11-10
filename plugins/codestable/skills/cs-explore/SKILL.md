@@ -1,6 +1,6 @@
 ---
 name: cs-explore
-description: "定向解释代码或调查模块，需要归档时保存可追溯证据。"
+description: "定向解释代码或调查模块，需要归档时保存可追溯证据。仅用于已接入 CodeStable 的仓库，或用户点名时。"
 ---
 
 # cs-explore

@@ -46,6 +46,7 @@ REQUIRED = {
     "### Round Budget": (
         "3 rounds",
         "does not reset",
+        "one further round",
         "escalate to the owner",
     ),
     "### Reviewer Health": (

@@ -1,6 +1,6 @@
 ---
 name: cs-feat
-description: "选择并继续新功能的设计、快速实现、实现或验收阶段。"
+description: "选择并继续新功能的设计、快速实现、实现或验收阶段。仅用于已接入 CodeStable 的仓库，或用户点名时。"
 ---
 
 # cs-feat

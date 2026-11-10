@@ -1,6 +1,6 @@
 ---
 name: cs-audit
-description: "只读审查指定范围的缺陷与维护风险，提供证据和影响，不自行修复。"
+description: "只读审查指定范围的缺陷与维护风险，提供证据和影响，不自行修复。仅用于已接入 CodeStable 的仓库，或用户点名时。"
 ---
 
 # cs-audit
