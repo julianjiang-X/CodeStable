@@ -5,6 +5,8 @@ description: "定向解释代码或调查模块，需要归档时保存可追溯
 
 # cs-explore
 
+> `{SKILL_DIR}` 指本技能目录（本文件所在目录）。正文里的相对路径（`stages/`、`references/`、`reference/`、`shared/`、`tools/`）都相对于它；本技能没有的子目录就是用不到。
+
 ## 启动必读
 
 遵循项目入口和 `.codestable/attention.md` 中的约束；已加载且未变化的上下文直接复用。按当前任务读取相关记录和引用，缺少可选骨架不阻塞工作。
@@ -22,7 +24,7 @@ description: "定向解释代码或调查模块，需要归档时保存可追溯
 
 本技能负责证据化探索。定向问答直接给结论和必要证据；用户要求存档、module-overview 或 spike 报告时再创建探索文档。需要其他阶段时按已有授权继续相关技能，不让用户只为选技能停一轮。
 
-> 需要归档时按需查 `.codestable/reference/shared-conventions.md`。产物写入 `.codestable/compound/`，命名 `YYYY-MM-DD-explore-{slug}.md`，frontmatter 带 `doc_type: explore`。
+> 需要归档时按需查 `shared/shared-conventions.md`。产物写入 `.codestable/compound/`，命名 `YYYY-MM-DD-explore-{slug}.md`，frontmatter 带 `doc_type: explore`。
 
 ---
 
@@ -91,7 +93,7 @@ frontmatter / 正文结构 / 各节写法说明和示例见同目录 `reference.
 - 更新：写回 Phase 1.5 定位的原文件 + `updated: YYYY-MM-DD`
 - supersede：按 `shared-conventions.md` §6 第 5 条；旧文档 `status: outdated` + `superseded-by`
 
-新建条目 `evidence: observed` 起步，不在创建它的同一个任务里标 `validated`；晋级 / 退役 / 应用规则见 `.codestable/reference/evidence-lifecycle.md`。
+新建条目 `evidence: observed` 起步，不在创建它的同一个任务里标 `validated`；晋级 / 退役 / 应用规则见 `shared/evidence-lifecycle.md`。
 
 ### Phase 5：给出下一步建议
 
@@ -101,16 +103,16 @@ frontmatter / 正文结构 / 各节写法说明和示例见同目录 `reference.
 
 ## 搜索工具
 
-> 完整语法见 `.codestable/reference/tools.md`。
+> 完整语法见 `shared/tools.md`。
 
 ```bash
 # 按类型筛选
 
-python3 .codestable/tools/search-yaml.py --dir .codestable/compound --filter doc_type=explore --filter type=module-overview --filter status=active
+python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --filter doc_type=explore --filter type=module-overview --filter status=active
 
 # 归档后查重叠
 
-python3 .codestable/tools/search-yaml.py --dir .codestable/compound --filter doc_type=explore --query "{关键词}" --json
+python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --filter doc_type=explore --query "{关键词}" --json
 ```
 
 ---

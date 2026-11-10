@@ -37,8 +37,8 @@ Acceptance:
 - `cs`, all root routers, and every `cs-*` skill declare default context level,
   escalation triggers, owner-stop conditions, allowed artifacts, skip-record
   format, finish-time checks, and harness scenario coverage;
-- `cs-brainstorm`, `cs-feat-design`, `cs-roadmap`, `cs-req`, and
-  `cs-feat-accept` get heavier spec updates only after the target artifacts and
+- `cs-brainstorm`, `cs-feat design`, `cs-roadmap`, `cs-keep req`, and
+  `cs-feat accept` get heavier spec updates only after the target artifacts and
   owner-stop rules are clear;
 - no long-lived requirement can be rewritten by a standard workflow without
   delta, clarification, archive marker, or compaction review evidence.
@@ -47,12 +47,12 @@ Acceptance:
 
 Update these skills after the tools exist:
 
-- `cs-feat-impl`: run worktree start gate before implementation and build review
+- `cs-feat impl`: run worktree start gate before implementation and build review
   packet before subagent review.
-- `cs-issue-fix`: same start gate and review packet behavior for fixes.
-- `cs-refactor-ff`: keep the flow lightweight, but still run the worktree gate
+- `cs-issue fix`: same start gate and review packet behavior for fixes.
+- `cs-refactor ff`: keep the flow lightweight, but still run the worktree gate
   and subagent review packet for code edits.
-- `cs-feat-ff`: allow fast-forward work, but call out explicit override when the
+- `cs-feat ff`: allow fast-forward work, but call out explicit override when the
   user chooses the current checkout.
 - `cs-onboard/reference/shared-conventions.md`: document gates as the source of
   truth for worktree and review requirements.
@@ -60,18 +60,18 @@ Update these skills after the tools exist:
   runtime command, arguments, JSON output shape, and safe usage examples.
 - `codestable-maintainer`: replace the manual verify checklist with the new
   `verify.py` command once it exists.
-- `cs-feat-impl`, `cs-issue-fix`, and `cs-refactor-ff`: call the finish gate
+- `cs-feat impl`, `cs-issue fix`, and `cs-refactor ff`: call the finish gate
   before reporting that an execution worktree is ready to merge.
 - `cs-onboard/reference/shared-conventions.md`: require a fresh learner report
   before worktree finish/merge readiness.
 
 Phase 4 extends review purpose separation:
 
-- `cs-feat-impl` and `cs-issue-fix`: use `--stage quality` by default, add
+- `cs-feat impl` and `cs-issue fix`: use `--stage quality` by default, add
   `--stage spec` when requirement compliance is high risk, and add
   `--stage verification` for schema, security, core runtime, or production
   safety work.
-- `cs-refactor-ff` and `cs-feat-ff`: keep fast paths lightweight with default
+- `cs-refactor ff` and `cs-feat ff`: keep fast paths lightweight with default
   quality review only.
 - `cs-onboard/reference/shared-conventions.md`: document risk-tiered review and
   handoff context requirements.
@@ -96,13 +96,13 @@ implemented:
   checks, and behavior scenario coverage.
 - `cs-brainstorm`: generate owner decision context when discussion converges
   into feature, roadmap, or requirement work.
-- `cs-feat-design` and `cs-roadmap`: run spec router and clarification gates
+- `cs-feat design` and `cs-roadmap`: run spec router and clarification gates
   before approval.
-- `cs-req`: support requirement routing metadata, safe updates, and no-free-
+- `cs-keep req`: support requirement routing metadata, safe updates, and no-free-
   rewrite constraints.
-- `cs-feat-accept`: apply approved requirement deltas mechanically and run a
+- `cs-feat accept`: apply approved requirement deltas mechanically and run a
   read-only analyze pass before completion.
-- `cs-feat-ff`, `cs-issue-fix`, `cs-refactor-ff`, and `cs-guide`:
+- `cs-feat ff`, `cs-issue fix`, `cs-refactor ff`, and `cs-guide`:
   stay lightweight by default, record explicit skips, and escalate when they
   discover capability-boundary, public-contract, or long-lived spec effects.
 - `finish-worktree`: enforce learner/context report freshness, `covered_head`,

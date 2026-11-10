@@ -1,8 +1,8 @@
 # CodeStable 工具用法参考
 
-本文件由 `cs-onboard` 复制到项目的 `.codestable/reference/tools.md`，所有 CodeStable 子技能用项目相对路径 `.codestable/reference/tools.md` 引用。
+本文件随用到它的技能分发，位于该技能目录下的 `shared/tools.md`；源文件在 `cs-onboard/reference/`。技能只带自己会调用的脚本，完整工具集在 `cs-onboard/tools/`。
 
-`.codestable/tools/` 下共享脚本的完整用法参考。子技能里只写本技能特有的 1-2 行典型查询；完整语法和示例看这里。
+`{SKILL_DIR}/tools/` 下共享脚本的完整用法参考。子技能里只写本技能特有的 1-2 行典型查询；完整语法和示例看这里。
 
 ---
 
@@ -13,7 +13,7 @@
 ### 基本语法
 
 ```bash
-python3 .codestable/tools/search-yaml.py --dir {目录} [--filter key=value]... [--query "全文关键词"] [--sort-by FIELD [--order asc|desc]] [--full] [--json]
+python3 {SKILL_DIR}/tools/search-yaml.py --dir {目录} [--filter key=value]... [--query "全文关键词"] [--sort-by FIELD [--order asc|desc]] [--full] [--json]
 ```
 
 ### filter 语法
@@ -34,40 +34,40 @@ python3 .codestable/tools/search-yaml.py --dir {目录} [--filter key=value]... 
 
 ```bash
 # 按 doc_type 筛选
-python3 .codestable/tools/search-yaml.py --dir .codestable/compound --filter doc_type=learning
-python3 .codestable/tools/search-yaml.py --dir .codestable/compound --filter "doc_type=decision|explore|learning" --filter status=active
-python3 .codestable/tools/search-yaml.py --dir .codestable/compound --filter doc_type=decision --filter status=active
-python3 .codestable/tools/search-yaml.py --dir .codestable/compound --filter doc_type=trick --filter status=active
-python3 .codestable/tools/search-yaml.py --dir .codestable/compound --filter doc_type=explore --filter status=active
+python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --filter doc_type=learning
+python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --filter "doc_type=decision|explore|learning" --filter status=active
+python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --filter doc_type=decision --filter status=active
+python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --filter doc_type=trick --filter status=active
+python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --filter doc_type=explore --filter status=active
 
 # doc_type + 子技能内部细分字段
-python3 .codestable/tools/search-yaml.py --dir .codestable/compound --filter doc_type=learning --filter track=pitfall
-python3 .codestable/tools/search-yaml.py --dir .codestable/compound --filter doc_type=decision --filter category=constraint
-python3 .codestable/tools/search-yaml.py --dir .codestable/compound --filter doc_type=trick --filter type=pattern
-python3 .codestable/tools/search-yaml.py --dir .codestable/compound --filter doc_type=explore --filter type=question
+python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --filter doc_type=learning --filter track=pitfall
+python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --filter doc_type=decision --filter category=constraint
+python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --filter doc_type=trick --filter type=pattern
+python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --filter doc_type=explore --filter type=question
 
 # 按 tag（列表元素包含匹配）
-python3 .codestable/tools/search-yaml.py --dir .codestable/compound --filter tags~=prisma
+python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --filter tags~=prisma
 
 # 全文搜索
-python3 .codestable/tools/search-yaml.py --dir .codestable/compound --query "shadow database"
+python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --query "shadow database"
 
 # 按领域/框架/语言筛选
-python3 .codestable/tools/search-yaml.py --dir .codestable/compound --filter doc_type=decision --filter area=frontend
-python3 .codestable/tools/search-yaml.py --dir .codestable/compound --filter doc_type=trick --filter framework~=vue
-python3 .codestable/tools/search-yaml.py --dir .codestable/compound --filter doc_type=trick --filter language=typescript
+python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --filter doc_type=decision --filter area=frontend
+python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --filter doc_type=trick --filter framework~=vue
+python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --filter doc_type=trick --filter language=typescript
 
 # 搜索 feature 方案 doc
-python3 .codestable/tools/search-yaml.py --dir .codestable/features --filter doc_type=feature-design --filter status=approved
+python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/features --filter doc_type=feature-design --filter status=approved
 
 # 输出控制
-python3 .codestable/tools/search-yaml.py --dir .codestable/compound --filter doc_type=decision --filter status=active --full
-python3 .codestable/tools/search-yaml.py --dir .codestable/compound --filter tags~=llm --json
+python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --filter doc_type=decision --filter status=active --full
+python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --filter tags~=llm --json
 
 # 按时间排序
-python3 .codestable/tools/search-yaml.py --dir .codestable/compound --sort-by date --order desc                     # 最近归档的在前
-python3 .codestable/tools/search-yaml.py --dir .codestable/library-docs --sort-by last_reviewed --order asc         # 最久没 review 的在前（找陈旧文档）
-python3 .codestable/tools/search-yaml.py --dir .codestable/guides --filter status=current --sort-by last_reviewed --order asc
+python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --sort-by date --order desc                     # 最近归档的在前
+python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/library-docs --sort-by last_reviewed --order asc         # 最久没 review 的在前（找陈旧文档）
+python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/guides --filter status=current --sort-by last_reviewed --order asc
 ```
 
 ### 典型使用场景
@@ -90,13 +90,13 @@ YAML 语法校验工具。用于验证 frontmatter 语法和必填字段。
 
 ```bash
 # 校验单个文件的 YAML 语法
-python3 .codestable/tools/validate-yaml.py --file {文件路径} --yaml-only
+python3 {SKILL_DIR}/tools/validate-yaml.py --file {文件路径} --yaml-only
 
 # 校验必填字段
-python3 .codestable/tools/validate-yaml.py --file {文件路径} --require doc_type --require status
+python3 {SKILL_DIR}/tools/validate-yaml.py --file {文件路径} --require doc_type --require status
 
 # 批量校验目录下所有文件
-python3 .codestable/tools/validate-yaml.py --dir {目录} --require doc_type --require status
+python3 {SKILL_DIR}/tools/validate-yaml.py --dir {目录} --require doc_type --require status
 ```
 
 ---
@@ -106,19 +106,19 @@ python3 .codestable/tools/validate-yaml.py --dir {目录} --require doc_type --r
 实现完成门禁。用于 Stop hook 或手动检查：有实现代码变更时应在 linked worktree 内执行；已完成的 feature / issue / refactor 要有 `{slug}-implementation-review.md`，且默认必须声明 subagent reviewer。
 
 ```bash
-python3 .codestable/tools/validate-implementation-review.py --root . --json
+python3 {SKILL_DIR}/tools/validate-implementation-review.py --root . --json
 ```
 
 若用户明确要求直接在主 checkout 改代码，可临时显式 override：
 
 ```bash
-CODESTABLE_ALLOW_MAIN_CHECKOUT_IMPLEMENTATION=1 python3 .codestable/tools/validate-implementation-review.py --root .
+CODESTABLE_ALLOW_MAIN_CHECKOUT_IMPLEMENTATION=1 python3 {SKILL_DIR}/tools/validate-implementation-review.py --root .
 
 # 只有平台确实没有 subagent 能力时，才允许 self-review fallback
-CODESTABLE_ALLOW_SELF_REVIEW_FALLBACK=1 python3 .codestable/tools/validate-implementation-review.py --root .
+CODESTABLE_ALLOW_SELF_REVIEW_FALLBACK=1 python3 {SKILL_DIR}/tools/validate-implementation-review.py --root .
 ```
 
-配到 Codex / Claude Stop hook 时，可调用 `.codestable/tools/codestable-implementation-gate.sh`。
+配到 Codex / Claude Stop hook 时，可调用 `{SKILL_DIR}/tools/codestable-implementation-gate.sh`。
 
 ---
 
@@ -127,7 +127,7 @@ CODESTABLE_ALLOW_SELF_REVIEW_FALLBACK=1 python3 .codestable/tools/validate-imple
 CodeStable 生命周期状态检查工具。只读，不修改文件。用于开始工作、恢复上下文、最终汇报前判断当前仓库是否还有阻塞项。
 
 ```bash
-python3 .codestable/tools/codestable-doctor.py --root . --json
+python3 {SKILL_DIR}/tools/codestable-doctor.py --root . --json
 ```
 
 JSON 关键字段：
@@ -145,7 +145,7 @@ JSON 关键字段：
 
 ```bash
 # 汇报前确认没有遗漏的人审 / follow-up / worktree 阻塞
-python3 .codestable/tools/codestable-doctor.py --root . --json
+python3 {SKILL_DIR}/tools/codestable-doctor.py --root . --json
 ```
 
 ---
@@ -159,7 +159,7 @@ CodeStable worktree 生命周期门禁。用于实现开始前、提交前、以
 实现开始前运行。feature / issue / refactor 这类实现单元必须在 linked execution worktree 中开始；如果用户明确批准在主检出中实现，单元目录下必须有 `worktree-override.md`，并写明 reason、scope、approval。
 
 ```bash
-python3 .codestable/tools/codestable-worktree-gate.py --root . --json start --unit .codestable/features/YYYY-MM-DD-slug
+python3 {SKILL_DIR}/tools/codestable-worktree-gate.py --root . --json start --unit .codestable/features/YYYY-MM-DD-slug
 ```
 
 通过后 gate 会把 baseline 写入 Git 私有路径，不污染工作树。
@@ -173,7 +173,7 @@ python3 .codestable/tools/codestable-worktree-gate.py --root . --json start --un
 - 完成的 implementation unit 缺少 subagent implementation review。
 
 ```bash
-python3 .codestable/tools/codestable-worktree-gate.py --root . --json commit --unit .codestable/features/YYYY-MM-DD-slug
+python3 {SKILL_DIR}/tools/codestable-worktree-gate.py --root . --json commit --unit .codestable/features/YYYY-MM-DD-slug
 ```
 
 如果 staged 文件横跨 code / docs / data / logs / migrations 等多个 bucket，命令会给出 P2 warning；它不会替你 stage、unstage 或 commit。
@@ -183,7 +183,7 @@ python3 .codestable/tools/codestable-worktree-gate.py --root . --json commit --u
 误在主协调检出开始实现时，用 quarantine 先生成恢复计划。默认 dry-run，不创建分支、不创建 worktree、不移动文件、不改 index。
 
 ```bash
-python3 .codestable/tools/codestable-worktree-gate.py --root . --json quarantine --unit .codestable/features/YYYY-MM-DD-slug
+python3 {SKILL_DIR}/tools/codestable-worktree-gate.py --root . --json quarantine --unit .codestable/features/YYYY-MM-DD-slug
 ```
 
 只有同时满足以下条件才允许创建 quarantine worktree：
@@ -193,7 +193,7 @@ python3 .codestable/tools/codestable-worktree-gate.py --root . --json quarantine
 - 没有未跟踪的 `.env`、token、secret 等敏感文件
 
 ```bash
-python3 .codestable/tools/codestable-worktree-gate.py --root . --json quarantine --unit .codestable/features/YYYY-MM-DD-slug --apply
+python3 {SKILL_DIR}/tools/codestable-worktree-gate.py --root . --json quarantine --unit .codestable/features/YYYY-MM-DD-slug --apply
 ```
 
 Phase 1 只创建安全 execution worktree，不自动搬 dirty 文件；文件迁移仍由 owner 显式处理。
@@ -205,7 +205,7 @@ Phase 1 只创建安全 execution worktree，不自动搬 dirty 文件；文件�
 独立 subagent review 的输入包生成器。它把本次 unit 文档、diff stat、聚焦 diff、验证结果和风险提示整理成一份可发给 reviewer 的 Markdown，并自动隐藏 `.env` / token / secret 类路径和值。`--stage` 用来区分 review 目的，默认 `implementation` 兼容旧调用。
 
 ```bash
-python3 .codestable/tools/build-review-packet.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --stage quality --output /tmp/codestable-review.md \
+python3 {SKILL_DIR}/tools/build-review-packet.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --stage quality --output /tmp/codestable-review.md \
   --validation "uv run pytest -> passed" \
   --validation "CLI smoke -> passed"
 ```
@@ -234,7 +234,7 @@ python3 .codestable/tools/build-review-packet.py --root . --unit .codestable/fea
 阶段交接上下文和受众报告生成器。它用于给下一阶段 agent、reviewer、human reviewer、owner 或学习者一份可落盘的 context packet，不复制完整聊天历史。
 
 ```bash
-python3 .codestable/tools/build-context-packet.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --audience handoff --output /tmp/codestable-handoff.md \
+python3 {SKILL_DIR}/tools/build-context-packet.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --audience handoff --output /tmp/codestable-handoff.md \
   --decided "Use staged review packets" \
   --rejected "Do not adopt full Team pipeline" \
   --risk "Verification can be skipped if no gate enforces evidence" \
@@ -245,7 +245,7 @@ python3 .codestable/tools/build-context-packet.py --root . --unit .codestable/fe
 生成人审 / 决策 / 学习报告：
 
 ```bash
-python3 .codestable/tools/build-context-packet.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --audience human-reviewer --language zh --output /tmp/codestable-human-review.md \
+python3 {SKILL_DIR}/tools/build-context-packet.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --audience human-reviewer --language zh --output /tmp/codestable-human-review.md \
   --decided "保持轻量 context packet，不复制完整聊天历史" \
   --rejected "不把 AGENTS.md 变成全部上下文" \
   --risk "缺少 reviewer evidence 会阻塞完成" \
@@ -265,7 +265,7 @@ audience:
 `owner-judgment` 还应传入判断专用上下文，strict check 会要求这些字段非空：
 
 ```bash
-python3 .codestable/tools/build-context-packet.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --audience owner-judgment --language zh --output /tmp/codestable-owner-judgment.md \
+python3 {SKILL_DIR}/tools/build-context-packet.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --audience owner-judgment --language zh --output /tmp/codestable-owner-judgment.md \
   --judgment "是否授权 subagent review" \
   --why-now "完成门槛要求 implementation review" \
   --term "Subagent Review = 独立 reviewer agent 做只读审查" \

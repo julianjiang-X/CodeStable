@@ -81,7 +81,7 @@ CRITICAL_SCENARIO_IDS = {
     "owner-judgment-context",
     "path-named-worktree-not-linked",
     "realistic-spec-no-free-rewrite",
-    "reference-drift-blocks-stale-copy",
+    "reference-legacy-copy-does-not-block",
     "review-authorization-before-code",
     "review-followup-reports-three-states",
     "review-packet-redacts-secrets",

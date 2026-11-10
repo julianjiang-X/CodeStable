@@ -2,7 +2,7 @@
 
 经济性不是把代码写短，而是在理解真实路径与质量承诺之后，用系统能长期承受的**最少新增复杂度**完成变化。它同时防两端：过度工程与草率最小化。
 
-由 `cs-onboard` 从技能包复制到 `.codestable/reference/economy.md`。`cs-feat-impl`、`cs-feat-ff`、`cs-issue-fix`、`cs-refactor` 在结构与取舍拿不准时读它。
+本文件随用到它的技能分发，位于该技能目录下的 `shared/economy.md`；源文件在 `cs-onboard/reference/`。`cs-feat impl`、`cs-feat ff`、`cs-issue fix`、`cs-refactor` 在结构与取舍拿不准时读它。
 
 ## 先理解，再最小化
 
@@ -40,7 +40,7 @@ bug 报告通常只给一条症状路径；改共享责任前先搜调用方与�
 
 **没有上限或触发条件的"先这样"不是有界简化。** 升级触发已发生却仍破坏目标的，不能包装成可交付的简化。
 
-记录落点：只影响本次交付的写进当前 unit 的 spec（design / fix-note / ff-note）；长期有效的坑点用 `cs-learn` 沉淀到 `.codestable/compound/`。
+记录落点：只影响本次交付的写进当前 unit 的 spec（design / fix-note / ff-note）；长期有效的坑点用 `cs-keep learn` 沉淀到 `.codestable/compound/`。
 
 ## 保护不能被省略的部分
 

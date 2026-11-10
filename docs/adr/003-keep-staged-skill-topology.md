@@ -1,7 +1,8 @@
 ---
 adr: "003"
 title: "保留分阶段技能拓扑，用风险模型而不是合并入口来控制流程重量"
-status: Accepted
+status: Superseded
+superseded-by: "004"
 date: 2026-08-14
 applies-to:
   - "cs*/SKILL.md"

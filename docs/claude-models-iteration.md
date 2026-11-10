@@ -25,27 +25,35 @@ with human messages).
 
 1. **Scope gate.** `cs` and `using-codestable` now state that CodeStable applies
    only where `.codestable/attention.md` exists, or when the user names a skill
-   or asks for setup. Stage skill descriptions carry the same condition.
+   or asks for setup. Skill descriptions carry the same condition.
 2. **Standing owner rules.** A scope or authorization rule the owner states is
    recorded in `attention.md` in the same turn (`cs`, `using-codestable`,
-   `cs-note`). `cs-note` also asks for scoped, reasoned cautions and for pruning,
+   `cs-keep note`). `cs-keep note` also asks for scoped, reasoned cautions and for pruning,
    because Claude Fable 5.2 applies cautions as written and they accumulate.
 3. **Reporting.** Reports name what was and was not exercised and end with the
    next step, which is taken when already authorized.
 4. **Round budget.** The rule now says what to do at the budget instead of
    implying a stop. One converging extra round is pre-authorized.
 5. **Discussion stance.** `cs-brainstorm` leads with a position and reasons.
-   `cs-feat-design` separates what the agent decides from what the owner decides.
+   `cs-feat design` separates what the agent decides from what the owner decides.
    Explicit `interview me` and `grill me` are unchanged.
 
-## What did not change
+## Structural change in 3.0.0
+
+The owner approved the structural part after the first round.
+
+- 28 skill entries became 15. Stage skills moved unchanged into `stages/` of
+  `cs-feat`, `cs-issue` and `cs-refactor`. Six record skills became modes of the
+  new `cs-keep`. The owner never invoked a stage skill by name in the scanned
+  sessions, and six of the merged skills had zero or one use.
+- Shared references and tools ship inside each skill. Projects no longer hold a
+  `reference/` or `tools/` copy to refresh. In the scan, the copied tool scripts
+  ran 0 times and the most active project had no copy at all.
 
 Lifecycle records, review independence, worktree gates and publication gates
 are unchanged. Approval triggers are unchanged except for the two items above:
 a converging fourth review round no longer needs the owner, and an owner-stated
-scope rule counts as authorization to record it. No skill was merged or removed, and the shared
-`tools/` and `reference/` copies remain. Those are structural changes and need
-their own decision.
+scope rule counts as authorization to record it.
 
 ## Effort by stage
 
@@ -64,11 +72,6 @@ behalf.
 Rerun this table for each model release. It was written for the models above.
 
 ## Limits
-
-The round budget and the owner-rules section live in the shared reference
-`execution-conventions.md`. Onboarded projects see them only after their
-`.codestable/reference/` copy is refreshed, and the package version has not been
-bumped, so the doctor will not flag an old copy.
 
 These edits are text changes validated by the deterministic harness only. No
 live model comparison was run for them. The session scan is one owner's usage
@@ -101,22 +104,28 @@ over 40 days and its classifications came from model judges.
 ## 改了什么
 
 1. **范围门槛。** `cs` 与 `using-codestable` 写明：仓库有 `.codestable/attention.md`，
-   或用户点名技能、要求接入时才启用。各阶段技能的描述带同一条件。
+   或用户点名技能、要求接入时才启用。各技能的描述带同一条件。
 2. **owner 的常驻规矩。** owner 说出的范围或授权规矩当场写入 `attention.md`
-   （`cs`、`using-codestable`、`cs-note`）。`cs-note` 还要求谨慎条款写明范围和原因
+   （`cs`、`using-codestable`、`cs-keep note`）。`cs-keep note` 还要求谨慎条款写明范围和原因
    、原因不成立时提出删除，因为 Claude Fable 5.2 会照字面执行这类条款，而它们会越积越多。
 3. **汇报。** 汇报写明哪些跑过、哪些没跑，末尾写出下一步；已有授权时直接做。
 4. **轮次上限。** 规则现在写明到上限后怎么办，不再隐含"停下"。收敛中的额外一轮
    预先授权。
-5. **讨论方式。** `cs-brainstorm` 先给主张和理由。`cs-feat-design` 区分 agent 自己
+5. **讨论方式。** `cs-brainstorm` 先给主张和理由。`cs-feat design` 区分 agent 自己
    定的事和 owner 定的事。显式 `interview me` 与 `grill me` 不变。
 
-## 没改什么
+## 3.0.0 的结构改动
+
+第一轮之后 owner 批准了结构部分。
+
+- 28 个技能入口变成 15 个。阶段技能的正文原样移进 `cs-feat`、`cs-issue`、
+  `cs-refactor` 的 `stages/`；六个记录类技能变成新技能 `cs-keep` 的模式。扫描到的
+  会话里 owner 从未点名调用过阶段技能，被合并的技能里有六个只用过 0 到 1 次。
+- 共享参考和工具随各技能分发，项目里不再有需要刷新的 `reference/`、`tools/` 副本。
+  扫描期间复制到项目的工具脚本执行了 0 次，最活跃的项目里根本没有副本。
 
 生命周期档案、审查独立性、worktree 门禁和发布门禁都不变。审批触发条件除上面两处外
-不变：收敛中的第四轮审查不再需要 owner，owner 说出的范围规矩本身算记录授权。没有合并
-或删除任何技能，共享的 `tools/` 与 `reference/` 副本仍在。那些是结构性改动，需要
-单独决定。
+不变：收敛中的第四轮审查不再需要 owner，owner 说出的范围规矩本身算记录授权。
 
 ## 各阶段的努力级别
 
@@ -133,10 +142,6 @@ over 40 days and its classifications came from model judges.
 每次模型发布后重做这张表。它是按上面列出的模型写的。
 
 ## 局限
-
-轮次上限和 owner 规矩两节在共享参考 `execution-conventions.md` 里。已接入的项目要
-刷新 `.codestable/reference/` 副本后才生效；包版本号没有提升，所以 doctor 不会提示
-旧副本。
 
 这些是文字改动，只经过确定性 harness 验证，没有为它们做真实模型对照。会话扫描
 只覆盖一位 owner 40 天的使用，其中的分类来自模型评判。

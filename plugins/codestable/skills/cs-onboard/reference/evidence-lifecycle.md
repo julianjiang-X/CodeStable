@@ -2,7 +2,7 @@
 
 归档类文档（`.codestable/compound/` 下的 learning / trick / decision / explore）的结论不是一落盘就可信。`evidence` 字段记录它被验证到哪一步。
 
-由 `cs-onboard` 从技能包复制到 `.codestable/reference/evidence-lifecycle.md`。`cs-learn` / `cs-trick` / `cs-decide` / `cs-explore` 写入时用它，四个执行技能检索命中时用它。
+本文件随用到它的技能分发，位于该技能目录下的 `shared/evidence-lifecycle.md`；源文件在 `cs-onboard/reference/`。`cs-keep learn` / `cs-keep trick` / `cs-keep decide` / `cs-explore` 写入时用它，四个执行技能检索命中时用它。
 
 `evidence` 与 `status` 正交，不要混用：`status` 说的是**这份文档还算不算数**（active / superseded / outdated / deprecated），`evidence` 说的是**里面的结论被验证到什么程度**。一条 `status: active` 的 learning 完全可以是 `evidence: observed`。
 

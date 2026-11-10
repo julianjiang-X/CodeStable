@@ -2,7 +2,7 @@
 
 写代码前先确认每个维度的档位。没明说的走默认，偏离默认的地方要标出来让用户确认。
 
-这份文档是 CodeStable 子技能共享的口径，被 design / fastforward / issue-fix 等阶段引用。项目内的权威副本在 `.codestable/reference/code-dimensions.md`，由 `cs-onboard` 从技能包释放。
+这份文档是 CodeStable 子技能共享的口径，被 design / fastforward / issue-fix 等阶段引用。它随用到它的技能分发，位于该技能目录下的 `shared/code-dimensions.md`；源文件在 `cs-onboard/reference/`。
 
 ---
 

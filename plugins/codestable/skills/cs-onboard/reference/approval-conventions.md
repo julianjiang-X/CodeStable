@@ -1,7 +1,7 @@
 # Approval Conventions
 
-This file is copied by `cs-onboard` to
-`.codestable/reference/approval-conventions.md`. It owns the global rule for
+This file ships inside each skill that uses it, as `shared/approval-conventions.md` in that skill's
+directory. Its source is `cs-onboard/reference/approval-conventions.md`. It owns the global rule for
 human approval reports.
 
 ## Core Rule
@@ -25,10 +25,10 @@ Canonical stage reports can satisfy this rule when they already contain the
 decision, options, recommendation, tradeoffs, evidence, consequence, and next
 action. Examples:
 
-- `cs-feat-design` design review;
-- `cs-issue-analyze` fix-option analysis;
-- `cs-issue-fix` fix-note / implementation review;
-- `cs-feat-accept` acceptance report.
+- `cs-feat design` design review;
+- `cs-issue analyze` fix-option analysis;
+- `cs-issue fix` fix-note / implementation review;
+- `cs-feat accept` acceptance report.
 
 When no such stage report exists, write:
 

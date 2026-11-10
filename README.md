@@ -12,7 +12,7 @@
 
 <p>
   <img src="https://img.shields.io/badge/status-beta-F59E0B?style=flat-square" alt="Status"/>
-  <img src="https://img.shields.io/badge/skills-28-6366F1?style=flat-square" alt="Skills"/>
+  <img src="https://img.shields.io/badge/skills-15-6366F1?style=flat-square" alt="Skills"/>
   <img src="https://img.shields.io/badge/license-MIT-10B981?style=flat-square" alt="License"/>
 </p>
 
@@ -78,10 +78,10 @@ CodeStable 的判断是：严肃软件工程的混乱，很多时候不是 agent
 
 | 流程 | 技能链 | 说明 |
 |---|---|---|
-| 特性引入 | `cs-feat` -> `cs-feat-design` -> `cs-feat-impl` -> `cs-feat-accept` | 想清楚、写方案、按清单实现、对照验收 |
+| 特性引入 | `cs-feat` -> `cs-feat design` -> `cs-feat impl` -> `cs-feat accept` | 想清楚、写方案、按清单实现、对照验收 |
 | 目标达成 | `cs-goal` | 先 grill 对齐并写起点报告，再自主实现、验证、迭代，完成前做功能验收 |
-| 问题修改 | `cs-issue` -> `cs-issue-report` -> `cs-issue-analyze` -> `cs-issue-fix` | 先记录现象，再找根因，最后定点修复 |
-| 代码重构 | `cs-refactor` / `cs-refactor-ff` | 行为不变、结构变；完整流程分 scan / design / apply |
+| 问题修改 | `cs-issue` -> `cs-issue report` -> `cs-issue analyze` -> `cs-issue fix` | 先记录现象，再找根因，最后定点修复 |
+| 代码重构 | `cs-refactor` / `cs-refactor ff` | 行为不变、结构变；完整流程分 scan / design / apply |
 
 `interview me` / `grill me` 是全局对话模式：前者轻量采访收集上下文，后者可深入压测计划 / 设计的每个相关分支；它们先帮助路由，不是新的生命周期实体。`cs-brainstorm` 是模糊想法的讨论入口，`cs-roadmap` 承接单个 feature 吃不下的大需求，`cs-audit` 用来主动发现风险但不直接修。
 
@@ -94,28 +94,28 @@ CodeStable 的判断是：严肃软件工程的混乱，很多时候不是 agent
 <tr><td><b>自动入口</b></td><td><code>using-codestable</code></td><td>按需应用项目上下文并选择相关阶段</td></tr>
 <tr><td><b>根入口</b></td><td><code>cs</code></td><td>介绍体系，处理 interview / grill 对话模式，并把开放式诉求路由到正确的 cs 子技能</td></tr>
 <tr><td><b>接入</b></td><td><code>cs-onboard</code></td><td>为新仓库或已有零散文档的仓库创建 / 迁移 CodeStable 骨架</td></tr>
-<tr><td rowspan="2"><b>需求 & 架构</b></td><td><code>cs-req</code></td><td>维护能力愿景文档，支持 draft / current / outdated</td></tr>
-<tr><td><code>cs-arch</code></td><td>维护只记现状的架构地图，不承载未来规划</td></tr>
+<tr><td rowspan="2"><b>需求 & 架构</b></td><td><code>cs-keep req</code></td><td>维护能力愿景文档，支持 draft / current / outdated</td></tr>
+<tr><td><code>cs-keep arch</code></td><td>维护只记现状的架构地图，不承载未来规划</td></tr>
 <tr><td rowspan="3"><b>规划 & 讨论</b></td><td><code>cs-goal</code></td><td>限定起点/终点的目标达成：起点报告、自主迭代、功能验收</td></tr>
 <tr><td><code>cs-roadmap</code></td><td>为大需求生成概设、接口契约和子 feature 清单</td></tr>
 <tr><td><code>cs-brainstorm</code></td><td>想法模糊时先讨论和分诊：直接 design、轻量 feature、或 roadmap</td></tr>
 <tr><td rowspan="5"><b>特性流程</b></td><td><code>cs-feat</code></td><td>选择功能阶段并继续已授权工作</td></tr>
-<tr><td><code>cs-feat-design</code></td><td>起草 <code>{slug}-design.md</code> 和 <code>{slug}-checklist.yaml</code></td></tr>
-<tr><td><code>cs-feat-impl</code></td><td>按 checklist 推进实现，遇到方案外情况回方案谈</td></tr>
-<tr><td><code>cs-feat-accept</code></td><td>验收实现，并同步 architecture / requirement delta / roadmap 状态</td></tr>
-<tr><td><code>cs-feat-ff</code></td><td>小需求快速通道：不写完整 design，但保留可追溯 note</td></tr>
+<tr><td><code>cs-feat design</code></td><td>起草 <code>{slug}-design.md</code> 和 <code>{slug}-checklist.yaml</code></td></tr>
+<tr><td><code>cs-feat impl</code></td><td>按 checklist 推进实现，遇到方案外情况回方案谈</td></tr>
+<tr><td><code>cs-feat accept</code></td><td>验收实现，并同步 architecture / requirement delta / roadmap 状态</td></tr>
+<tr><td><code>cs-feat ff</code></td><td>小需求快速通道：不写完整 design，但保留可追溯 note</td></tr>
 <tr><td rowspan="4"><b>问题流程</b></td><td><code>cs-issue</code></td><td>bug 修复子流程入口</td></tr>
-<tr><td><code>cs-issue-report</code></td><td>只记录现象、复现和影响，不猜根因</td></tr>
-<tr><td><code>cs-issue-analyze</code></td><td>读代码定位根因，给 2-3 个修复方案让 owner 拍板</td></tr>
-<tr><td><code>cs-issue-fix</code></td><td>按已确认方案定点修复、验证、写 fix-note</td></tr>
+<tr><td><code>cs-issue report</code></td><td>只记录现象、复现和影响，不猜根因</td></tr>
+<tr><td><code>cs-issue analyze</code></td><td>读代码定位根因，给 2-3 个修复方案让 owner 拍板</td></tr>
+<tr><td><code>cs-issue fix</code></td><td>按已确认方案定点修复、验证、写 fix-note</td></tr>
 <tr><td rowspan="2"><b>重构流程</b></td><td><code>cs-refactor</code></td><td>结构 / 性能 / 可读性优化的完整流程</td></tr>
-<tr><td><code>cs-refactor-ff</code></td><td>小范围行为等价优化的快速通道</td></tr>
+<tr><td><code>cs-refactor ff</code></td><td>小范围行为等价优化的快速通道</td></tr>
 <tr><td rowspan="2"><b>审计 & 探索</b></td><td><code>cs-audit</code></td><td>主动扫描 bug 隐患、安全风险、性能问题、维护债、架构偏离</td></tr>
 <tr><td><code>cs-explore</code></td><td>把定向代码探索沉淀成可复用证据</td></tr>
-<tr><td rowspan="4"><b>知识沉淀</b></td><td><code>cs-learn</code></td><td>沉淀坑点和最佳实践</td></tr>
-<tr><td><code>cs-trick</code></td><td>沉淀可复用模式、库用法和技术技巧</td></tr>
-<tr><td><code>cs-decide</code></td><td>记录已拍板的技术选型、架构决定和长期约束</td></tr>
-<tr><td><code>cs-note</code></td><td>把短、稳、每次启动都该知道的项目注意事项写入 <code>.codestable/attention.md</code></td></tr>
+<tr><td rowspan="4"><b>知识沉淀</b></td><td><code>cs-keep learn</code></td><td>沉淀坑点和最佳实践</td></tr>
+<tr><td><code>cs-keep trick</code></td><td>沉淀可复用模式、库用法和技术技巧</td></tr>
+<tr><td><code>cs-keep decide</code></td><td>记录已拍板的技术选型、架构决定和长期约束</td></tr>
+<tr><td><code>cs-keep note</code></td><td>把短、稳、每次启动都该知道的项目注意事项写入 <code>.codestable/attention.md</code></td></tr>
 <tr><td><b>外部文档</b></td><td><code>cs-guide</code></td><td>写开发者指南 / 用户指南 / API 参考，默认输出到 <code>docs/dev/</code>、<code>docs/user/</code> 和 <code>docs/api/</code></td></tr>
 <tr><td><b>浏览器</b></td><td><code>browser-bridge</code></td><td>通过 Chrome 扩展做真实浏览器操作、DOM 抽取和组件证据采集</td></tr>
 <tr><td><b>维护</b></td><td><code>codestable-maintainer</code></td><td>维护 CodeStable 源仓、harness、fresh clone verifier 和 main-only installed copy sync</td></tr>
@@ -139,19 +139,16 @@ your-project/
 │   ├── issues/                      # report / analysis / review / fix-note
 │   ├── refactors/                   # scan / design / checklist / review / apply-notes
 │   ├── compound/                    # learning / trick / decision / explore
-│   ├── brainstorms/                 # brainstorm spike 临时代码区
-│   ├── tools/                       # onboard 释放的共享脚本
-│   └── reference/                   # onboard 释放的共享口径（含 MANIFEST.json）
+│   └── brainstorms/                 # brainstorm spike 临时代码区
 └── docs/                            # cs-guide 默认写这里
 ```
 
 几条硬约束：
 
-- `.codestable/reference/` 和 `.codestable/tools/` 是技能包副本，升级后必须重新释放。`reference/MANIFEST.json` 记录释放版本，`codestable-doctor.py` 用它检测两半只刷新了一个（P1）或副本从未刷新（P2）。步骤见 [UPGRADE.md](./UPGRADE.md)。
-
+- 共享口径和工具脚本随各技能分发（技能目录下的 `shared/` 与 `tools/`），项目里没有需要刷新的副本。从 2.x 升级见 [UPGRADE.md](./UPGRADE.md)。
 - 子技能只读 `.codestable/attention.md` 作为项目注意事项入口，不兼容 `AGENTS.md` / `CLAUDE.md` 作为 CodeStable 状态源。
 - 人读报告的正文语言由 `.codestable/attention.md` 的项目规则决定；子技能不硬编码特定语言或双语副本。
-- 共享口径不放在某个 skill 包里互相引用；`cs-onboard` 会把 `reference/` 和 `tools/` 复制到工作项目的 `.codestable/` 下。
+- 技能之间不互相读文件：共享口径的源在 `cs-onboard/reference/`，由 `codestable-maintainer/tools/sync-shared.py` 同步到用到它的技能的 `shared/` 下，测试保证副本与源一致。
 - `requirements/` 和 `architecture/` 是长效档案；`roadmap/` 是规划层；`goals/` 是自主迭代目标和终点功能验收记录；`features/`、`issues/`、`refactors/` 是事件执行记录；`compound/` 是唯一知识沉淀目录。
 - 旧版 `codestable/` / `easysdd/` 目录属于历史兼容入口，当前子技能只认 `.codestable/`。
 
@@ -159,7 +156,7 @@ your-project/
 
 ## 当前工具层
 
-`cs-onboard` 会释放一组确定性工具到 `.codestable/tools/`，用来补上 agent 容易漂移的边界：
+技能包带一组确定性工具，用来补上 agent 容易漂移的边界。完整工具集在 `cs-onboard/tools/`，各技能只带自己会调用的那几个（技能目录下的 `tools/`）：
 
 | 工具 | 作用 |
 |---|---|
@@ -223,7 +220,7 @@ CodeStable 与 OMO 的哲学相反：OMO 认为人介入是失败信号；CodeSt
 
 两条贯穿全局的原则：
 
-- **风险决定保障强度，任务类型只决定工程方法**——`执行流程 = 最小闭环 + 每个未排除风险所要求的最少保障`。行数、文件数、task kind 都不是风险的代理指标。口径见 `.codestable/reference/assurance.md`。
+- **风险决定保障强度，任务类型只决定工程方法**——`执行流程 = 最小闭环 + 每个未排除风险所要求的最少保障`。行数、文件数、task kind 都不是风险的代理指标。口径见 `cs-onboard/reference/assurance.md`。
 - **机械 guard 优先**——能被一条测试、checker 或 lint 挡住的约束，不应该只写成文档。写下来但没人守的规则会静默腐烂。
 
 难回退的架构决定记录在 [docs/adr/](./docs/adr/)，版本变化见 [CHANGELOG.md](./CHANGELOG.md)。

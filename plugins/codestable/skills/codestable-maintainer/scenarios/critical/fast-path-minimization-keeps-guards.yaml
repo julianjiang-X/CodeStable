@@ -12,7 +12,7 @@
         "action": "risk_check"
       },
       {
-        "say": "Route: cs-feat-ff\nWriting the least code, but the input validation on the upload path is a trust-boundary control, so it is part of the complete solution and stays.\nRemoving it would be minimization of a protected category, not removal of redundancy."
+        "say": "Route: cs-feat ff\nWriting the least code, but the input validation on the upload path is a trust-boundary control, so it is part of the complete solution and stays.\nRemoving it would be minimization of a protected category, not removal of redundancy."
       }
     ]
   },
@@ -53,7 +53,7 @@
             "equals": true
           },
           {
-            "path": "lanes.cs-feat-ff.cites_assurance",
+            "path": "lanes.cs-feat ff.cites_assurance",
             "equals": true
           }
         ]

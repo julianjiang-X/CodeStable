@@ -5,6 +5,8 @@ description: "编写或更新开发者、用户与 API 指南，保持与行为�
 
 # cs-guide
 
+> `{SKILL_DIR}` 指本技能目录（本文件所在目录）。正文里的相对路径（`stages/`、`references/`、`reference/`、`shared/`、`tools/`）都相对于它；本技能没有的子目录就是用不到。
+
 ## 启动必读
 
 遵循项目入口和 `.codestable/attention.md` 中的约束；已加载且未变化的上下文直接复用。按当前任务读取相关记录和引用，缺少可选骨架不阻塞工作。
@@ -55,10 +57,10 @@ description: "编写或更新开发者、用户与 API 指南，保持与行为�
 检索：
 
 ```
-python3 .codestable/tools/search-yaml.py --dir docs/dev --filter doc_type=dev-guide --filter status=current
-python3 .codestable/tools/search-yaml.py --dir docs/user --filter doc_type=user-guide --filter component={feature-slug}
-python3 .codestable/tools/search-yaml.py --dir docs/api --filter doc_type=api-reference --filter status=current
-python3 .codestable/tools/search-yaml.py --dir docs/api --filter doc_type=lib-api-ref --filter status=current
+python3 {SKILL_DIR}/tools/search-yaml.py --dir docs/dev --filter doc_type=dev-guide --filter status=current
+python3 {SKILL_DIR}/tools/search-yaml.py --dir docs/user --filter doc_type=user-guide --filter component={feature-slug}
+python3 {SKILL_DIR}/tools/search-yaml.py --dir docs/api --filter doc_type=api-reference --filter status=current
+python3 {SKILL_DIR}/tools/search-yaml.py --dir docs/api --filter doc_type=lib-api-ref --filter status=current
 ```
 
 `lib-api-ref` 是已退休 `cs-libdoc` 的旧文档类型，只用于发现历史文档。遇到旧文档时按更新处理，就地迁到 `doc_type: api-reference`，不要新建第二份。
@@ -192,12 +194,12 @@ API reference 硬规则：
 
 | 来源 | 关系 |
 |---|---|
-| `cs-feat-accept` | 验收后主动推：开发者用法变更推 dev-guide，用户可见变更推 user-guide，公开表面变更推 api-reference |
-| `cs-feat-design` | 方案第 2 节是 dev-guide / api-reference 补充信息源；第 1 节是 user-guide 主要信息源；API 仍以源码为准 |
+| `cs-feat accept` | 验收后主动推：开发者用法变更推 dev-guide，用户可见变更推 user-guide，公开表面变更推 api-reference |
+| `cs-feat design` | 方案第 2 节是 dev-guide / api-reference 补充信息源；第 1 节是 user-guide 主要信息源；API 仍以源码为准 |
 | `cs-onboard` | 新仓库接入后可补全基础文档骨架 |
-| `cs-arch` (check) | 检测到 design 与代码不一致时对应 guide 应同步标 `outdated` |
-| `cs-decide` | dev-guide 引用的技术选型应来自 decisions，不独立发明 |
-| `cs-trick` | dev-guide 用法示例若与 tricks 重合，交叉引用而不重复写 |
+| `cs-keep arch` (check) | 检测到 design 与代码不一致时对应 guide 应同步标 `outdated` |
+| `cs-keep decide` | dev-guide 引用的技术选型应来自 decisions，不独立发明 |
+| `cs-keep trick` | dev-guide 用法示例若与 tricks 重合，交叉引用而不重复写 |
 
 ---
 

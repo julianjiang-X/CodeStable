@@ -17,7 +17,7 @@ from pathlib import Path
 # mismatch against `.codestable/reference/MANIFEST.json` means the project
 # refreshed one half of the shared runtime but not the other.
 # Kept in sync with the repository VERSION file by tests/test_package_contract.py.
-PACKAGE_VERSION = "2.1.0"
+PACKAGE_VERSION = "3.0.0"
 
 REFERENCE_MANIFEST_RELPATH = ".codestable/reference/MANIFEST.json"
 
@@ -144,30 +144,17 @@ KNOWN_SKILL_DIRS = {
     "browser-bridge",
     "codestable-maintainer",
     "cs",
-    "cs-arch",
     "cs-audit",
     "cs-brainstorm",
-    "cs-decide",
     "cs-explore",
     "cs-feat",
-    "cs-feat-accept",
-    "cs-feat-design",
-    "cs-feat-ff",
-    "cs-feat-impl",
     "cs-goal",
     "cs-guide",
     "cs-issue",
-    "cs-issue-analyze",
-    "cs-issue-fix",
-    "cs-issue-report",
-    "cs-learn",
-    "cs-note",
+    "cs-keep",
     "cs-onboard",
     "cs-refactor",
-    "cs-refactor-ff",
-    "cs-req",
     "cs-roadmap",
-    "cs-trick",
     "using-codestable",
 }
 

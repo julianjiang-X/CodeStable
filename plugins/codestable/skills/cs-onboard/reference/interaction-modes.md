@@ -1,7 +1,7 @@
 # Interaction Modes
 
-This file is copied by `cs-onboard` to
-`.codestable/reference/interaction-modes.md`. It defines shared conversational
+This file ships inside each skill that uses it, as `shared/interaction-modes.md` in that skill's
+directory. Its source is `cs-onboard/reference/interaction-modes.md`. It defines shared conversational
 modes that run before a concrete `cs-*` lifecycle route is fully selected.
 
 ## Purpose

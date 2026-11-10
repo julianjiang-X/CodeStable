@@ -12,7 +12,7 @@
         "action": "risk_check"
       },
       {
-        "say": "Route: cs-feat-ff\nScale: 1 file, 5 lines - no scale trigger fires.\nRisk fact: the change edits a permission check, which is a trust boundary.\nAdded assurance, copying the whole assurance.md row: targeted security evidence, plus a security-purpose review stacked on top of the lane floor review (加审), plus owner confirmation because tightening the role check moves the authorization boundary.\nStaying in fastforward, not switching to design.\nRisk fact -> added assurance recorded in the ff-note."
+        "say": "Route: cs-feat ff\nScale: 1 file, 5 lines - no scale trigger fires.\nRisk fact: the change edits a permission check, which is a trust boundary.\nAdded assurance, copying the whole assurance.md row: targeted security evidence, plus a security-purpose review stacked on top of the lane floor review (加审), plus owner confirmation because tightening the role check moves the authorization boundary.\nStaying in fastforward, not switching to design.\nRisk fact -> added assurance recorded in the ff-note."
       },
       {
         "write": {
@@ -82,23 +82,23 @@
             "equals": true
           },
           {
-            "path": "lanes.cs-feat-ff.ok",
+            "path": "lanes.cs-feat ff.ok",
             "equals": true
           },
           {
-            "path": "lanes.cs-feat-ff.missing_categories",
+            "path": "lanes.cs-feat ff.missing_categories",
             "equals": []
           },
           {
-            "path": "lanes.cs-feat-ff.takes_full_row",
+            "path": "lanes.cs-feat ff.takes_full_row",
             "equals": true
           },
           {
-            "path": "lanes.cs-issue-fix.ok",
+            "path": "lanes.cs-issue fix.ok",
             "equals": true
           },
           {
-            "path": "lanes.cs-refactor-ff.ok",
+            "path": "lanes.cs-refactor ff.ok",
             "equals": true
           }
         ]

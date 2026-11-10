@@ -20,8 +20,8 @@ work. Check library freshness only when updating or diagnosing CodeStable;
 source and installation changes use `codestable-maintainer`.
 
 CodeStable applies to repositories that carry `.codestable/attention.md`.
-Without that file, do ordinary work: do not load `cs-*` workflows, create
-`.codestable/` records or copy shared tools, unless the user names a CodeStable
+Without that file, do ordinary work: do not load `cs-*` workflows or create
+`.codestable/` records, unless the user names a CodeStable
 skill or asks for setup (`cs-onboard`). Personal tooling, coursework, device
 setup and one-off operations stay outside CodeStable even when the task looks
 like a bug fix or a feature. Respect requests to skip CodeStable. Narrowly
@@ -37,7 +37,7 @@ record; a rule that holds across tasks goes in `.codestable/attention.md`. Write
 the actions it covers and the reason; when no reason was given, write "owner
 instruction, reason not stated" instead of inventing one. In a repository that
 is not onboarded, follow the rule for the session and do not create
-`.codestable/` for it. Other candidate facts follow `cs-note`. When the reason
+`.codestable/` for it. Other candidate facts follow `cs-keep note`. When the reason
 behind a recorded caution no longer holds, propose removing it instead of
 working around it.
 

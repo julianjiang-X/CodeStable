@@ -1,0 +1,234 @@
+# cs-feat · ff
+
+## 启动必读
+
+读取本会话尚未读过的 `.codestable/attention.md`。只加载任务相关上下文，已读且未改变的资料不重复读取。共享路径、worktree、审查及提交约定见 `shared/shared-conventions.md` 第 0、2.6、4 节。
+
+用户让你做小功能时本来 AI 就会直接动手——这个技能**不改变这件事**。它只做一件事：动手前把项目里已沉淀的 CodeStable 知识指给你，按需搜一下，写出来的代码就比裸写多一层保护；动手后回写一份**最简的 `{slug}-ff-note.md`** 让这次工作可追溯、可被 cs-keep arch / cs-keep req backfill 看到、能纳入 scoped-commit 提交。
+
+> main 协调 / worktree 执行 / 批次后 code review 规则看 `shared/shared-conventions.md` 第 2.6 节。
+
+很轻：没有 design doc / checklist / 验收清单 / 动手前的用户确认。看完指引，该读代码读、该写代码写、写完回写一段话。
+
+---
+
+## 动手前先扫一眼 .codestable/
+
+只按当前疑问读取相关资料，已掌握的上下文不重复搜索：
+
+- **`architecture/`** — ARCHITECTURE.md 总入口 + 子系统 doc。改跨模块的东西前看一眼避免违反边界
+- **`compound/`** — learning / trick / decision / explore 四类沉淀：
+  ```bash
+  python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --filter doc_type=learning --query "关键词"
+  python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --filter doc_type=decision --query "关键词"
+  python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --filter doc_type=trick --query "关键词"
+  ```
+- **`requirements/`** — 有相关 req 时读边界
+- **`features/`** — 有同类 feature 时参考其 design
+- **`reference/`** — shared-conventions.md / tools.md
+
+---
+
+## 怎么用
+
+动手前问 4 个问题：
+
+1. **这块代码以前有人栽过跟头吗？** → 搜 `compound/` 的 learning
+2. **这块代码有没有已经拍板的写法约束？** → 搜 `compound/` 的 decision + 看 `architecture/` 相关子系统
+3. **这次碰的东西有风险吗？** → 按下面"什么时候跳出 fastforward"的**风险升级**做一次静默核对；命中就照 `assurance.md` 加保障，不命中继续
+4. **这次是否需要独立 worktree？** → 默认按 shared-conventions 第 2.6 节走 worktree；需要执行分支时创建 / 使用 linked worktree，不在主协调检出里 `git switch/checkout`；用户明确说直接改当前 checkout 时可以继续，但汇报要写清楚
+
+任务状态或执行环境不明确时运行 doctor，定位相关阻塞，不为每次微改重复全局检查：
+
+```bash
+python3 {SKILL_DIR}/tools/codestable-doctor.py --root . --json
+```
+
+复用当前会话已有授权；审查按 shared-conventions 第 2.6 节执行，不为低风险工作新增委派审批。
+
+fastforward 通常动手后才生成 `{slug}-ff-note.md`，所以不提前造空 unit。写完 ff-note 和 review 证据后，对最终 unit 跑 commit gate：
+
+```bash
+python3 {SKILL_DIR}/tools/codestable-worktree-gate.py --root . --json commit --unit .codestable/features/YYYY-MM-DD-{slug}
+```
+
+命中就把结论融进实现（**按约束来写**，不是抄）。没命中按自己判断写；只有疑问未解决才扩展关键词。
+
+---
+
+## 写代码时守住这几条
+
+design / implement 的硬约束在 fastforward 的精简版。没 design doc 不代表可以不讲——这些是让你"直接动手"时不偏向 AI 默认会踩的坑。
+
+### 先想"放在哪儿"再写
+
+30 秒回答：**这次要加的东西在项目结构里属于哪儿？**
+
+- 现有模块本该承担？→ 在那扩展，别另起
+- 横跨多个模块？→ 抽公共层 / 让某一方主导
+- 已有模块叫法不同？→ grep 同义词
+- 跟现有都不像？→ 多半该切回完整 design 流程
+
+默认坑：**不思考就往眼前最顺手的文件里加**——加完就成"什么都装的筐"。
+
+### 扫一眼要改的文件现在什么状况
+
+开写前看一眼：文件多长？承担几件事？类有多少方法？新加的是自然扩展还是把它推向"什么都能干"？
+
+健康就直接加；要先收拾（拆长文件 / 抽重函数）就**先收拾再加**，范围锁死为"只搬不改行为"；结构性问题（职责重划 / 模块拆合）→ 停下来回 design 流程。
+
+### 默认写最少的代码
+
+只写用户明确要的。不顺手加：
+
+- "以后可能要"的配置项 / 参数开关 / 抽象层 / 接口 / 工厂
+- 没人要的防御性兜底 / try-catch
+- 用户没提的边界处理
+
+判据：写完觉得"是不是还得加点 X"——X 是不是用户能感知到的？不是就别加。多出来的代码不是中性的，是后人维护的负担。
+
+**但最小化不删除这几类**：用户明确要求与既有约束；信任边界的输入校验、权限与信息安全控制；防数据丢失或不可逆副作用的错误处理；可访问性基础与危险操作护栏；与失败代价相称的验证证据。它们不是"额外保险"，是完整解的一部分。上面"不加防御性兜底"说的是**没有真实风险时的冗余代码**，不是这几类。完整口径见 `shared/economy.md`。
+
+### 只动该动的
+
+只改要改的函数。同文件里别的函数丑 / 命名怪——**除非和这次冲突，否则别碰**。新代码风格匹配当前文件已有写法。看到值得改的别处 → "顺手发现：{文件:行号} {问题}，不在本次范围"让用户决定。
+
+### 逻辑归属
+
+按现有模块职责放逻辑，是否新建文件由内聚性和调用关系决定。
+
+### 实现判断
+
+正常错误路径和边界分支直接实现，实质行为取舍才请求 owner。必要内部命名、拆分和去重按职责与风险判断，不因文件行数、参数数量或条件分支自动中断。验证按风险选择；通过后无新改动、失败或疑问不重复扩大测试。
+
+---
+
+## 写完回写 `{slug}-ff-note.md`
+
+实现和相称验证后写简短记录，不等待重复效果确认。正式 unit 使用独立 subagent review，环境确无能力时按共享规则 fallback 并记录原因。本技能生成 ff-note，即进入正式 unit；普通无 unit 微改可直接处理，不进入本技能。风险要求的加审仍保留。需要 packet 时使用：
+
+```bash
+python3 {SKILL_DIR}/tools/build-review-packet.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --stage quality --output /tmp/codestable-review.md --validation "{验证命令} -> {结果}"
+```
+
+### 自动生成 slug
+
+不问用户。规则：
+
+- 从用户最初的请求里抽 2-4 个英文 kebab-case 词概括动作 / 对象（如 "rename-cwd-helper"、"add-export-button"、"fix-toolbar-layout"）
+- 不抽业务名词缩写、不音译中文、保持小写连字符
+- 拿不准就保守一点："tweak-{对象}" / "small-{动作}" 也比强求精准好
+
+最终路径：`.codestable/features/YYYY-MM-DD-{slug}/{slug}-ff-note.md`，日期用今天。
+
+### 模板
+
+```markdown
+---
+doc_type: feature-ff-note
+feature: {slug}
+date: YYYY-MM-DD
+requirement: {req-slug 或留空}
+tags: [...]
+---
+
+## 做了什么
+{1-3 句：解决什么需求 / 加了什么能力，业务视角}
+
+## 改了哪些
+- {file:行号区间或函数名} — {一句话说改了什么}
+- ...
+
+## 怎么验证的
+{1-2 句：跑了哪些验证 / 浏览器走通了哪条路径 / 跑了什么测试；风险核对命中时必须写「风险事实 → 增加的保障」，无命中写"风险核对：无命中"；实际审查方式及结论；P0/P1 是否无阻塞，self-review 不伪称独立审查}
+
+## 顺手发现（可选，不阻塞）
+- {文件:行号} {问题简述} — 不在本次范围
+```
+
+**写得真的轻**：每节就那么几行，不要把它写成迷你 design / 迷你 acceptance。这份文档的目标是"半年后有人看 git log 能跳进来 30 秒搞清楚做了啥"，不是替代标准流程。
+
+落盘后告诉用户："已写 `{slug}-ff-note.md`，本次 fastforward 闭环。"
+
+---
+
+## 不做什么
+
+- **不写 design doc / checklist / acceptance**——这就是 fastforward 的意义。要写就去 `cs-feat design`
+- **不跟用户确认方案**——用户让你做小功能就是不想等你开会
+- 只保留简短 ff-note 和正式 unit 门禁需要的 review 证据，不生成无关文档。
+
+---
+
+## 什么时候跳出 fastforward
+
+两类信号，处理方式完全不同：**规模**决定还要不要留在 ff，**风险**决定要不要加保障。
+
+### 规模跳出 → 切回完整流程
+
+以下范围变化需要更完整计划；在已有授权内转 `cs-feat design` 继续，新增实质选择才请求 owner：
+
+- 改动涉及 3 个以上子系统
+- 需要改变既有领域概念或有未决术语冲突
+- 要动 `.codestable/architecture/` 既定的模块边界
+- 用户追加的要求让范围翻倍
+
+切回方式：触发 `cs-feat design`。已写的代码在 design 里标"已部分实现"即可。
+
+### 风险升级 → 不切回，只加那一行的保障
+
+**体积小不等于风险低——改一行也能改掉权限判断。** 上面四条全是规模判据，挡不住"小而危险"的改动。
+
+动手前对这次要碰的路径、符号、调用方和代码外副作用做一次**静默核对**。八类风险（与 `shared/assurance.md` 风险映射表逐行对应）：
+
+- 目标、根因或实现方向仍不确定，或存在会改变结果的真实取舍
+- 破坏兼容性或改变多消费者依赖的公开契约
+- 权限 / 安全 / 隐私 / 凭证 / token / 其他信任边界
+- 持久化数据 / schema / 迁移路径
+- 并发 / 顺序 / 一致性语义
+- 不可恢复的代码外副作用（production write、billing、发布、删除）
+- 性能回退或性能敏感路径（有 SLO、在热路径、或调用量随数据规模增长）
+- 影响面广或失败可跨模块传播（改公共 helper、共享配置、feature flag 默认值）
+
+命中后**仍留在 fastforward**（不因此切回 design），但先读 `assurance.md`，按风险映射表**照搬命中那一行列出的全部保障**——那些格子是复合的，`+` 连接的每一项都要做，写着"确认"的还要 owner 拍板。**"只加对应保障"限定的是不启用别的行，不是把一行砍成一条。**
+
+注意 `assurance.md` 里的"加审"指**在本通道已有的独立 review 之外再加一轮**对应目的的审查，不是拿地板 review 顶替。
+
+做完在 ff-note 的"怎么验证的"里写明「风险事实 → 增加的保障」。
+
+**不命中就什么都不做**：不写产物、不额外提问、不改变 ff 的轻体感。但在收尾那句汇报里带一句 `风险核对：无命中`——六个字，让这次核对可被观察到，避免它变成一个可以静默跳过的步骤。
+
+不确定算不算命中时，按"命中"处理，或先做一次最低成本的定向核实——不得以"没注意到风险"作为降级依据。
+
+---
+
+## 退出条件
+
+- [ ] 代码写完，期望行为有相称证据
+- [ ] 批次完成后已用 subagent 做独立 code review（仅平台无 subagent 能力时可 fallback）；P0 / P1 已处理或明确无
+- [ ] 风险核对已做：命中则 ff-note 里有「风险事实 → 增加的保障」且该行保障全部落实，无命中则汇报里有 `风险核对：无命中`
+- [ ] `{slug}-ff-note.md` 已落盘且四节填齐（顺手发现可省）
+- [ ] 没有未对齐的"顺手发现"（都进 ff-note 末节，留给后续）
+
+---
+
+## 收尾提交
+
+按 `shared/shared-conventions.md` 第 4 节"scoped-commit"规则执行。本通道：
+
+- **提交范围**：本次代码改动 + `{slug}-ff-note.md`
+- 沿用本会话提交/推送授权；没有相关授权时，结果就绪后再请求。
+
+仅提出有具体复用价值的沉淀建议，不固定逐项询问收尾清单。
+
+---
+
+## 容易踩的坑
+
+- 存在已知约束疑问却未经核实就改；不为无疑问的微改强制搜索
+- 把搜到的 learning / decision 当"参考"而不是"约束"——decision 拍过板，违反要么重新 decision 要么别做
+- 开始写 design doc——fastforward 就是不写 design
+- 发现任务变复杂还硬在 fastforward 推——切回成本远低于带着错误方案改到底
+- **动手前就建 ff-note 空壳**——破坏 fastforward 的轻体感，必须代码 + 验证完才回写
+- **把 ff-note 写成迷你 design / 迷你 acceptance**——四节加一起十几行就够，多了说明这事不该走 fastforward
+- **跳过 ff-note 直接 commit**——和 issue-ff 强制 fix-note 同样的理由：没记录后人追溯不了

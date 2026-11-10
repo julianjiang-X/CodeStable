@@ -8,13 +8,13 @@
       {"action": "read_attention"},
       {"action": "route_small_task"},
       {
-        "say": "Route: cs-feat-ff\nContext: L1\nReason: small ordinary UI text tweak with no owner-heavy grill request.\nNot routing to: grill mode, because small tasks use a route/scope brief and ordinary clarifying questions only.\nEscalation: owner explicitly says `grill me`, or the task changes capability boundary, public contract, or long-lived specs.\nNext: keep the change lightweight and do not create grill-context."
+        "say": "Route: cs-feat ff\nContext: L1\nReason: small ordinary UI text tweak with no owner-heavy grill request.\nNot routing to: grill mode, because small tasks use a route/scope brief and ordinary clarifying questions only.\nEscalation: owner explicitly says `grill me`, or the task changes capability boundary, public contract, or long-lived specs.\nNext: keep the change lightweight and do not create grill-context."
       }
     ]
   },
   "expect": {
     "transcript": {
-      "contains": ["Route: cs-feat-ff", "Context: L1", "small ordinary", "do not create grill-context"],
+      "contains": ["Route: cs-feat ff", "Context: L1", "small ordinary", "do not create grill-context"],
       "forbidden": ["Route: cs-brainstorm", "grill mode before final routing"]
     },
     "trajectory": {

@@ -5,6 +5,8 @@ description: "推进有明确起点、终点和验收结果的自主迭代任务
 
 # cs-goal
 
+> `{SKILL_DIR}` 指本技能目录（本文件所在目录）。正文里的相对路径（`stages/`、`references/`、`reference/`、`shared/`、`tools/`）都相对于它；本技能没有的子目录就是用不到。
+
 `cs-goal` handles bounded goals: the owner gives the starting point and desired
 end state, then CodeStable aligns the goal boundary, writes a start report,
 implements autonomously, verifies, self-iterates, and records functional
@@ -25,14 +27,14 @@ headings, and recovery rules.
 Before acting:
 
 1. Read `.codestable/attention.md`.
-2. Read `.codestable/reference/system-overview.md` if present.
+2. Read `shared/system-overview.md` if present.
 3. Read this skill's `reference.md`.
-4. Read `.codestable/reference/goal-conventions.md` if present.
-5. Read `.codestable/reference/approval-conventions.md` if present.
-6. Read `.codestable/reference/interaction-modes.md` if present and the prompt
+4. Read `shared/goal-conventions.md` if present.
+5. Read `shared/approval-conventions.md` if present.
+6. Read `shared/interaction-modes.md` if present and the prompt
    mentions `interview me`, `grill me`, "采访我", or "拷问我".
 7. Before code edits, review, commit, finish, or merge work, read
-   `.codestable/reference/execution-conventions.md` if present.
+   `shared/execution-conventions.md` if present.
 8. Inspect `.codestable/goals/` for an active matching goal.
 9. Search `.codestable/compound/` and relevant feature / issue / refactor docs
    when the goal names an existing area.

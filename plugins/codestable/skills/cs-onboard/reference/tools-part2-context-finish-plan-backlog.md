@@ -3,7 +3,7 @@
 context packet 完整性检查器。它只读已生成的 handoff / audience report，检查结构是否可识别、是否还有未脱敏 secret-like 文本（含常见裸 token 形态如 `sk-...` / `ghp_...`）；`--strict` 还要求有至少一个 concrete file 和 evidence 条目。
 
 ```bash
-python3 .codestable/tools/check-context-sufficiency.py --file /tmp/codestable-human-review.md --strict --json
+python3 {SKILL_DIR}/tools/check-context-sufficiency.py --file /tmp/codestable-human-review.md --strict --json
 ```
 
 适用时机：
@@ -25,7 +25,7 @@ JSON 关键字段：
 execution worktree 合并前 finish gate。它会生成中文学习报告、跑 context sufficiency、写 merge readiness，并把 ready-to-merge 提醒登记到 Git common-dir 本地 inbox。它不会 merge、rebase、commit 或删除 worktree。
 
 ```bash
-python3 .codestable/tools/codestable-finish-worktree.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --json \
+python3 {SKILL_DIR}/tools/codestable-finish-worktree.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --json \
   --validation "uv run pytest -> passed" \
   --validation "CLI smoke -> passed"
 ```
@@ -67,7 +67,7 @@ git commit -m "docs: add {slug} finish report"
 跨 branch/worktree 的本地 merge reminder。它读取 Git common-dir 下的 inbox 记录，所以即使你之后切到另一个 branch，也能看到之前完成但未合并的 worktree。
 
 ```bash
-python3 .codestable/tools/codestable-worktree-inbox.py --root . --json
+python3 {SKILL_DIR}/tools/codestable-worktree-inbox.py --root . --json
 ```
 
 状态：
@@ -81,8 +81,8 @@ python3 .codestable/tools/codestable-worktree-inbox.py --root . --json
 本地控制：
 
 ```bash
-python3 .codestable/tools/codestable-worktree-inbox.py --root . --snooze codex_slug --until 2026-06-12T00:00:00Z --json
-python3 .codestable/tools/codestable-worktree-inbox.py --root . --abandon codex_slug --reason "owner canceled" --json
+python3 {SKILL_DIR}/tools/codestable-worktree-inbox.py --root . --snooze codex_slug --until 2026-06-12T00:00:00Z --json
+python3 {SKILL_DIR}/tools/codestable-worktree-inbox.py --root . --abandon codex_slug --reason "owner canceled" --json
 ```
 
 未到期的 snooze 记录仍会出现在 `items` / `snoozed`，但不会进入
@@ -96,7 +96,7 @@ commit 时，状态仍会升级为 `stale-report` 并恢复 P1 提醒。
 提交规划器。只读，不 stage、不 commit。用于提交前把 dirty tree 按逻辑 bucket 拆开，并发现 migration doc-sync、runbook doc-sync、tracked ignored、large file、live writer 等风险。
 
 ```bash
-python3 .codestable/tools/plan-commits.py --root . --json
+python3 {SKILL_DIR}/tools/plan-commits.py --root . --json
 ```
 
 主要 bucket：
@@ -125,7 +125,7 @@ python3 .codestable/tools/plan-commits.py --root . --json
 CodeStable 人审 / 后续事项积压扫描器。它只读 `.codestable/`，用于最终汇报前确认没有把人工决策点或 follow-up 隐藏掉。
 
 ```bash
-python3 .codestable/tools/codestable-backlog.py --root . --json
+python3 {SKILL_DIR}/tools/codestable-backlog.py --root . --json
 ```
 
 会扫描：
@@ -149,7 +149,7 @@ JSON 每个 item 带 `kind`、`severity`、`blocking`、`file`、`line`、`unit`
 `codestable-ai-branch-guard.py` 在 owner 明确授权时允许声明过的 main publish。
 
 ```bash
-python3 .codestable/tools/codestable-main-publish.py --root . --json begin \
+python3 {SKILL_DIR}/tools/codestable-main-publish.py --root . --json begin \
   --owner-intent "owner approved publishing this branch to main" \
   --branch codex/example
 ```
@@ -157,7 +157,7 @@ python3 .codestable/tools/codestable-main-publish.py --root . --json begin \
 发布完成或放弃后清理 intent：
 
 ```bash
-python3 .codestable/tools/codestable-main-publish.py --root . --json end
+python3 {SKILL_DIR}/tools/codestable-main-publish.py --root . --json end
 ```
 
 约束：
@@ -176,13 +176,13 @@ installed CodeStable skill copy 新鲜度检查工具。入口技能启动时可
 JSON 里的 `update_commands`。
 
 ```bash
-python3 .codestable/tools/codestable-freshness-check.py --json
+python3 {SKILL_DIR}/tools/codestable-freshness-check.py --json
 ```
 
 常见显式用法：
 
 ```bash
-python3 .codestable/tools/codestable-freshness-check.py \
+python3 {SKILL_DIR}/tools/codestable-freshness-check.py \
   --source-root /path/to/CodeStable \
   --installed-root "$HOME/.agents/skills" \
   --json

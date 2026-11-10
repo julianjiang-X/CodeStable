@@ -27,11 +27,11 @@ CodeStable 把这几类场景各配一套子技能，产物放进统一的目录
 
 **沉淀**——把做事过程产生的知识存下来,下次遇到同类问题直接复用:
 
-- `cs-learn` — 回顾"做 X 时踩了 Y 这个坑"
-- `cs-trick` — 处方"以后做 X 就这样做"
-- `cs-decide` — 规定"全项目今后都按 X 来"
+- `cs-keep learn` — 回顾"做 X 时踩了 Y 这个坑"
+- `cs-keep trick` — 处方"以后做 X 就这样做"
+- `cs-keep decide` — 规定"全项目今后都按 X 来"
 - `cs-explore` — 存档"调查了 X 问题,看到代码里是这样的"
-- `cs-note` — 把一两行启动必读的项目注意事项追加到 `.codestable/attention.md`
+- `cs-keep note` — 把一两行启动必读的项目注意事项追加到 `.codestable/attention.md`
 
 **讨论层**——想法还模糊时的统一入口,不直接产出设计或代码:
 
@@ -40,8 +40,8 @@ CodeStable 把这几类场景各配一套子技能，产物放进统一的目录
 **辅助**——围着前几类转的周边工具:
 
 - `cs-onboard` — 把新仓库接入 CodeStable 目录结构
-- `cs-req` — 起草或刷新 `.codestable/requirements/` 下的需求文档——系统的能力愿景层，覆盖过去/现在/未来
-- `cs-arch` — 架构相关一站式:起草新架构文档 / 刷新已有文档 / 做架构体检(含 design 自洽 / design↔代码一致 / architecture 目录多份文档间一致)。architecture 只记现状
+- `cs-keep req` — 起草或刷新 `.codestable/requirements/` 下的需求文档——系统的能力愿景层，覆盖过去/现在/未来
+- `cs-keep arch` — 架构相关一站式:起草新架构文档 / 刷新已有文档 / 做架构体检(含 design 自洽 / design↔代码一致 / architecture 目录多份文档间一致)。architecture 只记现状
 - `cs-roadmap` — 把一块装不进单个 feature 的大需求拆成带依赖和状态的子 feature 清单,作为后续多次 feature 流程的种子和排期依据;独立于需求 / 架构档案
 - `cs-guide` — 写给外部读者的开发者指南 / 用户指南 / API 参考
 
@@ -60,27 +60,27 @@ CodeStable 把这几类场景各配一套子技能，产物放进统一的目录
 | BUG / 异常 / 文档错误 | `cs-issue` |
 | 代码优化 / 重构 / 重写(行为不变) | `cs-refactor` |
 | 摸代码、提问调研 | `cs-explore` |
-| 补 / 更新需求文档 | `cs-req` |
-| 补 / 更新 / 检查架构文档 | `cs-arch` |
+| 补 / 更新需求文档 | `cs-keep req` |
+| 补 / 更新 / 检查架构文档 | `cs-keep arch` |
 | 大需求拆解 / 排期规划 | `cs-roadmap` |
-| 技术选型 / 约束 / 规约 | `cs-decide` |
-| 踩坑回顾、经验总结 | `cs-learn` |
-| 可复用的编程模式、库用法 | `cs-trick` |
+| 技术选型 / 约束 / 规约 | `cs-keep decide` |
+| 踩坑回顾、经验总结 | `cs-keep learn` |
+| 可复用的编程模式、库用法 | `cs-keep trick` |
 | 开发者指南 / 用户指南 / API 参考 | `cs-guide` |
 
 完整的操作手册、退出条件、和其他工作流的关系,各子技能里讲。
 
 
-## 沉淀类四个子技能如何区分
+## 四类沉淀记录如何区分
 
 learning / trick / decision / explore 都是存档文档类型,区别在记录内容的性质:
 
-- 回顾某次做 X 时发现了 Y —— `cs-learn`(产出 `doc_type: learning`)
-- 以后做 X 就这样做的处方 —— `cs-trick`(产出 `doc_type: trick`)
-- 全项目今后都得遵守的规定 —— `cs-decide`(产出 `doc_type: decision`)
+- 回顾某次做 X 时发现了 Y —— `cs-keep learn`(产出 `doc_type: learning`)
+- 以后做 X 就这样做的处方 —— `cs-keep trick`(产出 `doc_type: trick`)
+- 全项目今后都得遵守的规定 —— `cs-keep decide`(产出 `doc_type: decision`)
 - 调查了一个问题,留份证据 —— `cs-explore`(产出 `doc_type: explore`)
 
-四者共用 `.codestable/compound/` 目录,靠 frontmatter 的 `doc_type` 字段和文件名中间的类型段(`YYYY-MM-DD-{doc_type}-{slug}.md`)区分。每个子技能只认自己的 `doc_type`,不读写别家产物——**"A 和 B 有什么不同"这种判断由本节负责,子技能里不再重复**。
+四者共用 `.codestable/compound/` 目录,靠 frontmatter 的 `doc_type` 字段和文件名中间的类型段(`YYYY-MM-DD-{doc_type}-{slug}.md`)区分。每种模式只认自己的 `doc_type`,不读写别家产物——**"A 和 B 有什么不同"这种判断由本节负责,子技能里不再重复**。
 
 
 ## 愿景档案 vs 结构档案 vs 规划档案 vs 单次动作
@@ -88,7 +88,7 @@ learning / trick / decision / explore 都是存档文档类型,区别在记录�
 四类文档各管一段时间尺度,不要混:
 
 - **愿景档案**(requirements)——描述"用户需要什么、系统提供什么能力来满足"。`status` 区分三个时间深度：`draft`（未来愿景）、`current`（现在的能力）、`outdated`（过去的痕迹）。draft req 可独立于实现存在——先把愿景定下来，后续 roadmap 排期和 design 实现才有稳定对齐基准
-- **结构档案**(architecture)——描述"系统现在用什么结构实现"。只记现状,默认在 feature-acceptance 时跟着代码同步;必要时由 cs-arch 主动刷新。**不写"未来会加什么层"**
+- **结构档案**(architecture)——描述"系统现在用什么结构实现"。只记现状,默认在 feature-acceptance 时跟着代码同步;必要时由 cs-keep arch 主动刷新。**不写"未来会加什么层"**
 - **规划档案**(roadmap)——描述"接下来打算怎么分步实现"。独立于愿景和结构档案,改动不牵连 requirements / architecture。所有条目 done / dropped 后 roadmap 进入 `completed` 状态,作为历史档案留存
 - **单次动作**(feature / issue / refactor)——本次要做的一件具体事情的 spec。动作走完后,相关沉淀提炼进愿景档案、结构档案和沉淀类文档
 
@@ -98,21 +98,21 @@ learning / trick / decision / explore 都是存档文档类型,区别在记录�
 ## 选择适合任务的流程
 
 标准 feature 走 design → implement → acceptance；issue 根因不明确时先 analyze。
-范围清楚的工作使用 `cs-feat-ff` / issue 快速通道，或直接完成无需正式 unit 的小改。
+范围清楚的工作使用 `cs-feat ff` / issue 快速通道，或直接完成无需正式 unit 的小改。
 流程只承载实际需要的决定、证据与交接；不因阶段切换重复请求授权。正式流程已建立的状态和退出条件仍须满足。
 
 ## 进一步参考
 
-- `.codestable/reference/shared-conventions.md` — 目录结构、YAML frontmatter 口径、`{slug}-checklist.yaml` 生命周期、收尾 commit 约定、归档类共享规则
-- `.codestable/reference/execution-conventions.md` — worktree、review、finish、commit 和 handoff 执行约定
-- `.codestable/reference/approval-conventions.md` — owner 审批报告和 `approval-report.md` 约定
-- `.codestable/reference/goal-conventions.md` — goal 状态模型、报告和 owner-stop 约定
-- `.codestable/reference/interaction-modes.md` — `interview me` / `grill me` 的全局对话模式和 `grill-context` 约定
-- `.codestable/reference/tools.md` + `tools-part*.md` — 常用共享工具用法
-- `.codestable/reference/spec-governance-tools.md` — spec routing、clarification、req delta、inventory、analyze 工具用法
-- `.codestable/reference/maintainer-notes.md` — 断点恢复、新增子工作流的登记
+- `shared/shared-conventions.md` — 目录结构、YAML frontmatter 口径、`{slug}-checklist.yaml` 生命周期、收尾 commit 约定、归档类共享规则
+- `shared/execution-conventions.md` — worktree、review、finish、commit 和 handoff 执行约定
+- `shared/approval-conventions.md` — owner 审批报告和 `approval-report.md` 约定
+- `shared/goal-conventions.md` — goal 状态模型、报告和 owner-stop 约定
+- `shared/interaction-modes.md` — `interview me` / `grill me` 的全局对话模式和 `grill-context` 约定
+- `shared/tools.md` + `tools-part*.md` — 常用共享工具用法
+- `shared/spec-governance-tools.md` — spec routing、clarification、req delta、inventory、analyze 工具用法
+- `shared/maintainer-notes.md` — 断点恢复、新增子工作流的登记
 
-目录结构(requirements/、architecture/、roadmap/、goals/、features/、issues/、compound/、tools/、reference/)的权威定义在 `shared-conventions.md`。要改目录先改那里——方法是改 `cs-onboard/reference/shared-conventions.md` 这个模板,新项目 onboard 时会带上新版本。
+目录结构(requirements/、architecture/、roadmap/、goals/、features/、issues/、compound/)的权威定义在 `shared-conventions.md`。要改目录先改那里——方法是改 `cs-onboard/reference/shared-conventions.md` 这份源文件,再用同步脚本刷新各技能的 `shared/` 副本。
 
 
 ## 相关

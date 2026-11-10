@@ -5,6 +5,8 @@ description: "把跨多个功能的需求拆为路线图、模块与接口契约
 
 # cs-roadmap
 
+> `{SKILL_DIR}` 指本技能目录（本文件所在目录）。正文里的相对路径（`stages/`、`references/`、`reference/`、`shared/`、`tools/`）都相对于它；本技能没有的子目录就是用不到。
+
 ## 启动必读
 
 读取本任务尚未加载的 `.codestable/attention.md`，遵循项目约束；用户明确指令优先于技能指南。其他记录按需读取。缺少本阶段必要输入时说明具体缺口，不为无关工作重建骨架。
@@ -15,15 +17,15 @@ description: "把跨多个功能的需求拆为路线图、模块与接口契约
 2. **架构层详设**：模块之间的接口契约、共享数据结构、跨 feature 的协议
 3. **子 feature 拆解**：把方案分解成一串带依赖关系的子 feature 种子，feature 流程一次消费一条
 
-三块**一起**作为这块大需求所有子 feature 的共同约束——每条子 feature 进 `cs-feat-design` 时，roadmap 第 2 块的接口契约就是它的**硬约束输入**（不能违反，要改先回 roadmap update）。
+三块**一起**作为这块大需求所有子 feature 的共同约束——每条子 feature 进 `cs-feat design` 时，roadmap 第 2 块的接口契约就是它的**硬约束输入**（不能违反，要改先回 roadmap update）。
 
-**为什么 roadmap 承载架构方案不放进 `architecture/`**：`cs-arch` 守"只记现状不记计划"。前瞻性架构方案属于"还没落地、可能还会变"的事前规划，放进 architecture 会污染那份系统地图。等子 feature 真正落地，对应接口由 `cs-feat-accept` 提炼回 `architecture/`——roadmap 完成过渡使命后归档。
+**为什么 roadmap 承载架构方案不放进 `architecture/`**：`cs-keep arch` 守"只记现状不记计划"。前瞻性架构方案属于"还没落地、可能还会变"的事前规划，放进 architecture 会污染那份系统地图。等子 feature 真正落地，对应接口由 `cs-feat accept` 提炼回 `architecture/`——roadmap 完成过渡使命后归档。
 
 **为什么单独一层**：requirements 记"要什么"（愿景）、architecture 记"怎么搭"（结构）、roadmap 记"怎么分步实现"（执行）。把执行规划塞进愿景或结构文档会把"要什么"和"打算怎么实现"混起来——查不到系统真实能力，计划改一下又得改两份文档。
 
 **为什么文件夹不是单文件**：拆解过程会产生草稿 / 调研 / 方案对比 / 白板转述，塞一份 md 会乱又舍不得删。每个 roadmap 一个子目录，主文档对外口径，旁边 `drafts/` 随便堆。
 
-> 共享路径与命名约定看 `.codestable/reference/shared-conventions.md`。主文档和 items 完整模板看同目录 `reference.md`。
+> 共享路径与命名约定看 `shared/shared-conventions.md`。主文档和 items 完整模板看同目录 `reference.md`。
 
 ---
 
@@ -34,7 +36,7 @@ description: "把跨多个功能的需求拆为路线图、模块与接口契约
 - 已有 roadmap 加新子 feature / 改依赖 / 调顺序 / 标废弃
 - feature-design 发现要做的事实际是多个 feature 集合，先退回拆
 
-不适用：单 feature 能装下 → `cs-feat`；描述能力"是什么、边界" → `cs-req`；描述系统"结构怎么搭" → `cs-arch`；拍板长期规约 / 选型 → `cs-decide`。
+不适用：单 feature 能装下 → `cs-feat`；描述能力"是什么、边界" → `cs-keep req`；描述系统"结构怎么搭" → `cs-keep arch`；拍板长期规约 / 选型 → `cs-keep decide`。
 
 ---
 
@@ -85,7 +87,7 @@ roadmap 主文档、items.yaml、requirements 或 architecture。
 
 **按情况读**：
 - 本 roadmap 或相关 brainstorm 里 accepted `grill-context`：只作 human review context，不当 source of truth
-- 相关 compound 沉淀：`python3 .codestable/tools/search-yaml.py --dir .codestable/compound --query "{大需求关键词}"`
+- 相关 compound 沉淀：`python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --query "{大需求关键词}"`
 - 已有相关 feature 方案
 
 **update 额外**：当前主文档全文 + items.yaml 当前状态 + 已启动 / 完成的子 feature 的 design / acceptance。
@@ -140,11 +142,11 @@ review 前自跑一遍汇报处理：
 
 用户说"开始做 roadmap 里的 {子 feature}"时：
 
-1. `cs-feat-design`（或 ff / brainstorm）起 feature 目录
+1. `cs-feat design`（或 ff / brainstorm）起 feature 目录
 2. design frontmatter 带 `roadmap: {slug}` + `roadmap_item: {子 slug}`
 3. items.yaml 对应条目 `status: in-progress`、`feature: YYYY-MM-DD-{slug}`
 
-职责在 `cs-feat-design` 不在本技能。
+职责在 `cs-feat design` 不在本技能。
 
 ### feature-design 必须把 roadmap 接口契约当硬约束
 
@@ -154,7 +156,7 @@ feature-design 发现接口契约不合理 / 漏了 / 描述不准 → **回 `cs
 
 ### acceptance 自动回写
 
-`cs-feat-accept` 收尾时如果 design frontmatter 有 `roadmap` 字段就改对应 `roadmap_item` 的 `status: done`，同时同步主文档子 feature 清单勾选状态。职责在 `cs-feat-accept` 不在本技能。
+`cs-feat accept` 收尾时如果 design frontmatter 有 `roadmap` 字段就改对应 `roadmap_item` 的 `status: done`，同时同步主文档子 feature 清单勾选状态。职责在 `cs-feat accept` 不在本技能。
 
 ### roadmap 自身生命周期
 
@@ -206,10 +208,10 @@ feature-design 发现接口契约不合理 / 漏了 / 描述不准 → **回 `cs
 
 | 方向 | 关系 |
 |---|---|
-| `cs-req` 配合 | req 记"为什么有这个能力"、roadmap 记"打算怎么分步做出来"。大需求下可能多份 req；缺 req 提示用户先 `cs-req` |
-| `cs-arch` 配合 | architecture 记现状、roadmap 记若干步。读 arch 理解现状但不改它 |
+| `cs-keep req` 配合 | req 记"为什么有这个能力"、roadmap 记"打算怎么分步做出来"。大需求下可能多份 req；缺 req 提示用户先 `cs-keep req` |
+| `cs-keep arch` 配合 | architecture 记现状、roadmap 记若干步。读 arch 理解现状但不改它 |
 | `cs-feat` 下游 | 每条子 feature 是未来一次 feature 流程的种子；起头时 design frontmatter 带 `roadmap` / `roadmap_item` |
-| `cs-feat-accept` 回写方 | acceptance 自动改 items.yaml 为 `done`，本技能只定义格式不负责回写 |
+| `cs-feat accept` 回写方 | acceptance 自动改 items.yaml 为 `done`，本技能只定义格式不负责回写 |
 | `cs-onboard` 创建者 | 建 `roadmap/` 空目录 |
 | `cs-brainstorm` 上游 | case 3 移交本技能，带"真问题 / 大致范围 / 可能子模块"一句话汇总。本技能不重复分诊直接拆 |
 

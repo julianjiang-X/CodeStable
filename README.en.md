@@ -12,7 +12,7 @@ Tired of OpenSpec's flimsiness, Oh-My-OpenAgent's over-engineering, and Superpow
 
 <p>
   <img src="https://img.shields.io/badge/status-beta-F59E0B?style=flat-square" alt="Status"/>
-  <img src="https://img.shields.io/badge/skills-28-6366F1?style=flat-square" alt="Skills"/>
+  <img src="https://img.shields.io/badge/skills-15-6366F1?style=flat-square" alt="Skills"/>
   <img src="https://img.shields.io/badge/license-MIT-10B981?style=flat-square" alt="License"/>
 </p>
 
@@ -78,10 +78,10 @@ CodeStable's bet is simple: in serious software work, chaos often comes not from
 
 | Flow | Skill chain | Notes |
 |---|---|---|
-| Feature delivery | `cs-feat` -> `cs-feat-design` -> `cs-feat-impl` -> `cs-feat-accept` | Think, design, implement by checklist, verify against design |
+| Feature delivery | `cs-feat` -> `cs-feat design` -> `cs-feat impl` -> `cs-feat accept` | Think, design, implement by checklist, verify against design |
 | Goal delivery | `cs-goal` | Grill lightly, write a start report, implement, verify, self-iterate, and require functional acceptance before completion |
-| Issue fixing | `cs-issue` -> `cs-issue-report` -> `cs-issue-analyze` -> `cs-issue-fix` | Record symptoms, find the root cause, then fix precisely |
-| Refactoring | `cs-refactor` / `cs-refactor-ff` | Behavior stays the same; structure changes; full flow is scan / design / apply |
+| Issue fixing | `cs-issue` -> `cs-issue report` -> `cs-issue analyze` -> `cs-issue fix` | Record symptoms, find the root cause, then fix precisely |
+| Refactoring | `cs-refactor` / `cs-refactor ff` | Behavior stays the same; structure changes; full flow is scan / design / apply |
 
 `interview me` / `grill me` are global interaction modes: the former gently elicits context, while the latter can relentlessly pressure-test every relevant branch of the plan or design. They help route the work; they are not new lifecycle entities. `cs-brainstorm` handles fuzzy ideas, `cs-roadmap` handles needs too large for one feature, and `cs-audit` proactively finds risks without fixing them directly.
 
@@ -94,28 +94,28 @@ CodeStable's bet is simple: in serious software work, chaos often comes not from
 <tr><td><b>Auto entry</b></td><td><code>using-codestable</code></td><td>Applies project context and selects the relevant stage</td></tr>
 <tr><td><b>Root entry</b></td><td><code>cs</code></td><td>Introduces the system, handles interview / grill interaction modes, and routes open-ended intents to the right cs sub-skill</td></tr>
 <tr><td><b>Onboard</b></td><td><code>cs-onboard</code></td><td>Create or migrate the CodeStable skeleton for a repository</td></tr>
-<tr><td rowspan="2"><b>Requirements & architecture</b></td><td><code>cs-req</code></td><td>Maintain capability-intent docs with draft / current / outdated states</td></tr>
-<tr><td><code>cs-arch</code></td><td>Maintain the current architecture map; no future planning</td></tr>
+<tr><td rowspan="2"><b>Requirements & architecture</b></td><td><code>cs-keep req</code></td><td>Maintain capability-intent docs with draft / current / outdated states</td></tr>
+<tr><td><code>cs-keep arch</code></td><td>Maintain the current architecture map; no future planning</td></tr>
 <tr><td rowspan="3"><b>Planning & discussion</b></td><td><code>cs-goal</code></td><td>Bounded goals with start reports, autonomous iteration, and functional acceptance</td></tr>
 <tr><td><code>cs-roadmap</code></td><td>Produce high-level design, interface contracts, and sub-feature lists for large needs</td></tr>
 <tr><td><code>cs-brainstorm</code></td><td>Discuss and triage fuzzy ideas into design, lightweight feature work, or roadmap</td></tr>
 <tr><td rowspan="5"><b>Feature flow</b></td><td><code>cs-feat</code></td><td>Selects the feature stage and continues authorized work</td></tr>
-<tr><td><code>cs-feat-design</code></td><td>Draft <code>{slug}-design.md</code> and <code>{slug}-checklist.yaml</code></td></tr>
-<tr><td><code>cs-feat-impl</code></td><td>Implement by checklist; return to design when reality falls outside the plan</td></tr>
-<tr><td><code>cs-feat-accept</code></td><td>Verify implementation and sync architecture / requirement deltas / roadmap status</td></tr>
-<tr><td><code>cs-feat-ff</code></td><td>Fast lane for small needs: no full design, but still leaves a traceable note</td></tr>
+<tr><td><code>cs-feat design</code></td><td>Draft <code>{slug}-design.md</code> and <code>{slug}-checklist.yaml</code></td></tr>
+<tr><td><code>cs-feat impl</code></td><td>Implement by checklist; return to design when reality falls outside the plan</td></tr>
+<tr><td><code>cs-feat accept</code></td><td>Verify implementation and sync architecture / requirement deltas / roadmap status</td></tr>
+<tr><td><code>cs-feat ff</code></td><td>Fast lane for small needs: no full design, but still leaves a traceable note</td></tr>
 <tr><td rowspan="4"><b>Issue flow</b></td><td><code>cs-issue</code></td><td>Bug-fixing sub-flow entry</td></tr>
-<tr><td><code>cs-issue-report</code></td><td>Record symptoms, reproduction, and impact without guessing root cause</td></tr>
-<tr><td><code>cs-issue-analyze</code></td><td>Read code, identify root cause, and offer 2-3 owner-reviewed fix options</td></tr>
-<tr><td><code>cs-issue-fix</code></td><td>Apply the approved fix, verify it, and write the fix-note</td></tr>
+<tr><td><code>cs-issue report</code></td><td>Record symptoms, reproduction, and impact without guessing root cause</td></tr>
+<tr><td><code>cs-issue analyze</code></td><td>Read code, identify root cause, and offer 2-3 owner-reviewed fix options</td></tr>
+<tr><td><code>cs-issue fix</code></td><td>Apply the approved fix, verify it, and write the fix-note</td></tr>
 <tr><td rowspan="2"><b>Refactor flow</b></td><td><code>cs-refactor</code></td><td>Full structure / performance / readability optimization flow</td></tr>
-<tr><td><code>cs-refactor-ff</code></td><td>Fast lane for small, behavior-preserving improvements</td></tr>
+<tr><td><code>cs-refactor ff</code></td><td>Fast lane for small, behavior-preserving improvements</td></tr>
 <tr><td rowspan="2"><b>Audit & exploration</b></td><td><code>cs-audit</code></td><td>Scan for bug risks, security issues, performance problems, maintainability debt, and architecture drift</td></tr>
 <tr><td><code>cs-explore</code></td><td>Turn targeted code exploration into reusable evidence</td></tr>
-<tr><td rowspan="4"><b>Knowledge sink</b></td><td><code>cs-learn</code></td><td>Capture pitfalls and good practices</td></tr>
-<tr><td><code>cs-trick</code></td><td>Capture reusable patterns, library usage, and techniques</td></tr>
-<tr><td><code>cs-decide</code></td><td>Record settled technical choices, architecture decisions, and long-term constraints</td></tr>
-<tr><td><code>cs-note</code></td><td>Append short, stable, always-loaded project notes to <code>.codestable/attention.md</code></td></tr>
+<tr><td rowspan="4"><b>Knowledge sink</b></td><td><code>cs-keep learn</code></td><td>Capture pitfalls and good practices</td></tr>
+<tr><td><code>cs-keep trick</code></td><td>Capture reusable patterns, library usage, and techniques</td></tr>
+<tr><td><code>cs-keep decide</code></td><td>Record settled technical choices, architecture decisions, and long-term constraints</td></tr>
+<tr><td><code>cs-keep note</code></td><td>Append short, stable, always-loaded project notes to <code>.codestable/attention.md</code></td></tr>
 <tr><td><b>External docs</b></td><td><code>cs-guide</code></td><td>Write developer guides, user guides, and API references, defaulting to <code>docs/dev/</code>, <code>docs/user/</code>, and <code>docs/api/</code></td></tr>
 <tr><td><b>Browser</b></td><td><code>browser-bridge</code></td><td>Use a Chrome extension for real browser control, DOM extraction, and component evidence</td></tr>
 <tr><td><b>Maintenance</b></td><td><code>codestable-maintainer</code></td><td>Maintain CodeStable source, harnesses, fresh-clone verifier, and main-only installed-copy sync</td></tr>
@@ -139,19 +139,17 @@ your-project/
 │   ├── issues/                      # Report / analysis / review / fix-note
 │   ├── refactors/                   # Scan / design / checklist / review / apply-notes
 │   ├── compound/                    # Learning / trick / decision / explore
-│   ├── brainstorms/                 # Temporary spike area for brainstorm
-│   ├── tools/                       # Shared scripts released by onboard
-│   └── reference/                   # Shared conventions released by onboard (with MANIFEST.json)
+│   └── brainstorms/                 # Temporary spike area for brainstorm
 └── docs/                            # Default output for cs-guide
 ```
 
 Hard constraints:
 
-- `.codestable/reference/` and `.codestable/tools/` are package copies and must be re-released after an upgrade. `reference/MANIFEST.json` records the released version; `codestable-doctor.py` uses it to detect a half-refreshed copy (P1) or a copy that was never refreshed (P2). Steps are in [UPGRADE.md](./UPGRADE.md).
+- Shared conventions and tool scripts ship inside each skill (`shared/` and `tools/` in the skill directory). Projects hold no copy that needs refreshing. See [UPGRADE.md](./UPGRADE.md) when upgrading from 2.x.
 
 - Sub-skills only use `.codestable/attention.md` as the project attention entry. `AGENTS.md` / `CLAUDE.md` are not CodeStable state sources.
 - Human-facing report prose follows the project policy in `.codestable/attention.md`; sub-skills do not hard-code a specific language or bilingual copies.
-- Shared conventions are not referenced across skill package directories. `cs-onboard` copies `reference/` and `tools/` into the working project's `.codestable/`.
+- Skills do not read each other's files. The source of shared conventions is `cs-onboard/reference/`; `codestable-maintainer/tools/sync-shared.py` copies them into the `shared/` directory of each skill that uses them, and a test keeps copies equal to the source.
 - `requirements/` and `architecture/` are long-lived archives; `roadmap/` is the planning layer; `goals/` stores autonomous goal state and terminal functional acceptance; `features/`, `issues/`, and `refactors/` are event records; `compound/` is the single knowledge sink.
 - Old `codestable/` / `easysdd/` directories are historical compatibility entry points. Current sub-skills read `.codestable/`.
 
@@ -159,7 +157,7 @@ Hard constraints:
 
 ## Current Tool Layer
 
-`cs-onboard` releases deterministic tools into `.codestable/tools/` to guard boundaries where agents tend to drift:
+The package ships deterministic tools for the boundaries where agents tend to drift. The full set lives in `cs-onboard/tools/`; each skill carries only the ones it calls, under `tools/` in its own directory:
 
 | Tool | Purpose |
 |---|---|
@@ -223,7 +221,7 @@ Software architecture must remain evolvable, observable, and controllable. CodeS
 
 Two principles run through everything:
 
-- **Risk decides assurance strength; task type only decides engineering method** — `execution = minimal loop + the least assurance each unexcluded risk demands`. Line count, file count, and task kind are not risk proxies. See `.codestable/reference/assurance.md`.
+- **Risk decides assurance strength; task type only decides engineering method** — `execution = minimal loop + the least assurance each unexcluded risk demands`. Line count, file count, and task kind are not risk proxies. See `cs-onboard/reference/assurance.md`.
 - **Mechanical guards first** — a constraint a test, checker, or lint can enforce should not live only as prose. Rules written down but unenforced rot silently.
 
 Hard-to-reverse architecture decisions are recorded in [docs/adr/](./docs/adr/); version changes in [CHANGELOG.md](./CHANGELOG.md).

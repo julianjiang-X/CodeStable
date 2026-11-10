@@ -164,7 +164,7 @@ should be treated as a behavior-harness regression seed.
 
 ### 2. Spec Router Before Spec Work
 
-Before `cs-feat-design`, `cs-roadmap`, `cs-req update`, or any spec-changing
+Before `cs-feat design`, `cs-roadmap`, `cs-keep req update`, or any spec-changing
 workflow, CodeStable runs a spec routing pass.
 
 The router must report:
@@ -225,7 +225,7 @@ Required sections:
 - Scenarios;
 - Owner Decision.
 
-Acceptance applies the delta mechanically during `cs-feat-accept` after owner
+Acceptance applies the delta mechanically during `cs-feat accept` after owner
 approval and records the merge in the requirement change log.
 
 ### 5. No-Free-Rewrite Rule

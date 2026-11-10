@@ -14,13 +14,13 @@
         }
       },
       {"action": "analyze_pass"},
-      {"say": "Route: cs-issue-fix\nContext: L3\nLocal fix can continue, but the wrong long-lived spec needs analyze/delta owner review."},
+      {"say": "Route: cs-issue fix\nContext: L3\nLocal fix can continue, but the wrong long-lived spec needs analyze/delta owner review."},
       {"owner_stop": "spec_change_review"}
     ]
   },
   "expect": {
     "transcript": {
-      "contains": ["Route: cs-issue-fix", "Context: L3", "owner review"],
+      "contains": ["Route: cs-issue fix", "Context: L3", "owner review"],
       "must_stop_for": ["spec_change_review"]
     },
     "trajectory": {

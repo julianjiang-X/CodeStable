@@ -4,9 +4,36 @@
 `cs-onboard/tools/codestable-freshness-check.py` 按 git ref 判断——版本号回答的是"我落后了什么"，
 freshness check 回答的是"我落后了没有"。
 
-## Unreleased
+## 3.0.0
 
-Claude model iteration / Claude 模型迭代（Fable 5.2、Opus 5.5、Sonnet 5.5）：
+**breaking：技能入口从 28 个合并为 15 个；共享参考和工具不再复制进项目。** 升级步骤见
+[UPGRADE.md](./UPGRADE.md)，依据与局限见 `docs/claude-models-iteration.md`。
+
+Structure / 结构：
+
+- Merge stage skills into their parent: `cs-feat` (design / ff / impl / accept),
+  `cs-issue` (report / analyze / fix), `cs-refactor` (ff). Stage text moved
+  unchanged into `stages/` inside the skill.
+- Add `cs-keep` with six modes (note / learn / trick / decide / req / arch),
+  replacing `cs-note`, `cs-learn`, `cs-trick`, `cs-decide`, `cs-req`, `cs-arch`.
+- Ship shared references and the tools a skill calls inside that skill
+  (`shared/`, `tools/`). Sources stay in `cs-onboard/reference/` and
+  `cs-onboard/tools/`; `codestable-maintainer/tools/sync-shared.py` keeps the
+  copies equal and a test enforces it.
+- `cs-onboard` no longer releases `reference/` or `tools/` into projects. The
+  doctor reports an out-of-date legacy copy as P2 instead of blocking.
+- Register the 14 retired names in `verify.py` so installed-copy sync prunes them.
+
+- 阶段技能并入父技能：`cs-feat`（design / ff / impl / accept）、`cs-issue`
+  （report / analyze / fix）、`cs-refactor`（ff）。阶段正文原样移到技能内的 `stages/`。
+- 新增 `cs-keep`，六种模式（note / learn / trick / decide / req / arch），取代
+  `cs-note`、`cs-learn`、`cs-trick`、`cs-decide`、`cs-req`、`cs-arch`。
+- 共享参考和技能会调用的工具随技能分发（`shared/`、`tools/`）。源仍在
+  `cs-onboard/reference/` 与 `cs-onboard/tools/`，由 `sync-shared.py` 同步，测试保证一致。
+- `cs-onboard` 不再把 `reference/`、`tools/` 释放到项目。doctor 对过期的旧副本只报 P2。
+- `verify.py` 登记 14 个退役名字，同步安装副本时自动清理。
+
+Behavior for Claude models / 针对 Claude 模型的行为调整（Fable 5.2、Opus 5.5、Sonnet 5.5）：
 
 - Apply CodeStable only in onboarded repositories or on explicit request.
 - Record owner-stated scope and authorization rules at first statement; keep
@@ -15,14 +42,14 @@ Claude model iteration / Claude 模型迭代（Fable 5.2、Opus 5.5、Sonnet 5.5
   when authorized.
 - State what happens at the review round budget; pre-authorize one converging
   extra round.
-- Lead discussion with a position in `cs-brainstorm` and `cs-feat-design`.
+- Lead discussion with a position in `cs-brainstorm` and the `cs-feat` design stage.
   Evidence and limits: `docs/claude-models-iteration.md`.
 
 - 仅在已接入的仓库或用户明确要求时启用 CodeStable。
 - owner 说出的范围与授权规矩当场记录；谨慎条款写明范围和原因，原因不成立时清理。
 - 汇报写明跑过和没跑的内容，末尾给出下一步，已有授权时直接做。
 - 写明审查轮次到上限后的处理；收敛中的额外一轮预先授权。
-- `cs-brainstorm` 与 `cs-feat-design` 先给主张再讨论。依据与局限见上述文档。
+- `cs-brainstorm` 与 `cs-feat` 的 design 阶段先给主张再讨论。依据与局限见上述文档。
 
 ## 2.1.0
 

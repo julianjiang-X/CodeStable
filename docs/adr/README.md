@@ -1,7 +1,7 @@
 # 架构决策记录（ADR）
 
 本目录记录**本仓库自身**难以回退的架构决定——不是项目使用 CodeStable 时产生的决策
-（那些走 `cs-decide`，落在项目的 `.codestable/compound/`）。
+（那些走 `cs-keep decide`，落在项目的 `.codestable/compound/`）。
 
 ## 什么进这里
 
@@ -30,16 +30,21 @@ lint: "能验证这条决策仍成立的命令"   # enforcement=test 时必填
 ---
 ```
 
-`enforcement` 的取值语义与 `cs-decide` 的 decision 文档一致：**能填 `test` 就不要填 `none`**。
+`enforcement` 的取值语义与 `cs-keep decide` 的 decision 文档一致：**能填 `test` 就不要填 `none`**。
 写下来但没人守的决策会静默腐烂。
 
 ## 现有 ADR
 
 | # | 决定 | status |
 |---|---|---|
-| [001](001-keep-shared-project-runtime.md) | 保留共享项目 runtime，并为它补上漂移检测 | Accepted |
+| [001](001-keep-shared-project-runtime.md) | 保留共享项目 runtime，并为它补上漂移检测 | Superseded by 005 |
 | [002](002-keep-worktree-ownership.md) | CodeStable 继续拥有 worktree 与 branch guard 策略 | Accepted |
-| [003](003-keep-staged-skill-topology.md) | 保留分阶段技能拓扑，用风险模型控制流程重量 | Accepted |
+| [003](003-keep-staged-skill-topology.md) | 保留分阶段技能拓扑，用风险模型控制流程重量 | Superseded by 004 |
+| [004](004-merge-stage-entries-keep-stage-text.md) | 合并阶段入口，保留阶段正文 | Accepted |
+| [005](005-ship-shared-runtime-inside-skills.md) | 共享参考和工具随技能分发，不再复制进项目 | Accepted |
 
 001–003 是 1.1.0 从上游 `codestable/CodeStable` v2 吸纳时，对**不吸纳**部分的评估结论。
 完整差异分析见 `asset/2026-08-14-upstream-v2-comparison.md`。
+
+004、005 是 3.0.0 依据 owner 的实际会话使用情况对 003、001 的修订，见
+`docs/claude-models-iteration.md`。

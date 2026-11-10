@@ -158,7 +158,7 @@ Required tests:
 
 Acceptance:
 
-- `cs-feat-impl`, `cs-issue-fix`, and `cs-refactor-ff` can call this before
+- `cs-feat impl`, `cs-issue fix`, and `cs-refactor ff` can call this before
   subagent review;
 - review evidence remains comparable across runs.
 

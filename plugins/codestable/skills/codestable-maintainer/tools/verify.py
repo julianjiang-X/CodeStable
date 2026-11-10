@@ -23,35 +23,36 @@ SKILL_DIRS = {
     "browser-bridge",
     "codestable-maintainer",
     "cs",
-    "cs-arch",
     "cs-audit",
     "cs-brainstorm",
-    "cs-decide",
     "cs-explore",
     "cs-feat",
-    "cs-feat-accept",
-    "cs-feat-design",
-    "cs-feat-ff",
-    "cs-feat-impl",
     "cs-goal",
     "cs-guide",
     "cs-issue",
-    "cs-issue-analyze",
-    "cs-issue-fix",
-    "cs-issue-report",
-    "cs-learn",
-    "cs-note",
+    "cs-keep",
     "cs-onboard",
     "cs-refactor",
-    "cs-refactor-ff",
-    "cs-req",
     "cs-roadmap",
-    "cs-trick",
     "using-codestable",
 }
 
 RETIRED_SKILL_DIRS = {
+    "cs-arch",
+    "cs-decide",
+    "cs-feat-accept",
+    "cs-feat-design",
+    "cs-feat-ff",
+    "cs-feat-impl",
+    "cs-issue-analyze",
+    "cs-issue-fix",
+    "cs-issue-report",
+    "cs-learn",
     "cs-libdoc",
+    "cs-note",
+    "cs-refactor-ff",
+    "cs-req",
+    "cs-trick",
 }
 
 
@@ -252,6 +253,9 @@ def validate_skill(clone: Path, skill: str, validator: str | None) -> Finding | 
 
 def run_tests_if_needed(clone: Path, paths: list[str]) -> Finding | None:
     test_prefixes = (
+        # A change to a shared source can leave stale copies in other skills, and
+        # only the package tests compare copies with their sources.
+        source_relpath("cs-onboard", "reference") + "/",
         source_relpath("cs-onboard", "tools") + "/",
         source_relpath("codestable-maintainer", "tools") + "/",
         "tests/",

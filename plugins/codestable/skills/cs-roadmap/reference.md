@@ -187,7 +187,7 @@ done / dropped 终态
 ### 校验
 
 ```bash
-python3 .codestable/tools/validate-yaml.py --file .codestable/roadmap/{slug}/{slug}-items.yaml --yaml-only
+python3 {SKILL_DIR}/tools/validate-yaml.py --file .codestable/roadmap/{slug}/{slug}-items.yaml --yaml-only
 ```
 
 ---
@@ -209,7 +209,7 @@ python3 .codestable/tools/validate-yaml.py --file .codestable/roadmap/{slug}/{sl
 - [ ] 标了"所属模块"？该模块在第 3 节存在？
 - [ ] 依赖关系讲得清具体理由？"B 需要 A 提供的 {具体产物}"
 - [ ] 最小闭环真是"最窄的端到端路径"？还是只是"最容易的一条"？
-- [ ] 有条目其实应该是 requirement 变化而不是 feature？（"把 XX 能力的边界改一下"）那种转 `cs-req`
+- [ ] 有条目其实应该是 requirement 变化而不是 feature？（"把 XX 能力的边界改一下"）那种转 `cs-keep req`
 
 ---
 

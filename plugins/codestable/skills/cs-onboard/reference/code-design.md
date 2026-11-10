@@ -2,7 +2,7 @@
 
 好的结构，是让调用方用更少的认知换到更多的能力。设计模块时核心方向只有一个：往深里做。
 
-由 `cs-onboard` 从技能包复制到 `.codestable/reference/code-design.md`。`cs-feat-design` 定接口和归属时读它，`cs-feat-impl` / `cs-refactor` 判断结构调整时读它。
+本文件随用到它的技能分发，位于该技能目录下的 `shared/code-design.md`；源文件在 `cs-onboard/reference/`。`cs-feat design` 定接口和归属时读它，`cs-feat impl` / `cs-refactor` 判断结构调整时读它。
 
 本文件讲**怎么设计**；`shared-conventions.md` 第 7 节反射检查讲**什么时候该停下来**。两者配合：反射检查提出问题，本文件给判断依据。
 

@@ -1,7 +1,7 @@
 # Goal Conventions
 
-This file is copied by `cs-onboard` to
-`.codestable/reference/goal-conventions.md`. It defines the shared runtime shape
+This file ships inside each skill that uses it, as `shared/goal-conventions.md` in that skill's
+directory. Its source is `cs-onboard/reference/goal-conventions.md`. It defines the shared runtime shape
 for `cs-goal`.
 
 ## Purpose
@@ -29,7 +29,7 @@ goal records.
 
 Do not route standalone "grill me" prompts here unless a bounded destination is
 known. Without a start/end objective or observable acceptance, use the global
-interaction modes in `.codestable/reference/interaction-modes.md`, usually via
+interaction modes in `shared/interaction-modes.md`, usually via
 `cs-brainstorm`.
 
 ## Report Language

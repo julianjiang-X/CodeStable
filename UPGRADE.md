@@ -10,9 +10,7 @@
 npx skills add https://github.com/julianjiang-X/CodeStable/tree/main/plugins/codestable
 ```
 
-从 2.0.0 起技能在 `plugins/codestable/skills/` 下发现，`add` 会按当前 `main` 的内容刷新全部入口。
-
-也可以走插件入口（2.0.0 新增）：
+也可以走插件入口：
 
 ```bash
 codex plugin marketplace add https://github.com/julianjiang-X/CodeStable
@@ -22,94 +20,82 @@ codex plugin add codestable@codestable
 Claude Code 用 `/plugin marketplace add https://github.com/julianjiang-X/CodeStable`，
 再 `/plugin install codestable@codestable`，装完重启使新版生效。
 
-## 从 1.x 升级：安装来源变了
+不要把 `npx skills@latest update` 当作完整升级方式：它可能只刷新自己记录过的条目，漏掉同一来源
+里新增的技能。从来源根目录重新 `add` 才会按当前仓库内容发现完整技能集。
 
-2.0.0 把技能移进了插件包，**安装 URL 必须换**，否则 `add` 找不到任何技能：
+## 从 2.x 升级到 3.0.0
 
-```text
-旧：https://github.com/julianjiang-X/CodeStable
-新：https://github.com/julianjiang-X/CodeStable/tree/main/plugins/codestable
-```
+3.0.0 是破坏性发布：技能入口从 28 个合并为 15 个，共享参考和工具不再复制进项目。
 
-**已安装副本的目录结构不变**——仍是扁平的 `<installed_root>/<skill>`，技能名一个没改、
-一个没退役。只有"从哪里装"变了，不需要先删旧技能。
+### 1. 删除已退役的技能入口
 
-项目里的 `.codestable/` 也不受影响。
-
-## 不要用裸 `update`
-
-不要把 `npx skills@latest update` 当作完整升级方式。外部 CLI 的**更新发现**与**安装发现**并不等价：
-`update` 可能只刷新它自己记录过的条目，漏掉同一来源里新增的 sibling skill，也可能误删它认不出的成员。
-
-从来源根目录重新 `add` 才会按当前仓库内容发现完整技能集。
-
-## 升级后必须刷新项目副本
-
-技能包升级**不会**自动更新已 onboard 项目里的 `.codestable/`。
-
-`.codestable/tools/` 和 `.codestable/reference/` 是技能包维护的共享资产，项目里的只是落盘副本。
-权威源在 `plugins/codestable/skills/cs-onboard/tools/` 和 `plugins/codestable/skills/cs-onboard/reference/`。留着旧副本会让子技能按**过时口径**工作——
-这是升级后最常见的故障。
-
-在每个已接入的项目里重跑 `cs-onboard`，或手工覆盖：
+`skills` CLI 的 `add` 不会删除新版里已经没有的旧技能，所以首次升级要先按名字删掉 14 个旧入口，
+再重新安装：
 
 ```bash
-cp -rf <SKILLS_ROOT>/cs-onboard/reference/. .codestable/reference/
+npx skills@latest remove \
+  cs-arch cs-decide cs-feat-accept cs-feat-design cs-feat-ff cs-feat-impl \
+  cs-issue-analyze cs-issue-fix cs-issue-report cs-learn cs-note \
+  cs-refactor-ff cs-req cs-trick \
+  -g -y
+npx skills add https://github.com/julianjiang-X/CodeStable/tree/main/plugins/codestable
 ```
 
-`<SKILLS_ROOT>` 是**装着各个技能目录的那一层**——`ls` 它能看到 `cs-onboard` 这个目录：
-`skills` CLI 装的是 `~/.claude/skills` 或 `${CODEX_HOME:-$HOME/.codex}/skills`，
-插件装的是 `<插件目录>/skills`，源码仓库是 `<repo>/plugins/codestable/skills`。
-**别指到 `cs-onboard/` 本身**，那会拼出 `cs-onboard/cs-onboard/reference/`。
-拷完 `ls .codestable/reference/` 验证。
+这条命令按名字删除，不校验来源。如果你有同名的自定义技能，先备份并从命令里去掉它。项目级安装
+去掉 `-g`，在项目目录里执行。用 `codestable-maintainer` 的 `verify.py --sync-installed` 部署的
+安装副本会自动清掉这些旧目录。
 
-**这两个目录用新版本覆盖，不走"不覆盖"保守策略。** 项目自己的 `attention.md`、
-`requirements/`、`features/` 等内容不受影响。
+### 2. 旧入口到新入口
 
-刷新是否到位由 doctor 检查，不用靠记：
+阶段没有消失，只是变成了合并后技能里的阶段文件。
 
-```bash
-python3 .codestable/tools/codestable-doctor.py --root . --json
-```
+| 旧入口 | 现在 |
+|---|---|
+| `cs-feat-design` / `cs-feat-ff` / `cs-feat-impl` / `cs-feat-accept` | `cs-feat` 的 design / ff / impl / accept 阶段 |
+| `cs-issue-report` / `cs-issue-analyze` / `cs-issue-fix` | `cs-issue` 的 report / analyze / fix 阶段 |
+| `cs-refactor-ff` | `cs-refactor` 的 ff 阶段 |
+| `cs-note` / `cs-learn` / `cs-trick` / `cs-decide` / `cs-req` / `cs-arch` | `cs-keep` 的 note / learn / trick / decide / req / arch 模式 |
 
-`reference_drift.state` 的含义：
+文档里写作 `cs-feat design`、`cs-keep note` 等。项目文档、`attention.md` 或派工模板里如果点了旧
+名字，按上表改写；历史档案里的旧名字不用动。
 
-| state | 含义 | 严重度 |
-|---|---|---|
-| `ok` | reference 和 tools 来自同一版本，文件齐全 | — |
-| `version-mismatch` | 只刷新了一半，子技能会按过时口径工作 | P1 |
-| `incomplete` | 清单里的文件没拷全，引用它们的技能会指向不存在的路径 | P1 |
-| `unversioned` | 老副本，从未刷新过 | P2 |
-| `absent` | 项目还没有 `.codestable/reference/` | — |
+### 3. 项目里的 `reference/` 和 `tools/` 不再需要
+
+共享参考和工具脚本现在随各技能分发，位于技能自己目录下的 `shared/` 与 `tools/`。升级技能包就
+全部更新，**不再需要在每个已接入的项目里重跑 `cs-onboard` 或手工复制**。
+
+- 项目里已有的 `.codestable/reference/` 与 `.codestable/tools/` 不再被任何技能读取，也不会再刷新。
+- 确认没有 git hook 或 CI 指向 `.codestable/tools/` 后可以删除这两个目录。启用了 branch guard
+  hook 的项目保留 hook 用到的脚本，见 `cs-onboard/reference/branch-guard-hooks.md`。
+- `codestable-doctor.py` 对过期的旧副本只给一条 P2 提示，不再阻塞。项目没有 `reference/` 目录是
+  正常状态。
+
+项目自己的 `attention.md`、`requirements/`、`features/` 等内容不受影响，既有产物格式不变。
+
+### 4. 行为变化
+
+范围门槛、owner 规矩当场记录、汇报格式、审查轮次上限和讨论方式的变化见
+[docs/claude-models-iteration.md](./docs/claude-models-iteration.md)。
 
 ## 检查安装副本是否落后
 
 ```bash
-python3 .codestable/tools/codestable-freshness-check.py --json
+python3 <SKILLS_ROOT>/cs-onboard/tools/codestable-freshness-check.py --json
 ```
 
-`should_prompt_update: true` 表示 installed copy 落后于远端 `main`。版本号回答"落后了什么"，
-这个检查回答"落后了没有"，两者配合看。
+`<SKILLS_ROOT>` 是装着各个技能目录的那一层：`skills` CLI 装的是 `~/.claude/skills` 或
+`${CODEX_HOME:-$HOME/.codex}/skills`，插件装的是 `<插件目录>/skills`，源码仓库是
+`<repo>/plugins/codestable/skills`。`should_prompt_update: true` 表示安装副本落后于远端 `main`。
 
-## 1.x → 2.0.0 的内容变化
+## 更早的版本
 
-除了安装来源，这一版**只加不减**：没有退役任何技能入口，没有改项目 `.codestable/` 结构，没有改既有产物格式。
-
-必须做的一件事：**刷新 `.codestable/reference/`**，否则拿不到新增的四份共享参考
-（`assurance.md` / `economy.md` / `code-design.md` / `evidence-lifecycle.md`），
-引用它们的技能会指向不存在的文件。
-
-可选、不强制：
-
-- 既有归档文档（`.codestable/compound/`）缺 `evidence` 字段的**按 `observed` 读取**，
-  不需要批量迁移。只在本来就要更新那份文档时顺带补字段。
-- 既有 decision 文档不需要回填 `enforcement` / `lint`，新写的才要求。
+- 1.x → 2.0.0：安装来源从仓库根目录改为 `plugins/codestable`，技能名和项目结构不变。
+- 既有归档文档（`.codestable/compound/`）缺 `evidence` 字段的按 `observed` 读取，不需要批量迁移。
 
 ## 升级后检查
 
 - 调用 `/cs`，确认根入口可用。
-- `ls .codestable/reference/` 应能看到 `assurance.md`、`economy.md`、`code-design.md`、
-  `evidence-lifecycle.md`。
-- 跑一次 `python3 .codestable/tools/codestable-doctor.py --root . --json`。
+- `ls <SKILLS_ROOT>` 应看到 15 个技能目录，且没有上面列出的 14 个旧名字。
+- 在一个已接入的项目里让 `cs-feat` 走一次小改动，确认它读取的是技能目录下的阶段文件。
 
 返回 [README](./README.md)。

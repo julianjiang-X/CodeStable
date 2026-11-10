@@ -1,6 +1,6 @@
 # CodeStable 共享口径
 
-由 `cs-onboard` 复制到项目的 `.codestable/reference/shared-conventions.md`。所有 CodeStable 子技能用项目相对路径 `.codestable/reference/shared-conventions.md` 引用本文件——跨子技能共享但不适合堆在单个技能里的规范的唯一权威版本。
+本文件随用到它的技能分发，位于该技能目录下的 `shared/shared-conventions.md`；源文件在 `cs-onboard/reference/`。它是跨子技能共享但不适合堆在单个技能里的规范的唯一权威版本。
 
 skill 本身不共享文件系统（每个 skill 是独立安装单元），共享口径不能放在某个 skill 内部被别的 skill 引用。放在"工作项目"里对所有 skill 都可达。
 
@@ -13,10 +13,10 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 ├── attention.md           CodeStable 技能启动必读的项目注意事项
 ├── requirements/          能力愿景层（"用户需要什么、系统提供什么能力来满足"，过去/现在/未来）
 │   ├── VISION.md           中心索引（按 status 分组，每条带 pitch 一句话）
-│   └── {slug}.md           一个能力一份，扁平（cs-req 产出）
+│   └── {slug}.md           一个能力一份，扁平（cs-keep req 产出）
 ├── architecture/          架构中心目录（"用什么结构实现"，只记现状）
 │   ├── ARCHITECTURE.md    总入口（索引 + 关键架构决定）
-│   └── {type}-{slug}.md   子系统 / 模块 doc（cs-arch 产出）
+│   └── {type}-{slug}.md   子系统 / 模块 doc（cs-keep arch 产出）
 ├── roadmap/               规划层（"接下来怎么做这块大需求 + 模块怎么切 + 接口怎么定"）
 │   └── {slug}/            一个大需求一个子目录（cs-roadmap 产出）
 │       ├── {slug}-roadmap.md   主文档：背景 / 范围 / 模块拆分 / 接口契约 / 子 feature 清单 / 排期
@@ -62,15 +62,16 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 │       ├── brainstorm.md        可选，open brainstorm 记录
 │       ├── grill/               route 未定前的 grill-context round docs
 │       └── spike files          可选，文件名随意；结论回写到对应 note
-├── tools/                 跨工作流共享脚本（onboard 从技能包释放）
-└── reference/             共享参考文档（onboard 从技能包释放，含 interaction-modes.md）
+└── tools/                 可选：启用 git hook 回退的项目才有，只放守卫脚本
 ```
+
+共享参考和工具脚本不放在项目里：它们在各技能自己的目录下（`shared/`、`tools/`）。文中 `shared/<名字>.md` 指当前技能目录下的文件，`{SKILL_DIR}/tools/<名字>` 指当前技能目录下的脚本。技能只带自己会调用的脚本，完整工具集在 `cs-onboard`；当前技能没带的脚本就手工完成对应检查并说明。项目里旧的 `.codestable/reference/` 与 `.codestable/tools/` 副本不再被读取。
 
 ### 命名规则
 
 - 需求文档：`requirements/{slug}.md`（能力愿景，不带日期前缀，扁平不分组）；中心索引 `requirements/VISION.md`
 - roadmap：`roadmap/{slug}/`（不带日期前缀，平铺不嵌套）
-- goal：`goals/YYYY-MM-DD-{slug}/`（带创建日期；状态模型和报告见 `.codestable/reference/goal-conventions.md`）
+- goal：`goals/YYYY-MM-DD-{slug}/`（带创建日期；状态模型和报告见 `shared/goal-conventions.md`）
 - feature / issue / refactor 目录：带日期前缀 `YYYY-MM-DD-{slug}`
 - 沉淀类：`compound/YYYY-MM-DD-{doc_type}-{slug}.md`，日期用**归档当天**
 - 架构 doc：`architecture/{type}-{slug}.md`（长效，不带日期前缀）；总入口固定 `ARCHITECTURE.md`
@@ -99,9 +100,9 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 
 **只升不降**：删到 ≤5 份也不折回平铺。
 
-**触发时谁负责**：`cs-arch` 的 `backfill` / `update` 模式在 Phase 6 落盘前主动检查并搬迁；命中阈值时这次操作要把"本次新加 / 改的 + 已有同类全部"一起搬，并同步改 `ARCHITECTURE.md` 链接（记录搬迁和链接更新；超出授权范围才询问）。`check` 模式不主动搬迁，但发现 ≥6 仍平铺时在报告末尾列为观察项。
+**触发时谁负责**：`cs-keep arch` 的 `backfill` / `update` 模式在 Phase 6 落盘前主动检查并搬迁；命中阈值时这次操作要把"本次新加 / 改的 + 已有同类全部"一起搬，并同步改 `ARCHITECTURE.md` 链接（记录搬迁和链接更新；超出授权范围才询问）。`check` 模式不主动搬迁，但发现 ≥6 仍平铺时在报告末尾列为观察项。
 
-改 `cs-onboard/reference/shared-conventions.md` 模板，新项目 onboard 时带上新版本；已有项目手动同步 `.codestable/reference/shared-conventions.md`。
+改 `cs-onboard/reference/shared-conventions.md` 这份源文件，再运行维护者的同步脚本刷新各技能的 `shared/` 副本；项目里没有需要同步的副本。
 
 ## 1. 共享元数据口径
 
@@ -128,8 +129,8 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 ## 2. {slug}-checklist.yaml 生命周期
 
 - 是 feature 工作流的唯一执行清单
-- 由 `cs-feat-design` 在 design 确认通过后一次生成 `steps` + `checks`
-- `cs-feat-ff` **不生成** checklist（也不写 design / acceptance），是跳过 spec 流程直接写代码的超轻量通道；唯一留下的痕迹是动手后回写的 `{slug}-ff-note.md`（轻量回顾，参与 scoped-commit、可被 cs-arch / cs-req backfill 检索到）
+- 由 `cs-feat design` 在 design 确认通过后一次生成 `steps` + `checks`
+- `cs-feat ff` **不生成** checklist（也不写 design / acceptance），是跳过 spec 流程直接写代码的超轻量通道；唯一留下的痕迹是动手后回写的 `{slug}-ff-note.md`（轻量回顾，参与 scoped-commit、可被 cs-keep arch / cs-keep req backfill 检索到）
 
 `steps` 的粒度是 **编排-计算分离维度的切片策略**——按"先编排骨架、后计算节点、最后持久化与测试"写（最简 Workflow 先行 → 逐个节点填充），**不下沉到 file:line / 函数级**。具体改哪个文件由 implement 阶段决定。
 
@@ -155,8 +156,8 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 **items.yaml 状态机**：
 
 ```
-planned  → in-progress  （cs-feat-design 启动 feature 时改）
-in-progress → done      （cs-feat-accept 验收完成时改）
+planned  → in-progress  （cs-feat design 启动 feature 时改）
+in-progress → done      （cs-feat accept 验收完成时改）
 planned  → dropped      （cs-roadmap update 模式，用户决定不做时改）
 ```
 
@@ -164,7 +165,7 @@ planned  → dropped      （cs-roadmap update 模式，用户决定不做时改
 
 **cs-roadmap 的职责**：生成和维护 roadmap 主文档 + items.yaml；把 `planned` 改 `dropped`（用户放弃时）；不改 `in-progress` / `done`（feature 技能负责）。
 
-**cs-feat-design 的职责**（从 roadmap 起头时）：
+**cs-feat design 的职责**（从 roadmap 起头时）：
 
 1. design.md frontmatter 加 `roadmap: {roadmap-slug}` + `roadmap_item: {子 feature slug}`
 2. items.yaml 对应条目 `status: in-progress` + `feature: YYYY-MM-DD-{slug}`
@@ -172,7 +173,7 @@ planned  → dropped      （cs-roadmap update 模式，用户决定不做时改
 
 直接起 feature（非 roadmap 来）两字段留空，不触发 roadmap 写。
 
-**cs-feat-accept 的职责**：
+**cs-feat accept 的职责**：
 
 1. 读 design frontmatter `roadmap` / `roadmap_item`
 2. 空 → 跳过
@@ -186,7 +187,7 @@ planned  → dropped      （cs-roadmap update 模式，用户决定不做时改
 
 执行拓扑、worktree gate、implementation review、finish gate、context
 packet 和 subagent 执行选择已拆到
-`.codestable/reference/execution-conventions.md`。子技能只在本文件记录目录
+`shared/execution-conventions.md`。子技能只在本文件记录目录
 和生命周期共享口径；涉及实际改代码、review、commit、finish 或 merge 前，
 按需读取 execution conventions 对应章节；同一任务内未变化不重读。
 
@@ -206,7 +207,7 @@ acceptance / issue-fix 走完后，在已有提交授权内按独立逻辑变更
 dirty tree 混有多类产物或提交边界不明确时，用只读 commit planner 辅助划分：
 
 ```bash
-python3 .codestable/tools/plan-commits.py --root . --json
+python3 {SKILL_DIR}/tools/plan-commits.py --root . --json
 ```
 
 planner 只读，不替你 stage。它会把 code/docs/tests、migrations/database_docs、data、logs、CodeStable 文档、installed skill deployment、unknown 分开，并提示 migration/database docs、runbook doc-sync、tracked ignored、large file、live writer 风险。
@@ -230,18 +231,18 @@ planner 只读，不替你 stage。它会把 code/docs/tests、migrations/databa
 经验命中：{path}（{evidence}）；核验：{fact}；影响：{plan_or_check}
 ```
 
-只是相关但没有真正改变计划或验证时不报，不制造复用证据。完整口径见 `.codestable/reference/evidence-lifecycle.md`。
+只是相关但没有真正改变计划或验证时不报，不制造复用证据。完整口径见 `shared/evidence-lifecycle.md`。
 
-子技能只补本阶段查询命令。完整搜索语法看 `.codestable/reference/tools.md`。
+子技能只补本阶段查询命令。完整搜索语法看 `shared/tools.md`。
 
 ## 6. 归档类子技能共享守护规则
 
-`cs-learn` / `cs-trick` / `cs-decide` / `cs-explore` 共享下面这组规则。子技能正文只写特有反模式，通用看这里：
+`cs-keep learn` / `cs-keep trick` / `cs-keep decide` / `cs-explore` 共享下面这组规则。子技能正文只写特有反模式，通用看这里：
 
 1. **只增不删**——已归档除非被明确取代（`status=superseded`）否则不删；理由丢失成本极高
 2. **宁缺毋滥**——用户说不出理由的节直接省略，不要 AI 编造
 3. **不替用户写实质内容**——AI 负责起草结构和串联语言，实质结论必须来自用户或可追溯的代码证据
-4. **attention.md 检查**——写完后若沉淀暴露出"每次启动都该知道"的一两行硬约束，提示用户用 `cs-note` 追加到 `.codestable/attention.md`；不要直接改外部 AI 入口
+4. **attention.md 检查**——写完后若沉淀暴露出"每次启动都该知道"的一两行硬约束，提示用户用 `cs-keep note` 追加到 `.codestable/attention.md`；不要直接改外部 AI 入口
 5. **起草前先查重叠**——动手写前用 `search-yaml.py --query` 查语义相近的旧文档。按用户意图选择以下路径；实质结论冲突才请用户决定：
    - **更新已有**（默认优先）：沿用原文件名和原创建日期，**不新建**；frontmatter 补 `updated: YYYY-MM-DD`；超出小修在文末加"YYYY-MM-DD 更新"简述
    - **supersede**：旧文档保留原文，`status: superseded` + `superseded-by: {新文件名}`，正文顶部加 `**[已取代]** 见 {新 slug}`；新文档 frontmatter 带 `supersedes: {旧文件名}`
@@ -254,7 +255,7 @@ planner 只读，不替你 stage。它会把 code/docs/tests、migrations/databa
 
 归档类文档统一带 `evidence` 字段（`observed` / `validated` / `retired`）标证据成熟度。
 三态判据、不可自证晋级规则、应用侧核实与命中报告格式、50 条预算与机械 guard 优先，
-完整口径见 `.codestable/reference/evidence-lifecycle.md`。
+完整口径见 `shared/evidence-lifecycle.md`。
 
 ## 7. 局部实现判断
 

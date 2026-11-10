@@ -6,7 +6,7 @@
     "context": "sterile",
     "script": [
       {"action": "read_attention"},
-      {"say": "Route: cs-feat-design\nContext: L1\nReason: user asks for a small feature design.\nEscalation: capability boundary or spec drift raises this to L3.\nNext: switch to cs-feat-design."}
+      {"say": "Route: cs-feat design\nContext: L1\nReason: user asks for a small feature design.\nEscalation: capability boundary or spec drift raises this to L3.\nNext: switch to cs-feat design."}
     ]
   },
   "expect": {

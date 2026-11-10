@@ -1,0 +1,68 @@
+{
+  "id": "reference-legacy-copy-does-not-block",
+  "fixture": "clean-onboarded-repo",
+  "runs": 1,
+  "actor": {
+    "context": "sterile",
+    "script": [
+      {
+        "action": "read_attention"
+      },
+      {
+        "write": {
+          "path": ".codestable/reference/MANIFEST.json",
+          "content": "{\"version\": \"0.0.1\", \"files\": [\"system-overview.md\"]}\n"
+        }
+      },
+      {
+        "action": "run_doctor"
+      },
+      {
+        "say": "Doctor reports reference_drift version-mismatch: the project still has a .codestable/reference/ copy from package 0.0.1.\nSkills read their own shared files now, so this legacy copy is unused. It is a P2 note to delete it and does not block the work."
+      }
+    ]
+  },
+  "expect": {
+    "transcript": {
+      "contains": [
+        "version-mismatch",
+        "legacy copy is unused",
+        "does not block"
+      ]
+    },
+    "trajectory": {
+      "required_actions": [
+        "read_attention",
+        "run_doctor"
+      ],
+      "forbidden_actions": [
+        "commit",
+        "merge"
+      ]
+    },
+    "commands": [
+      {
+        "cmd": [
+          "python3",
+          ".codestable/tools/codestable-doctor.py",
+          "--root",
+          ".",
+          "--json"
+        ],
+        "json": [
+          {
+            "path": "reference_drift.state",
+            "equals": "version-mismatch"
+          },
+          {
+            "path": "findings",
+            "contains_item": {
+              "severity": "P2",
+              "path": ".codestable/reference/"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -42,6 +42,11 @@ validator, harness tool, or README, switch to the source repo before editing.
      changed skills.
    - `pytest` or focused tests for changed harness scripts when tests exist.
    - `git diff --check`.
+   - After changing anything under `cs-onboard/reference/` or `cs-onboard/tools/`,
+     or citing a shared document or tool from a skill for the first time, run
+     `python3 plugins/codestable/skills/codestable-maintainer/tools/sync-shared.py --write`.
+     Skills carry their own copies of shared references and tools; the copies
+     are generated, never hand-edited.
 6. Use a subagent reviewer for implementation review when available. If the
    platform truly cannot launch one, record a fresh self-review fallback
    explicitly in the final report.

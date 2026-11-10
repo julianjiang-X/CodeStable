@@ -4,8 +4,9 @@ and the repository's document-size rule.
 These guard invariants that are otherwise only stated in prose:
 
 - ``CLAUDE.md`` rule 2: skills are independent install units, so a skill may only
-  point at shared docs through the project-level ``.codestable/reference/`` path.
-  Every such pointer must resolve to a template that ``cs-onboard`` actually ships.
+  point at shared docs through its own ``shared/`` copy. Every such pointer must
+  resolve to a source that ``cs-onboard/reference/`` actually holds, and every
+  copy must equal its source.
 - ``CLAUDE.md``: no single markdown document may exceed 300 lines.
 """
 
@@ -76,7 +77,7 @@ def test_absorbed_reference_is_shipped_and_documented(name: str) -> None:
     assert (REFERENCE_DIR / name).exists(), f"cs-onboard/reference/{name} is missing"
 
     onboard = (skill("cs-onboard") / "SKILL.md").read_text(encoding="utf-8")
-    assert f".codestable/reference/{name}" in onboard, (
+    assert f"reference/{name}" in onboard, (
         f"{name} is shipped but not listed in cs-onboard/SKILL.md, so onboard will not announce it"
     )
 
@@ -92,8 +93,8 @@ def skill_documents() -> list[Path]:
 
 
 def test_every_referenced_shared_doc_is_shipped_by_onboard() -> None:
-    """A skill pointing at .codestable/reference/X.md is broken unless cs-onboard ships X.md."""
-    pattern = re.compile(r"\.codestable/reference/([A-Za-z0-9._-]+\.md)")
+    """A skill pointing at shared/X.md is broken unless cs-onboard/reference/ holds X.md."""
+    pattern = re.compile(r"(?<![\w/-])shared/([A-Za-z0-9._-]+\.md)")
     dangling: dict[str, set[str]] = {}
 
     documents = skill_documents()
@@ -474,3 +475,83 @@ def test_canon_parity_catches_a_new_assurance_row(tmp_path: Path) -> None:
     result = checker.check_canon_parity(fake)
     assert result["ok"] is False
     assert result["canon_rows"] == len(checker.RISK_KEYWORDS) + 1
+
+
+def load_shared_sync():
+    import importlib.util
+
+    path = skill("codestable-maintainer") / "tools" / "sync-shared.py"
+    spec = importlib.util.spec_from_file_location("codestable_sync_shared", path)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_skill_shared_copies_match_their_sources() -> None:
+    """Skills cannot read each other's files and nothing is copied into projects,
+    so each skill ships the shared documents and tools it cites. A missing, stale
+    or unused copy means a skill would follow old conventions or point nowhere."""
+    payload = load_shared_sync().check(SKILLS_ROOT)
+
+    assert payload["ok"], (
+        "run codestable-maintainer/tools/sync-shared.py --write; problems: "
+        f"{payload['problems']}"
+    )
+
+
+def test_shared_sync_detects_stale_and_missing_copies(tmp_path: Path) -> None:
+    sync = load_shared_sync()
+    root = tmp_path / "skills"
+    (root / "cs-onboard" / "reference").mkdir(parents=True)
+    (root / "cs-onboard" / "tools").mkdir()
+    (root / "cs-onboard" / "reference" / "a.md").write_text("see `shared/b.md`\n", encoding="utf-8")
+    (root / "cs-onboard" / "reference" / "b.md").write_text("b\n", encoding="utf-8")
+    (root / "cs-onboard" / "tools" / "t.py").write_text("print(1)\n", encoding="utf-8")
+    (root / "cs-x").mkdir()
+    (root / "cs-x" / "SKILL.md").write_text(
+        "read `shared/a.md`, run `python3 {SKILL_DIR}/tools/t.py`\n", encoding="utf-8"
+    )
+
+    missing = sync.check(root)
+    assert missing["problems"]["cs-x"]["shared"]["missing"] == ["a.md", "b.md"]
+    assert missing["problems"]["cs-x"]["tools"]["missing"] == ["t.py"]
+
+    sync.write(root)
+    assert sync.check(root)["ok"]
+
+    (root / "cs-x" / "shared" / "b.md").write_text("drifted\n", encoding="utf-8")
+    (root / "cs-x" / "shared" / "extra.md").write_text("x\n", encoding="utf-8")
+    drifted = sync.check(root)["problems"]["cs-x"]["shared"]
+    assert drifted["stale"] == ["b.md"]
+    assert drifted["unused"] == ["extra.md"]
+
+
+def test_retired_skill_lists_agree() -> None:
+    """Installed-copy sync prunes retired directories and the freshness check
+    reports them. A name known to only one of the two leaves a stale skill
+    installed and silently triggering."""
+    import importlib.util
+
+    def load(name: str, path: Path):
+        spec = importlib.util.spec_from_file_location(name, path)
+        assert spec and spec.loader
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[name] = module
+        spec.loader.exec_module(module)
+        return module
+
+    verify = load("codestable_verify_for_retired", skill("codestable-maintainer") / "tools" / "verify.py")
+    freshness = load("codestable_freshness_for_retired", skill("cs-onboard") / "tools" / "codestable-freshness-check.py")
+
+    assert verify.RETIRED_SKILL_DIRS == freshness.RETIRED_SKILL_DIRS
+    assert not (verify.RETIRED_SKILL_DIRS & verify.SKILL_DIRS)
+    for name in verify.RETIRED_SKILL_DIRS:
+        assert not (SKILLS_ROOT / name).exists(), f"{name} is retired but still shipped"
+
+
+def test_shipped_hook_config_uses_real_paths() -> None:
+    """Hook commands run in a shell, where a documentation placeholder is a literal."""
+    hooks = (skill("cs-onboard") / "hooks" / "hooks.codex.json").read_text(encoding="utf-8")
+    assert "{SKILL_DIR}" not in hooks
+    assert ".codestable/tools/codestable-ai-branch-guard.py" in hooks

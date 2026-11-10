@@ -2,7 +2,7 @@
 
 任务类型只决定工程方法，**实际风险决定保障强度**。
 
-由 `cs-onboard` 从技能包复制到 `.codestable/reference/assurance.md`。`cs-feat`、`cs-issue`、`cs-refactor` 三个路由技能和各自的执行阶段在决定"这次要做多重"时读它。
+本文件随用到它的技能分发，位于该技能目录下的 `shared/assurance.md`；源文件在 `cs-onboard/reference/`。`cs-feat`、`cs-issue`、`cs-refactor` 三个路由技能和各自的执行阶段在决定"这次要做多重"时读它。
 
 ## 公式
 
@@ -76,4 +76,4 @@
 - 真实取舍；
 - 影响面分为**必须修改 / 需要验证 / 仍待调查**三类，没有的条目明确写"无"。
 
-不因为触发了 design 就自动展开整套 feature 流程；`cs-feat-ff` 通道内触发 design 时同样适用这个最低内容，不强制升级到完整 design 文档。
+不因为触发了 design 就自动展开整套 feature 流程；`cs-feat ff` 通道内触发 design 时同样适用这个最低内容，不强制升级到完整 design 文档。

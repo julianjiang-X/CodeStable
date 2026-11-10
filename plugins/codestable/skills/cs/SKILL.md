@@ -5,6 +5,8 @@ description: Choose a CodeStable workflow or explain the system when routing or 
 
 # cs
 
+> `{SKILL_DIR}` 指本技能目录（本文件所在目录）。正文里的相对路径（`stages/`、`references/`、`reference/`、`shared/`、`tools/`）都相对于它；本技能没有的子目录就是用不到。
+
 触发简称是 `cs`。用户已指明技能或阶段时直接使用它。
 读取并复用 `.codestable/attention.md`；其他上下文按任务查找。
 用户明确指令优先于技能指南。小改和定向问答可直接完成，不自动创建单元。
@@ -28,11 +30,11 @@ description: Choose a CodeStable workflow or explain the system when routing or 
 | 跨功能规划与接口拆分 | `cs-roadmap` |
 | 新增能力 | `cs-feat`：design / ff / impl / accept |
 | 缺陷 | `cs-issue`：report / analyze / fix |
-| 保持行为的优化 | `cs-refactor` / `cs-refactor-ff` |
+| 保持行为的优化 | `cs-refactor` / `cs-refactor ff` |
 | 定向理解代码 | `cs-explore` |
 | 只读风险审查 | `cs-audit` |
-| 需求与架构 | `cs-req` / `cs-arch` |
-| 决策、经验、技巧、常驻提示 | `cs-decide` / `cs-learn` / `cs-trick` / `cs-note` |
+| 需求与架构 | `cs-keep req` / `cs-keep arch` |
+| 决策、经验、技巧、常驻提示 | `cs-keep decide` / `cs-keep learn` / `cs-keep trick` / `cs-keep note` |
 | 对外指南 | `cs-guide` |
 | CodeStable 源码、harness、发布与安装 | `codestable-maintainer` |
 
@@ -44,23 +46,23 @@ description: Choose a CodeStable workflow or explain the system when routing or 
 
 已接入的仓库里，owner 说出范围或授权规矩（只做谁的部分、不建 PR、不合并、不碰
 哪些目录）时当场记录并用一句话告知，不等 owner 说第二遍：只管当前 unit 的写进该
-unit 的记录，跨任务有效的按 `cs-note` 写入 `attention.md`。写明覆盖的动作和原因；
+unit 的记录，跨任务有效的按 `cs-keep note` 写入 `attention.md`。写明覆盖的动作和原因；
 owner 没说原因就照实写"owner 指示，未说明原因"。未接入的仓库只在本会话内遵守，
 不为此创建 `.codestable/`。
 
 汇报写给没看过过程的人：只对实际跑过的路径说"已验证"，没跑的写明没跑；末尾写出
 下一步，在已有授权内就直接做，不列完待办等"继续"。
 
-有实质 owner 决策时按 `.codestable/reference/approval-conventions.md`
+有实质 owner 决策时按 `shared/approval-conventions.md`
 使用已有阶段报告；它不足以承载决策时才补 `approval-report.md`。
 普通路由不生成审批报告。项目的 L0–L4 等级描述决策范围，不自动新增审批。
 
 小任务不自动触发 full grill。`interview me` / “采访我” / “先问我”补足缺失上下文；
 `grill me` / “拷问我” / “追问我” / “多问几轮”进入显式
-深度讨论，按需读 `.codestable/reference/interaction-modes.md`。
+深度讨论，按需读 `shared/interaction-modes.md`。
 无限定终点的 grill 不转为 goal。grill-context 保留 `source_of_truth: false`，
 不能替代正式 spec。用户只问体系时简答，完整结构按需读
-`.codestable/reference/system-overview.md`。
+`shared/system-overview.md`。
 
 ## 安装边界
 

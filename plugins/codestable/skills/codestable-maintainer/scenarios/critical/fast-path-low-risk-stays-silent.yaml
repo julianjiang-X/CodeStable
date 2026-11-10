@@ -12,7 +12,7 @@
         "action": "risk_check"
       },
       {
-        "say": "Route: cs-feat-ff\nRisk check: no category hit - copy-only label change, no trust boundary, no persisted data, no concurrency, no external side effect.\nProceeding with the normal fastforward loop; no extra assurance and no extra question."
+        "say": "Route: cs-feat ff\nRisk check: no category hit - copy-only label change, no trust boundary, no persisted data, no concurrency, no external side effect.\nProceeding with the normal fastforward loop; no extra assurance and no extra question."
       },
       {
         "write": {
@@ -70,7 +70,7 @@
             "equals": true
           },
           {
-            "path": "lanes.cs-feat-ff.categories_present",
+            "path": "lanes.cs-feat ff.categories_present",
             "equals": 8
           }
         ]

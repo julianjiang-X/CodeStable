@@ -126,65 +126,18 @@ def diagnose(root: Path) -> dict[str, object]:
     # appended after lifecycle findings rather than displacing them.
     drift_findings: list[Finding] = []
     drift_state = reference_state.get("state")
-    if drift_state == "version-mismatch":
-        drift_findings.append(
-            Finding(
-                severity="P1",
-                message=(
-                    "Shared reference copy is from package "
-                    f"{reference_state.get('found_version')} but these tools are from "
-                    f"{reference_state.get('expected_version')}. Skills will follow stale conventions; "
-                    "re-copy cs-onboard/reference/ into .codestable/reference/."
-                ),
-                path=".codestable/reference/",
-            )
-        )
-    elif drift_state == "incomplete":
-        drift_findings.append(
-            Finding(
-                severity="P1",
-                message=(
-                    "Shared reference copy is missing files its own manifest lists: "
-                    f"{', '.join(reference_state.get('missing', []))}. "
-                    "Skills pointing at them will fail to resolve; re-copy "
-                    "cs-onboard/reference/ into .codestable/reference/."
-                ),
-                path=".codestable/reference/",
-            )
-        )
-    elif drift_state == "unreadable":
-        drift_findings.append(
-            Finding(
-                severity="P1",
-                message=(
-                    "Shared reference manifest cannot be read, so drift cannot be checked: "
-                    f"{reference_state.get('error', '')}. "
-                    "Re-copy cs-onboard/reference/ into .codestable/reference/."
-                ),
-                path=".codestable/reference/MANIFEST.json",
-            )
-        )
-    elif drift_state == "absent" and reference_state.get("has_codestable"):
-        # P2, not P1: an incomplete skeleton is a setup gap, not a wrong copy
-        # actively misleading skills, and it must not block unrelated lifecycle work.
+    # Since package 3.0.0 skills read their own `shared/` files. A project-level
+    # `.codestable/reference/` is a legacy copy nobody reads: an out-of-date one
+    # is worth mentioning so it gets removed, but it cannot mislead a skill and
+    # must not block lifecycle work. A project without the directory is normal.
+    if drift_state in {"version-mismatch", "incomplete", "unreadable", "unversioned"}:
         drift_findings.append(
             Finding(
                 severity="P2",
                 message=(
-                    "Project has .codestable/ but no reference/ directory, so every "
-                    "`.codestable/reference/*.md` pointer in every skill dangles. "
-                    "Run cs-onboard or re-copy cs-onboard/reference/."
-                ),
-                path=".codestable/reference/",
-            )
-        )
-    elif drift_state == "unversioned":
-        drift_findings.append(
-            Finding(
-                severity="P2",
-                message=(
-                    "Shared reference copy predates manifest tracking and has not been refreshed since. "
-                    "Re-copy cs-onboard/reference/ to pick up newer conventions."
+                    f"Legacy shared reference copy found (state: {drift_state}). "
+                    "Skills now read their own shared/ files, so .codestable/reference/ is unused; "
+                    "delete it once no hook or CI depends on it."
                 ),
                 path=".codestable/reference/",
             )

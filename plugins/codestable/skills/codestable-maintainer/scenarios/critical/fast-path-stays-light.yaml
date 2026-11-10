@@ -11,10 +11,10 @@
       {
         "write": {
           "path": ".codestable/refactors/2026-06-10-local-cleanup/local-cleanup-apply-notes.md",
-          "content": "# Apply Notes\n\nRoute: cs-refactor-ff\nContext: L1\nSkip: local refactor does not change capability boundary or long-lived specs.\n"
+          "content": "# Apply Notes\n\nRoute: cs-refactor ff\nContext: L1\nSkip: local refactor does not change capability boundary or long-lived specs.\n"
         }
       },
-      {"say": "Route: cs-refactor-ff\nContext: L1\nSkip: record lightweight apply notes; no requirement delta."}
+      {"say": "Route: cs-refactor ff\nContext: L1\nSkip: record lightweight apply notes; no requirement delta."}
     ]
   },
   "expect": {

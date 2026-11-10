@@ -237,10 +237,10 @@ def test_runtime_tool_paths_are_documented() -> None:
     reference_dir = ONBOARD_REFERENCE
     tools_doc = "\n".join(path.read_text(encoding="utf-8") for path in sorted(reference_dir.glob("tools*.md")))
 
-    assert "python3 .codestable/tools/codestable-doctor.py --root . --json" in tools_doc
-    assert "python3 .codestable/tools/codestable-worktree-gate.py --root . --json start" in tools_doc
-    assert "python3 .codestable/tools/codestable-finish-worktree.py --root ." in tools_doc
-    assert "python3 .codestable/tools/codestable-worktree-inbox.py --root . --json" in tools_doc
+    assert "python3 {SKILL_DIR}/tools/codestable-doctor.py --root . --json" in tools_doc
+    assert "python3 {SKILL_DIR}/tools/codestable-worktree-gate.py --root . --json start" in tools_doc
+    assert "python3 {SKILL_DIR}/tools/codestable-finish-worktree.py --root ." in tools_doc
+    assert "python3 {SKILL_DIR}/tools/codestable-worktree-inbox.py --root . --json" in tools_doc
     hook_doc = (ONBOARD_REFERENCE / "branch-guard-hooks.md").read_text(
         encoding="utf-8"
     )

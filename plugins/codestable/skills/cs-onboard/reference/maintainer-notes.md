@@ -1,6 +1,6 @@
 # CodeStable 维护者说明
 
-本文件由 `cs-onboard` 复制到项目的 `.codestable/reference/maintainer-notes.md`。维护 CodeStable 技能家族时需要反复查阅、但不适合放在各子技能正文里的说明。
+本文件随用到它的技能分发，位于该技能目录下的 `shared/maintainer-notes.md`；源文件在 `cs-onboard/reference/`。维护 CodeStable 技能家族时需要反复查阅、但不适合放在各子技能正文里的说明。
 
 ---
 
@@ -47,4 +47,4 @@ AI 对话随时可能中断（token 超限、网络断开、用户换设备）�
 
 - 每次扩展都要同步更新 `system-overview.md` 索引和相关子技能
 - 不允许只在某个子技能里加东西而不在 `system-overview.md` 登记
-- 共享说明优先放 `.codestable/reference/`，不要散落在各子技能里
+- 共享说明优先放 `cs-onboard/reference/`（源），由同步脚本分发到各技能的 `shared/`，不要散落在各子技能里

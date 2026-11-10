@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Verify the fast lanes carry a real risk-escalation gate.
 
-The three fast lanes (`cs-feat-ff`, `cs-refactor-ff`, `cs-issue-fix`) gate on
+The three fast lanes (`cs-feat ff`, `cs-refactor ff`, `cs-issue fix`) gate on
 volume/scope. Volume is not a risk proxy, so each lane must also carry a risk
 gate wired to `assurance.md`.
 
@@ -41,10 +41,10 @@ SKILLS_ROOT = Path(__file__).resolve().parents[2]
 RISK_KEYWORDS = ("取舍", "契约", "权限", "schema", "并发", "副作用", "性能", "传播")
 
 LANES = {
-    "cs-feat-ff": ("cs-feat-ff/SKILL.md", "### 风险升级", False),
-    "cs-refactor-ff": ("cs-refactor-ff/SKILL.md", "### 第 4 条：风险核对", False),
+    "cs-feat ff": ("cs-feat/stages/ff.md", "### 风险升级", False),
+    "cs-refactor ff": ("cs-refactor/stages/ff.md", "### 第 4 条：风险核对", False),
     # This gate is nested inside the fast-path numbered list.
-    "cs-issue-fix": ("cs-issue-fix/SKILL.md", "**风险核对（静默）**", True),
+    "cs-issue fix": ("cs-issue/stages/fix.md", "**风险核对（静默）**", True),
 }
 
 # "Stay in the lane" is only safe while a scale signal still forces fallback.
@@ -54,8 +54,8 @@ SCOPE_SECTIONS = {
     # Must reach the trigger list itself. Pointing at the parent heading sliced
     # only the framing sentence, which names both tokens while the rule it
     # announces could be deleted wholesale.
-    "cs-feat-ff": ("### 规模跳出", ("3 个以上子系统", "cs-feat-design")),
-    "cs-refactor-ff": ("## 什么时候跳出 fastforward", ("规模信号", "以规模信号为准")),
+    "cs-feat ff": ("### 规模跳出", ("3 个以上子系统", "cs-feat design")),
+    "cs-refactor ff": ("## 什么时候跳出 fastforward", ("规模信号", "以规模信号为准")),
 }
 
 # cs-feat-ff also carries economy.md's counterweight; losing it leaves the lane
@@ -172,9 +172,9 @@ def check_lane(skills_root: Path, lane: str) -> dict[str, object]:
 
 
 def check_counterweight(skills_root: Path) -> dict[str, object]:
-    path = skills_root / LANES["cs-feat-ff"][0]
+    path = skills_root / LANES["cs-feat ff"][0]
     if not path.is_file():
-        return {"ok": False, "reason": "missing cs-feat-ff/SKILL.md", "missing": list(COUNTERWEIGHT_ELEMENTS)}
+        return {"ok": False, "reason": "missing cs-feat/stages/ff.md", "missing": list(COUNTERWEIGHT_ELEMENTS)}
     section = slice_section(path.read_text(encoding="utf-8"), COUNTERWEIGHT_HEADING)
     if section is None:
         return {"ok": False, "reason": "counterweight section missing or unbounded", "missing": list(COUNTERWEIGHT_ELEMENTS)}

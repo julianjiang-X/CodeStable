@@ -1,7 +1,8 @@
 ---
 adr: "001"
 title: "保留共享项目 runtime，并为它补上漂移检测"
-status: Accepted
+status: Superseded
+superseded-by: "005"
 date: 2026-08-14
 applies-to:
   - "cs-onboard/tools/"

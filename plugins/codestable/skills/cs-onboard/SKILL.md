@@ -1,6 +1,6 @@
 ---
 name: cs-onboard
-description: "接入或升级项目的 CodeStable 目录、共享参考与工具，保留既有规范。"
+description: "接入或升级项目的 CodeStable 目录与项目记忆，保留既有规范。"
 ---
 
 # cs-onboard
@@ -22,7 +22,7 @@ description: "接入或升级项目的 CodeStable 目录、共享参考与工具
 
 ## 标准骨架（目标状态）
 
-> 共享路径与命名约定的权威版本是项目里的 `.codestable/reference/shared-conventions.md`——本技能从技能包复制过去。下面只列 onboard 创建 / 检查的骨架文件。
+> `{SKILL_DIR}` 指本技能目录。共享路径与命名约定的权威版本是 `{SKILL_DIR}/reference/shared-conventions.md`。下面只列 onboard 创建 / 检查的骨架文件。
 
 ```
 .codestable/
@@ -36,36 +36,17 @@ description: "接入或升级项目的 CodeStable 目录、共享参考与工具
 ├── issues/                     issue 聚合根
 ├── refactors/                  refactor 聚合根
 ├── brainstorms/                brainstorming 聚合根
-├── compound/                   沉淀类统一目录（learning / trick / decision / explore）
-├── tools/                      跨工作流共享脚本（onboard 释放）
-│   ├── codestable-doctor.py
-│   ├── codestable-freshness-check.py
-│   ├── codestable-ai-branch-guard.py
-│   ├── codestable-main-publish.py
-│   ├── codestable-worktree-gate.py
-│   ├── codestable_common.py
-│   ├── build-review-packet.py
-│   ├── build-context-packet.py
-│   ├── check-context-sufficiency.py
-│   ├── codestable-finish-worktree.py
-│   ├── codestable-worktree-inbox.py
-│   ├── codestable-backlog.py
-│   ├── codestable-spec-governance.py
-│   ├── plan-commits.py
-│   ├── search-yaml.py
-│   ├── validate-implementation-review.py
-│   └── validate-yaml.py
-└── reference/                  跨子技能共享参考（onboard 释放）
-    ├── MANIFEST.json             本次释放的版本 + 完整文件清单（权威列表，别手改）
-    └── *.md                      整目录从技能包覆盖，不逐个挑
+└── compound/                   沉淀类统一目录（learning / trick / decision / explore）
 ```
 
-`reference/` 的权威文件清单以 `MANIFEST.json` 为准——这里不再重复列举，避免两处不一致。
-当前包含共享口径（`shared-conventions` / `execution-conventions` / `approval-conventions` /
-`goal-conventions` / `interaction-modes`）、方法论（`assurance` / `economy` / `code-design` /
-`evidence-lifecycle`）、工具参考（`tools` / `tools-part*` / `spec-governance-tools` /
-`branch-guard-hooks`）与 `maintainer-notes`。
+### 共享参考和工具不进项目
 
+从 3.0.0 起，共享参考和工具脚本不再复制到项目里。每个技能在自己的目录下带着它用到的 `shared/*.md` 和 `tools/*`，升级技能包就全部更新，项目里没有需要刷新的副本。
+
+- 本技能目录的 `reference/` 是共享参考的源，文件清单以 `reference/MANIFEST.json` 为准；`reference/` 里的文件互相用 `shared/<名字>.md` 引用，在本技能里对应 `reference/<名字>.md`。
+- 本技能目录的 `tools/` 是完整工具集的源。
+- 已有项目里旧的 `.codestable/reference/` 与 `.codestable/tools/` 不再被任何技能读取，也不再刷新。确认没有 git hook 或 CI 指向 `.codestable/tools/` 后可以删除；删不删由 owner 决定，onboard 不替用户删。
+- 唯一仍会放进项目的是 git hook 回退和 main 发布用的三个文件（两个脚本加 `codestable_common.py`），仅在项目要启用它们时按 `reference/branch-guard-hooks.md` 的命令复制。agent hook 不需要项目副本，它会回退到已安装的本技能目录。
 
 ---
 
@@ -78,7 +59,7 @@ description: "接入或升级项目的 CodeStable 目录、共享参考与工具
 
    > 检测到旧版codestable。建议直接 `git mv easysdd .codestable`，结构 / frontmatter 完全兼容，rename 后即用。要我执行吗？
 
-   同意 → `git mv easysdd .codestable`，按迁移路径走（这时只需补齐可能缺失的 `attention.md`、`tools/` 和 `reference/`）。想保留旧目录 → 告诉他子技能只读 `.codestable/`，旧目录不会被读；按空仓库路径走新骨架
+   同意 → `git mv easysdd .codestable`，按迁移路径走（这时只需补齐可能缺失的 `attention.md`）。想保留旧目录 → 告诉他子技能只读 `.codestable/`，旧目录不会被读；按空仓库路径走新骨架
 
 3. **Glob 全仓库 `.md`**（排除 `node_modules/` `.git/`）：根目录 `DESIGN.md` / `ARCHITECTURE.md` / `SPEC.md` / `README.md`；`docs/` `doc/` `design/` `spec/` `wiki/`；现有 `.codestable/` 下文件
 4. **检查 `.codestable/attention.md`**：缺失则列为骨架待补齐项
@@ -100,20 +81,16 @@ description: "接入或升级项目的 CodeStable 目录、共享参考与工具
 - `.codestable/{requirements,roadmap,goals,features,issues,refactors,compound,brainstorms}/.gitkeep`
 - `.codestable/attention.md`（最小骨架模板见同目录 `reference.md`）
 - `.codestable/architecture/ARCHITECTURE.md`（占位模板见同目录 `reference.md`）
-- `.codestable/tools/`（用 `cp -rf` / `Copy-Item -Recurse -Force` 整目录拷贝技能包 `<SKILLS_ROOT>/cs-onboard/tools/`，**不要 Read 再 Write**）
-- `.codestable/reference/`（同上）
-
-> **落盘用 shell 整目录覆盖**，不要 Read 再 Write——这两个目录是机器共享资产，Read+Write 会截断大文件、改缩进、吃空行，还慢费 token。具体命令见迁移路径步骤 4。
 
 **步骤 3：attention.md 提醒**
 
-attention.md 已创建但默认只有空骨架。汇报时提醒用户：有编译前置、测试命令、目录禁区、凭证规则、报告语言偏好这类"每次 CodeStable 技能启动都必须知道"的信息，后续用 `cs-note` 一条条追加。
+attention.md 已创建但默认只有空骨架。汇报时提醒用户：有编译前置、测试命令、目录禁区、凭证规则、报告语言偏好这类"每次 CodeStable 技能启动都必须知道"的信息，后续用 `cs-keep note` 一条条追加。
 
 **步骤 4：验收汇报**
 
 列建了哪些文件：
 
-> CodeStable 骨架已就绪。现在可以：达成目标 `cs-goal` / 开始新功能 `cs-feat` / 报告问题 `cs-issue` / 沉淀知识 `cs-learn`
+> CodeStable 骨架已就绪。现在可以：达成目标 `cs-goal` / 开始新功能 `cs-feat` / 报告问题 `cs-issue` / 沉淀知识 `cs-keep learn`
 
 ---
 
@@ -147,37 +124,7 @@ attention.md 已创建但默认只有空骨架。汇报时提醒用户：有编�
 
 对照标准骨架补齐**用户确认后仍缺失**的目录 / 文件。已有内容不覆盖。
 
-**`.codestable/tools/` 和 `.codestable/reference/` 一律用技能包新版本覆盖**——这两个目录是技能包维护的共享资产，权威源在技能包的 `cs-onboard/tools/` 和 `cs-onboard/reference/`，项目里的只是落盘副本。技能包升级后再跑 onboard 的目的之一就是刷新副本，留旧版本会让子技能按过时口径工作。
-
-覆盖前在汇报列出被覆盖文件让用户知道；用户明确说"我改过 tools/xxx.py 请保留"才例外保留并标红。这是迁移路径**唯一强制覆盖**的动作，其他已有文件遵守"不经确认不动"。
-
-**先定位 `<SKILLS_ROOT>`**——**装着各个技能目录的那一层**，它下面直接就是 `cs-onboard/`、`cs-feat/` 等。三种常见形态：
-
-| 安装方式 | `<SKILLS_ROOT>` |
-|---|---|
-| `skills` CLI | `~/.claude/skills` 或 `${CODEX_HOME:-$HOME/.codex}/skills` |
-| 插件 | `<插件目录>/skills` |
-| 源码仓库 | `<repo>/plugins/codestable/skills` |
-
-判据：`ls <SKILLS_ROOT>` 能看到 `cs-onboard` 这个**目录**。不确定先 `ls` 定位，**不要**把路径指到 `cs-onboard/` 本身——那会拼出 `cs-onboard/cs-onboard/tools/`。
-
-**落盘命令**：
-
-```bash
-# macOS / Linux
-cp -rf <SKILLS_ROOT>/cs-onboard/tools/.      .codestable/tools/
-cp -rf <SKILLS_ROOT>/cs-onboard/reference/.  .codestable/reference/
-
-# Windows PowerShell
-Copy-Item -Recurse -Force <SKILLS_ROOT>\cs-onboard\tools\*      .codestable\tools\
-Copy-Item -Recurse -Force <SKILLS_ROOT>\cs-onboard\reference\*  .codestable\reference\
-```
-
-不要：Read+Write 手工搬（截断 / 改缩进）、一个个 cp（多步骤多出错）、先比 diff（规则就是无条件覆盖）。
-
-拷完 `ls .codestable/tools/ .codestable/reference/` 验证。
-
-`reference/` 里的 `MANIFEST.json` 记录本次释放的版本和文件清单，**必须跟着一起拷**。`codestable-doctor.py` 靠它和自身版本比对：两边版本不一致（只刷新了一半）报 P1，清单里的文件缺失报 P1，没有 MANIFEST（老副本从未刷新过）报 P2。别手工编辑它——它由技能包生成，改了只会让漂移检测失效。
+项目里已有旧的 `.codestable/reference/` 或 `.codestable/tools/` 时不刷新、不覆盖，在汇报里说明它们已不再被读取，按上面"共享参考和工具不进项目"一节处理。
 
 **步骤 5：处理不迁移的文件**
 
@@ -199,9 +146,8 @@ Copy-Item -Recurse -Force <SKILLS_ROOT>\cs-onboard\reference\*  .codestable\refe
 
 ## 退出条件
 
-- [ ] `.codestable/` 十一个子目录都存在
+- [ ] `.codestable/` 九个子目录都存在
 - [ ] `.codestable/attention.md` 已建
-- [ ] `.codestable/tools/` 和 `.codestable/reference/` 已从技能包复制
 - [ ] `.codestable/architecture/ARCHITECTURE.md` 已建
 - [ ] 迁移路径：每条映射都有明确处理结果（迁移 / 保留原位）
 - [ ] 迁移路径：没有未经确认就移动的文件
@@ -216,8 +162,8 @@ Copy-Item -Recurse -Force <SKILLS_ROOT>\cs-onboard\reference\*  .codestable\refe
 - **重新引入 `AGENTS.md` / `CLAUDE.md` 兼容路径**——CodeStable 的启动注意事项入口固定为 `.codestable/attention.md`
 - **建完骨架立刻开始 feature/issue**——onboard 是"搭环境"不是"开始干活"
 - **低置信度直接执行**——低 = 必须问
-- **`.codestable/tools/` 和 `.codestable/reference/` 走"不覆盖"保守策略**——这两个**必须**用技能包新版本覆盖，否则升级后用户停留在过时口径
-- **用 Read + Write 手工搬**——必须 `cp -rf` / `Copy-Item -Recurse -Force` 整目录覆盖
+- **把 `reference/` 或 `tools/` 复制进项目**——3.0.0 起它们随技能分发，项目副本只会过期
+- **替用户删除旧的 `.codestable/reference/` / `.codestable/tools/`**——可能有 hook 或 CI 指向它们，由 owner 决定
 - **Glob 时忘记排除 `node_modules/` `.git/`**——会让扫描结果充斥噪声
 - **让 AI 在主协调检出里 `git switch/checkout`**——需要执行分支时用 git worktree；可用 `branch-guard-hooks.md` 配 command hook 硬拦
 
@@ -225,17 +171,17 @@ Copy-Item -Recurse -Force <SKILLS_ROOT>\cs-onboard\reference\*  .codestable\refe
 
 ## 相关文档
 
-- `.codestable/reference/system-overview.md` — CodeStable 体系总览
-- `.codestable/reference/shared-conventions.md` — 目录结构和共享口径的权威版本
-- `.codestable/reference/execution-conventions.md` — worktree / review / finish / commit 执行约定
-- `.codestable/reference/approval-conventions.md` — owner 审批报告和 `approval-report.md` 约定
-- `.codestable/reference/goal-conventions.md` — goal 状态模型、报告和 owner-stop 约定
-- `.codestable/reference/interaction-modes.md` — `interview me` / `grill me` 的全局对话模式约定
-- `.codestable/reference/assurance.md` — 风险驱动的保障强度选择（地板之上加多少）
-- `.codestable/reference/economy.md` — 实现经济性：最少新增复杂度、有界简化
-- `.codestable/reference/code-design.md` — 模块深度、归属命名、接缝真实性、穿刺协议
-- `.codestable/reference/evidence-lifecycle.md` — 归档文档 `evidence` 三态与晋级规则
-- `.codestable/tools/codestable-freshness-check.py` — 检查 installed CodeStable skill copy 是否落后于远端 `main`
-- `.codestable/reference/branch-guard-hooks.md` — 禁止 AI 切主检出分支 / 在 main 或 master 上实现的 hook 配置
+- `reference/system-overview.md` — CodeStable 体系总览
+- `reference/shared-conventions.md` — 目录结构和共享口径的权威版本
+- `reference/execution-conventions.md` — worktree / review / finish / commit 执行约定
+- `reference/approval-conventions.md` — owner 审批报告和 `approval-report.md` 约定
+- `reference/goal-conventions.md` — goal 状态模型、报告和 owner-stop 约定
+- `reference/interaction-modes.md` — `interview me` / `grill me` 的全局对话模式约定
+- `reference/assurance.md` — 风险驱动的保障强度选择（地板之上加多少）
+- `reference/economy.md` — 实现经济性：最少新增复杂度、有界简化
+- `reference/code-design.md` — 模块深度、归属命名、接缝真实性、穿刺协议
+- `reference/evidence-lifecycle.md` — 归档文档 `evidence` 三态与晋级规则
+- `{SKILL_DIR}/tools/codestable-freshness-check.py` — 检查 installed CodeStable skill copy 是否落后于远端 `main`
+- `reference/branch-guard-hooks.md` — 禁止 AI 切主检出分支 / 在 main 或 master 上实现的 hook 配置
 - `.codestable/attention.md` — CodeStable 技能启动必读的项目注意事项
 - `.codestable/architecture/ARCHITECTURE.md` — 架构总入口骨架

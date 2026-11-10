@@ -5,9 +5,11 @@ description: "在保持行为的前提下优化代码结构，按风险验证并
 
 # cs-refactor
 
-读取本会话尚未读过的 `.codestable/attention.md`。只加载任务相关上下文，已读且未改变的资料不重复读取。共享路径、worktree、审查及提交约定见 `.codestable/reference/shared-conventions.md` 第 0、2.6、4 节。
+> `{SKILL_DIR}` 指本技能目录（本文件所在目录）。正文里的相对路径（`stages/`、`references/`、`reference/`、`shared/`、`tools/`）都相对于它；本技能没有的子目录就是用不到。
 
-保持外部可观察行为并改善具体结构或性能问题。范围明确的小重构走 `cs-refactor-ff`；较大任务用 scan / design / apply 保持可追溯。文件数、行数和浏览器验证需求不单独决定流程。
+读取本会话尚未读过的 `.codestable/attention.md`。只加载任务相关上下文，已读且未改变的资料不重复读取。共享路径、worktree、审查及提交约定见 `shared/shared-conventions.md` 第 0、2.6、4 节。
+
+保持外部可观察行为并改善具体结构或性能问题。范围明确的小重构走 `cs-refactor ff`（读取 `{SKILL_DIR}/stages/ff.md` 并照做）；较大任务用 scan / design / apply 保持可追溯。文件数、行数和浏览器验证需求不单独决定流程。
 
 ## 文件与授权
 
@@ -111,14 +113,14 @@ refactor: {YYYY-MM-DD}-{slug}
 按 shared-conventions 第 2.6 节使用执行 worktree，保留无关改动、共享计划面及既有 override 契约。改动前执行 start gate；完成证据写入后执行 commit gate：
 
 ```bash
-python3 .codestable/tools/codestable-worktree-gate.py --root . --json start --unit .codestable/refactors/YYYY-MM-DD-{slug}
-python3 .codestable/tools/codestable-worktree-gate.py --root . --json commit --unit .codestable/refactors/YYYY-MM-DD-{slug}
+python3 {SKILL_DIR}/tools/codestable-worktree-gate.py --root . --json start --unit .codestable/refactors/YYYY-MM-DD-{slug}
+python3 {SKILL_DIR}/tools/codestable-worktree-gate.py --root . --json commit --unit .codestable/refactors/YYYY-MM-DD-{slug}
 ```
 
 正式 review packet 需要时使用：
 
 ```bash
-python3 .codestable/tools/build-review-packet.py --root . --unit .codestable/refactors/YYYY-MM-DD-{slug} --stage quality --output /tmp/codestable-review.md --validation "{验证命令} -> {结果}"
+python3 {SKILL_DIR}/tools/build-review-packet.py --root . --unit .codestable/refactors/YYYY-MM-DD-{slug} --stage quality --output /tmp/codestable-review.md --validation "{验证命令} -> {结果}"
 ```
 
 风险要求的 spec / verification 审查及 fresh command output 仍保留。不要等到 gate 才检查证据是否齐备。

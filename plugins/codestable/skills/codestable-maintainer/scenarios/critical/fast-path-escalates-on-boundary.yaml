@@ -8,7 +8,7 @@
       {"action": "read_attention"},
       {"action": "spec_router"},
       {"action": "analyze_pass"},
-      {"say": "Route: cs-feat-ff\nContext: L3\nReason: fast path discovered a user-visible capability boundary change before spec mutation."},
+      {"say": "Route: cs-feat ff\nContext: L3\nReason: fast path discovered a user-visible capability boundary change before spec mutation."},
       {"owner_stop": "requirement_delta_or_owner_clarification"}
     ]
   },

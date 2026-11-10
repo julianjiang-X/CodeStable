@@ -1,8 +1,14 @@
 # Execution Conventions
 
-This file is copied by `cs-onboard` to
-`.codestable/reference/execution-conventions.md`. It owns shared execution,
+This file ships inside each skill that uses it, as `shared/execution-conventions.md` in that skill's
+directory. Its source is `cs-onboard/reference/execution-conventions.md`. It owns shared execution,
 worktree, review, finish, and handoff rules.
+
+`{SKILL_DIR}` is the directory of the skill you are running. The execution
+skills (`cs-feat`, `cs-issue`, `cs-refactor`, `cs-goal`) carry every tool named
+in this file under `{SKILL_DIR}/tools/`. In any other skill, a tool that is not
+in its `tools/` directory is out of that skill's scope: do the check by hand and
+say so.
 
 ## Main Coordination And Worktree Execution
 
@@ -48,7 +54,7 @@ Confirm:
 Run start gate before implementation:
 
 ```bash
-python3 .codestable/tools/codestable-worktree-gate.py --root . --json start --unit .codestable/features/YYYY-MM-DD-{slug}
+python3 {SKILL_DIR}/tools/codestable-worktree-gate.py --root . --json start --unit .codestable/features/YYYY-MM-DD-{slug}
 ```
 
 For goal-wrapped work, the gate unit should be the child feature / issue /
@@ -82,7 +88,7 @@ review packet before asking, identifying the specific gate requirement.
 Generate the smallest useful review packet:
 
 ```bash
-python3 .codestable/tools/build-review-packet.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --stage quality --output /tmp/codestable-review.md --validation "{验证命令} -> {结果}"
+python3 {SKILL_DIR}/tools/build-review-packet.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --stage quality --output /tmp/codestable-review.md --validation "{验证命令} -> {结果}"
 ```
 
 Do not include `.env`, tokens, secrets, or local credentials.
@@ -174,13 +180,13 @@ report is recoverable, use the bounded recovery in Reviewer Health.
 For multi-stage handoff:
 
 ```bash
-python3 .codestable/tools/build-context-packet.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --audience handoff --output /tmp/codestable-handoff.md --decided "{已决定}" --remaining "{下一步}"
+python3 {SKILL_DIR}/tools/build-context-packet.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --audience handoff --output /tmp/codestable-handoff.md --decided "{已决定}" --remaining "{下一步}"
 ```
 
 For human-facing handoffs that need a generated context packet:
 
 ```bash
-python3 .codestable/tools/build-context-packet.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --audience human-reviewer --language {en-or-zh} --output /tmp/codestable-human-review.md --decided "{decided}" --remaining "{next step}" --evidence "{verification evidence}"
+python3 {SKILL_DIR}/tools/build-context-packet.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --audience human-reviewer --language {en-or-zh} --output /tmp/codestable-human-review.md --decided "{decided}" --remaining "{next step}" --evidence "{verification evidence}"
 ```
 
 Choose `{en-or-zh}` by mapping `.codestable/attention.md` to a supported tool
@@ -191,7 +197,7 @@ language instead of passing the raw attention prose as a CLI value.
 When using a generated handoff packet, run its sufficiency gate before sending:
 
 ```bash
-python3 .codestable/tools/check-context-sufficiency.py --file /tmp/codestable-human-review.md --strict --json
+python3 {SKILL_DIR}/tools/check-context-sufficiency.py --file /tmp/codestable-human-review.md --strict --json
 ```
 
 ## Finish And Commit Gates
@@ -199,7 +205,7 @@ python3 .codestable/tools/check-context-sufficiency.py --file /tmp/codestable-hu
 For a formal unit, before finish / merge:
 
 ```bash
-python3 .codestable/tools/codestable-finish-worktree.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --json --validation "{验证命令} -> {结果}"
+python3 {SKILL_DIR}/tools/codestable-finish-worktree.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --json --validation "{验证命令} -> {结果}"
 ```
 
 Finish gate writes learning, context-check, merge-readiness, and inbox records.
@@ -218,21 +224,21 @@ git commit -m "docs: add {slug} finish report"
 For a formal execution unit, before commit or completion report:
 
 ```bash
-python3 .codestable/tools/codestable-worktree-gate.py --root . --json commit --unit .codestable/features/YYYY-MM-DD-{slug}
+python3 {SKILL_DIR}/tools/codestable-worktree-gate.py --root . --json commit --unit .codestable/features/YYYY-MM-DD-{slug}
 ```
 
 Useful status tools:
 
 ```bash
-python3 .codestable/tools/codestable-doctor.py --root . --json
-python3 .codestable/tools/codestable-backlog.py --root . --json
-python3 .codestable/tools/codestable-worktree-inbox.py --root . --json
+python3 {SKILL_DIR}/tools/codestable-doctor.py --root . --json
+python3 {SKILL_DIR}/tools/codestable-backlog.py --root . --json
+python3 {SKILL_DIR}/tools/codestable-worktree-inbox.py --root . --json
 ```
 
 Snooze accepted merge deferrals:
 
 ```bash
-python3 .codestable/tools/codestable-worktree-inbox.py --root . --snooze codex_slug --until 2026-06-12T00:00:00Z --json
+python3 {SKILL_DIR}/tools/codestable-worktree-inbox.py --root . --snooze codex_slug --until 2026-06-12T00:00:00Z --json
 ```
 
 ## Owner Rules And Reports

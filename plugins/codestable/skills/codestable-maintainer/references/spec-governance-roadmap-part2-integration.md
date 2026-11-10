@@ -76,7 +76,7 @@ Acceptance:
 ### SG2: Spec Judgment Context
 
 Add judgment preface rules to spec-changing paths in `cs-brainstorm`,
-`cs-roadmap`, `cs-feat-design`, `cs-feat-accept`, `cs-req`, `cs-decide`,
+`cs-roadmap`, `cs-feat design`, `cs-feat accept`, `cs-keep req`, `cs-keep decide`,
 `cs-onboard`, and `codestable-maintainer`.
 
 Acceptance:
@@ -90,8 +90,8 @@ Acceptance:
 
 ### SG3: Spec Router
 
-Add routing rules and output templates to `cs-feat-design`, `cs-roadmap`,
-`cs-req`, and `cs-feat-accept`.
+Add routing rules and output templates to `cs-feat design`, `cs-roadmap`,
+`cs-keep req`, and `cs-feat accept`.
 
 Acceptance:
 
@@ -101,7 +101,7 @@ Acceptance:
 
 ### SG4: Clarification Gate
 
-Add clarification scanning to `cs-feat-design` and `cs-roadmap` approval paths.
+Add clarification scanning to `cs-feat design` and `cs-roadmap` approval paths.
 
 Acceptance:
 
@@ -113,7 +113,7 @@ Acceptance:
 ### SG5: Requirement Delta And Mechanical Apply
 
 Add `{slug}-req-delta.md` creation in design/roadmap flows and mechanical apply
-in `cs-feat-accept`.
+in `cs-feat accept`.
 
 Acceptance:
 

@@ -18,12 +18,36 @@ Git cannot stop branch switches before they happen, so command-hook enforcement
 is the primary guard. Git hooks only catch commit, merge, rebase, and push
 fallbacks.
 
-## Agent Hook
+## Where The Scripts Live
 
-Configure the agent's pre-tool command hook to run:
+The guard ships with the `cs-onboard` skill: `tools/codestable-ai-branch-guard.py`
+and `tools/codestable-main-publish.py`, both of which import
+`tools/codestable_common.py` from the same directory. Since package 3.0.0 they
+are not copied into projects by default. Below, `<onboard>` is the installed
+`cs-onboard` skill directory.
+
+- The agent hook needs no project copy. The shipped `hooks/hooks.codex.json`
+  looks for `.codestable/tools/codestable-ai-branch-guard.py` in the project
+  first and then for the installed skill under `~/.agents/skills` or
+  `~/.codex/skills`.
+- Git hook fallbacks and main publishing call the project path
+  `.codestable/tools/`. A project that wants them copies the three files once:
 
 ```bash
-python3 .codestable/tools/codestable-ai-branch-guard.py --root "$PWD"
+mkdir -p .codestable/tools
+cp <onboard>/tools/codestable-ai-branch-guard.py <onboard>/tools/codestable-main-publish.py <onboard>/tools/codestable_common.py .codestable/tools/
+```
+
+Refresh these three files after a package upgrade. They are the only package
+files a project keeps.
+
+## Agent Hook
+
+Use the shipped `hooks/hooks.codex.json`, or configure the agent's pre-tool
+command hook to run:
+
+```bash
+python3 <onboard>/tools/codestable-ai-branch-guard.py --root "$PWD"
 ```
 
 The hook reads JSON from stdin. It recognizes common `tool_name` /
@@ -33,7 +57,7 @@ stderr.
 
 ## Git Hook Fallback
 
-Install local Git hook fallbacks from a project that has been onboarded:
+Install local Git hook fallbacks from a project that holds the three files above:
 
 ```bash
 python3 .codestable/tools/codestable-ai-branch-guard.py --root . --install-git-hooks

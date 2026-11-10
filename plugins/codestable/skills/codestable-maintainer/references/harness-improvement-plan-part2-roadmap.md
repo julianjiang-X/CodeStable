@@ -134,7 +134,7 @@ Acceptance:
 - Add `codestable-worktree-gate.py`.
 - Extend tests for main checkout, linked worktree, override, and post-baseline
   commits.
-- Update `cs-feat-impl`, `cs-issue-fix`, `cs-refactor-ff`, and
+- Update `cs-feat impl`, `cs-issue fix`, `cs-refactor ff`, and
   `shared-conventions.md` to call the start gate before implementation.
 
 ### Phase 2: Review And Commit Harness

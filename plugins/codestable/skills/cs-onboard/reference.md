@@ -23,7 +23,7 @@
 
 ## 2. `.codestable/attention.md` 最小模板
 
-attention.md 是 CodeStable 技能启动必读的项目注意事项入口。onboard 创建最小骨架，不替项目 owner 填实质内容；后续短规则由 `cs-note` 追加。
+attention.md 是 CodeStable 技能启动必读的项目注意事项入口。onboard 创建最小骨架，不替项目 owner 填实质内容；后续短规则由 `cs-keep note` 追加。
 
 ```markdown
 # Attention
@@ -32,7 +32,7 @@ attention.md 是 CodeStable 技能启动必读的项目注意事项入口。onbo
 
 ## 项目碎片知识
 
-<!-- cs-note managed: 用 cs-note 维护，新条目按下面分节追加 -->
+<!-- cs-note managed: 用 cs-keep note 维护，新条目按下面分节追加 -->
 
 ### 编译与构建
 

@@ -1,6 +1,6 @@
 {
-  "version": "2.1.0",
-  "description": "Shared reference templates released into .codestable/reference/ by cs-onboard.",
+  "version": "3.0.0",
+  "description": "Shared reference sources. sync-shared.py copies them into the shared/ directory of each skill that cites them.",
   "files": [
     "approval-conventions.md",
     "assurance.md",
