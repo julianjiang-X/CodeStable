@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -22,24 +23,27 @@ from pathlib import Path
 from codestable_common import (
     UNIT_ROOTS,
     default_branch,
-    review_file_for,
+    existing_review_file,
+    ref_exists,
     review_has_subagent_evidence,
     run_git,
     unit_completion_marker,
+    unit_files,
     worktree_map,
 )
 
 WORK_ROOTS = (*UNIT_ROOTS, "goals")
-# Latest stage first: the first suffix found names the stage, its position the rank.
+# Latest stage first: the first file found names the stage, its position the rank. A name matches
+# `<slug>-<suffix>` or the bare `<suffix>` that older units used.
 STAGES = {
-    "features": (("-acceptance.md", "acceptance"), ("-ff-note.md", "fast-forward"),
-                 ("-implementation-review.md", "implementation review"), ("-checklist.yaml", "implementation"),
-                 ("-design.md", "design"), ("-brainstorm.md", "brainstorm")),
-    "issues": (("-fix-note.md", "fix"), ("-implementation-review.md", "fix review"),
-               ("-analysis.md", "analysis"), ("-report.md", "report")),
-    "refactors": (("-apply-notes.md", "apply"), ("-refactor-note.md", "refactor note"),
-                  ("-implementation-review.md", "implementation review"), ("-checklist.yaml", "implementation"),
-                  ("-refactor-design.md", "design"), ("-scan.md", "scan")),
+    "features": (("acceptance.md", "acceptance"), ("ff-note.md", "fast-forward"),
+                 ("implementation-review.md", "implementation review"), ("checklist.yaml", "implementation"),
+                 ("design.md", "design"), ("brainstorm.md", "brainstorm")),
+    "issues": (("fix-note.md", "fix"), ("implementation-review.md", "fix review"),
+               ("analysis.md", "analysis"), ("report.md", "report")),
+    "refactors": (("apply-notes.md", "apply"), ("refactor-note.md", "refactor note"),
+                  ("implementation-review.md", "implementation review"), ("checklist.yaml", "implementation"),
+                  ("refactor-design.md", "design"), ("scan.md", "scan")),
     "goals": (("functional-acceptance.md", "functional acceptance"), ("goal.md", "iterating")),
 }
 CLOSING = {"implementation-done": "implementation done, review/closure pending",
@@ -65,6 +69,25 @@ def front_value(path: Path, key: str) -> str:
     return match.group(1).strip() if match else ""
 
 
+def default_ref(root: Path) -> tuple[str | None, str]:
+    """(ref to compare against, why). Prefers the remote-tracking default over a local branch that is
+    missing, unrelated to HEAD or behind it; otherwise the local default branch. Never fetches."""
+    remote = (git_lines(root, "symbolic-ref", "--quiet", "--short", "refs/remotes/origin/HEAD") or [""])[0]
+    if not remote.startswith("origin/") or not ref_exists(root, remote):
+        remote = next((r for r in ("origin/main", "origin/master") if ref_exists(root, r)), "")
+    if not remote:
+        return default_branch(root), "local default branch (no remote-tracking default found)"
+    local = remote.split("/", 1)[1]
+    if not ref_exists(root, f"refs/heads/{local}"):
+        return remote, f"remote-tracking default; no local branch {local}"
+    if not git_lines(root, "merge-base", local, "HEAD"):
+        return remote, f"remote-tracking default; local {local} has no fork point with HEAD"
+    if run_git(root, "merge-base", "--is-ancestor", local, remote).returncode == 0 and \
+            git_lines(root, "rev-parse", local) != git_lines(root, "rev-parse", remote):
+        return remote, f"remote-tracking default; local {local} is behind it"
+    return local, "local default branch (not behind the remote-tracking one)"
+
+
 def git_lines(root: Path | str, *args: str) -> list[str]:
     result = run_git(Path(root), *args)
     return [line for line in result.stdout.splitlines() if line] if result.returncode == 0 else []
@@ -87,7 +110,7 @@ def changed_units(wt: Path, base: str | None) -> set[str] | None:
 def checklist_progress(unit: Path) -> tuple[int, str]:
     """(steps done, first pending step) over the unit's checklists."""
     done, step = 0, ""
-    for checklist in sorted(unit.glob("*-checklist.yaml")):
+    for checklist in unit_files(unit, "checklist.yaml"):
         text = checklist.read_text(encoding="utf-8", errors="replace")
         steps = re.search(r"(?ms)^steps:\s*\n(.*?)(?=^\S|\Z)", text)
         for block in re.split(r"(?m)^\s*-\s+", steps.group(1))[1:] if steps else []:
@@ -113,13 +136,14 @@ def classify_unit(wt: Path, kind: str, unit: Path, changed: set[str] | None) -> 
     own = changed is None or rel.as_posix() in changed  # no comparison possible: never hide work
     names = {p.name for p in unit.iterdir() if p.is_file()}
     stages = STAGES[kind]
-    hit = next(((i, label) for i, (suffix, label) in enumerate(stages) if any(n.endswith(suffix) for n in names)), None)
+    hit = next(((i, label) for i, (suffix, label) in enumerate(stages)
+                if any(n == suffix or n.endswith("-" + suffix) for n in names)), None)
     stage, rank = (hit[1], len(stages) - hit[0]) if hit else ("started", 0)
     done, step = checklist_progress(unit)
     if marker:
         stage = f"closing: {CLOSING[marker]}"
         if marker == "implementation-done":
-            evidence = review_has_subagent_evidence(wt / review_file_for(rel))
+            evidence = review_has_subagent_evidence(wt / existing_review_file(wt, rel))
             stage += f"; subagent review evidence {'present' if evidence else 'absent'}"
     elif kind == "goals" and (status := front_value(unit / "state.yaml", "status")):
         stage += f" ({status})"
@@ -167,7 +191,7 @@ def collect_units(worktrees: list[dict], base: str | None, not_checked: list[str
             continue
         owned.update(c["wt"] for c in group if c["own"])
         entry = {k: best[k] for k in ("kind", "unit", "stage", "next_step", "pointer")}
-        entry["branches"] = sorted({str(c["branch"]) for c in group if c["branch"]})
+        entry["branches"] = sorted({str(c["branch"] or "(detached)") for c in group})
         entry["pointers"] = [c["pointer"] for c in group]
         in_progress.append(entry)
     # An approval report only moves forward: decided in any copy means decided.
@@ -265,6 +289,7 @@ def recent_commits(root: Path, branch: str | None, not_checked: list[str]) -> li
 
 
 def status(root: Path, with_prs: bool = False) -> dict[str, object]:
+    os.environ["GIT_OPTIONAL_LOCKS"] = "0"  # read-only means git must not refresh the index either
     root = root.resolve()
     not_checked = ["remote state: nothing was fetched, so origin may be ahead of what is shown"]
     payload: dict[str, object] = {"root": root.as_posix(), "default_branch": None, "in_progress": [], "waiting": [],
@@ -274,8 +299,9 @@ def status(root: Path, with_prs: bool = False) -> dict[str, object]:
         return payload
     worktrees = [{"path": p, **info} for p, info in worktree_map(root).items() if Path(p).is_dir()]
     worktrees = worktrees or [{"path": root.as_posix(), "branch": None}]
-    base = default_branch(root)
+    base, why = default_ref(root)
     payload["default_branch"] = base
+    payload["default_ref_note"] = why
     in_progress, waiting, notes, owned = collect_units(worktrees, base, not_checked)
     in_progress += branch_entries(worktrees, base, owned, notes)
     inbox_tool = load_inbox_tool()
@@ -300,7 +326,8 @@ def status(root: Path, with_prs: bool = False) -> dict[str, object]:
 
 
 def emit(payload: dict[str, object]) -> None:
-    print(f"Progress snapshot ({payload['root']}, default branch: {payload['default_branch']})")
+    print(f"Progress snapshot ({payload['root']}, default branch: {payload['default_branch']}"
+          f"{' - ' + payload['default_ref_note'] if payload.get('default_ref_note') else ''})")
     for section in ("in_progress", "waiting", "recent", "next"):
         print(f"\n{section}:")
         for entry in payload[section]:

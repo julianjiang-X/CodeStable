@@ -14,6 +14,7 @@ from layout import ONBOARD_TOOLS as TOOLS_DIR  # noqa: E402
 from test_codestable_closed_units import UNIT, _ready_branch, init_repo, run  # noqa: E402
 
 sys.path.insert(0, str(TOOLS_DIR))
+import codestable_common as common  # noqa: E402
 SPEC = importlib.util.spec_from_file_location("codestable_status_for_tests", TOOLS_DIR / "codestable-status.py")
 assert SPEC and SPEC.loader
 status_tool = importlib.util.module_from_spec(SPEC)
@@ -468,3 +469,102 @@ def test_a_repo_without_commits_lists_units_and_reports_the_missing_comparison(t
 
     assert [e["unit"] for e in payload["in_progress"]] == ["2026-02-01-bug"]
     assert any("no fork point" in line for line in payload["not_checked"])
+
+
+def _mononoke_shaped_repo(tmp_path: Path) -> tuple[Path, Path, Path]:
+    """Submodule-like checkout: detached HEAD, a stale orphan local `main`, `origin/main` from a local bare
+    remote, unprefixed legacy unit files, and one linked worktree on a branch."""
+    bare = tmp_path / "origin.git"
+    run(tmp_path, "init", "-q", "--bare", "-b", "main", bare.as_posix())
+    seed = tmp_path / "seed"
+    seed.mkdir()
+    run(seed, "init", "-q", "-b", "main")
+    run(seed, "config", "user.email", "test@example.com")
+    run(seed, "config", "user.name", "Test User")
+    cs = seed / ".codestable"
+    done = "steps:\n  - action: a\n    status: done\nchecks:\n  - item: b\n    status: passed\n"
+    write(cs / "features/2026-10-26-m1-save-catalog/checklist.yaml", done)
+    write(cs / "features/2026-10-26-m1-save-catalog/acceptance.md", "accepted\n")
+    write(cs / "features/2026-10-26-m1-save-catalog/implementation-review.md", "reviewer: subagent\n")
+    write(cs / "issues/2026-10-27-old-bug/fix-note.md", "fixed\n")
+    write(cs / "features/2026-10-18-design-only/design.md", "design\n")
+    write(cs / "features/2026-10-16-pending/design.md", "design\n")
+    write(cs / "features/2026-10-16-pending/checklist.yaml", CHECKLIST)
+    commit_all(seed, "current work")
+    (seed / "later.txt").write_text("x", encoding="utf-8")
+    commit_all(seed, "newest on origin")
+    run(seed, "push", "-q", bare.as_posix(), "main")
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    run(repo, "init", "-q", "-b", "main")
+    run(repo, "config", "user.email", "test@example.com")
+    run(repo, "config", "user.name", "Test User")
+    (repo / "stale.txt").write_text("stale", encoding="utf-8")
+    commit_all(repo, "stale local main, unrelated history")
+    run(repo, "remote", "add", "origin", bare.as_posix())
+    run(repo, "fetch", "-q", "origin")
+    run(repo, "remote", "set-head", "origin", "main")
+    run(repo, "checkout", "-q", "--detach", "origin/main")
+    worktree = tmp_path / "wt"
+    run(repo, "worktree", "add", "-q", "-b", "feat/x", worktree.as_posix(), "origin/main")
+    (worktree / "x.txt").write_text("x", encoding="utf-8")
+    commit_all(worktree, "feature commit")
+    return repo, worktree, bare
+
+
+def test_remote_tracking_default_is_used_when_local_main_is_stale_and_unrelated(tmp_path: Path) -> None:
+    repo, worktree, _bare = _mononoke_shaped_repo(tmp_path)
+
+    payload = status_tool.status(repo)
+
+    assert payload["default_branch"] == "origin/main"
+    assert "no fork point with HEAD" in payload["default_ref_note"]
+    assert not any("no fork point" in line for line in payload["not_checked"])  # the comparison worked
+    assert [c["subject"] for c in payload["recent"]][:2] == ["newest on origin", "current work"]
+    listed = {e["unit"]: e for e in payload["in_progress"] if e["kind"] == "feature"}
+    assert set(listed) == {"2026-10-18-design-only", "2026-10-16-pending"}
+    assert listed["2026-10-18-design-only"]["stage"] == "design"
+    assert "next step: second slice" in listed["2026-10-16-pending"]["stage"]
+    assert payload["notes"][0].startswith("2 finished or canceled work directories, unchanged since this branch forked from origin/main")
+    branches = [e for e in payload["in_progress"] if e["kind"] == "branch"]
+    assert [(e["unit"], e["ahead"]) for e in branches] == [("feat/x", 1)]
+    assert "(detached)" in listed["2026-10-18-design-only"]["branches"]
+
+
+def test_header_names_the_ref_that_was_used(tmp_path: Path) -> None:
+    repo, _worktree, _bare = _mononoke_shaped_repo(tmp_path)
+
+    result = subprocess.run([sys.executable, str(TOOLS_DIR / "codestable-status.py"), "--root", str(repo)],
+                            capture_output=True, text=True, check=False)
+
+    assert result.stdout.splitlines()[0].endswith(
+        "default branch: origin/main - remote-tracking default; local main has no fork point with HEAD)")
+
+
+def test_default_ref_prefers_local_only_when_it_is_not_behind_the_remote_tracking_one(tmp_path: Path) -> None:
+    repo, _worktree, _bare = _mononoke_shaped_repo(tmp_path)
+    run(repo, "branch", "-f", "main", "origin/main~1")  # related, but behind origin/main
+    assert status_tool.default_ref(repo)[0] == "origin/main"
+    assert "is behind it" in status_tool.default_ref(repo)[1]
+
+    run(repo, "branch", "-f", "main", "origin/main")  # level with origin/main
+    assert status_tool.default_ref(repo)[0] == "main"
+
+    run(repo, "branch", "-D", "main")  # no local branch at all
+    assert status_tool.default_ref(repo)[0] == "origin/main"
+    assert "no local branch main" in status_tool.default_ref(repo)[1]
+
+
+def test_unprefixed_legacy_file_names_are_recognized_by_the_shared_predicates(tmp_path: Path) -> None:
+    repo = init_repo(tmp_path)
+    unit = Path(".codestable/features/2026-10-26-m1-save-catalog")
+    write(repo / unit / "checklist.yaml", "steps:\n  - action: a\n    status: done\n")
+
+    assert common.unit_needs_review(repo, unit) is True
+    assert common.unit_completion_marker(repo, unit) == "implementation-done"
+    assert common.existing_review_file(repo, unit) == unit / "m1-save-catalog-implementation-review.md"  # canonical when none
+    write(repo / unit / "implementation-review.md", "reviewer: subagent\n")
+    assert common.existing_review_file(repo, unit) == unit / "implementation-review.md"
+    assert common.missing_review_findings(repo, [unit]) == []
+    write(repo / unit / "acceptance.md", "---\nstatus: canceled\n---\n")
+    assert common.unit_completion_marker(repo, unit) == "canceled"

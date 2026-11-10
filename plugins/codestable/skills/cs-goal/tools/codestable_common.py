@@ -17,7 +17,7 @@ from pathlib import Path
 # mismatch against `.codestable/reference/MANIFEST.json` means the project
 # refreshed one half of the shared runtime but not the other.
 # Kept in sync with the repository VERSION file by tests/test_package_contract.py.
-PACKAGE_VERSION = "3.0.0"
+PACKAGE_VERSION = "3.0.1"
 
 REFERENCE_MANIFEST_RELPATH = ".codestable/reference/MANIFEST.json"
 
@@ -355,6 +355,20 @@ def review_file_for(unit_dir: Path) -> Path:
     return unit_dir / f"{unit_slug(unit_dir)}-implementation-review.md"
 
 
+def unit_files(unit_root: Path, suffix: str) -> list[Path]:
+    """`*-<suffix>` (slug-prefixed names) plus the bare `<suffix>` that older units used."""
+    bare = unit_root / suffix
+    return [*sorted(unit_root.glob(f"*-{suffix}")), *([bare] if bare.is_file() else [])]
+
+
+def existing_review_file(root: Path, unit_dir: Path) -> Path:
+    """The unit's implementation review file, slug-prefixed or bare; the canonical path when neither exists."""
+    for candidate in (review_file_for(unit_dir), unit_dir / "implementation-review.md"):
+        if (root / candidate).exists():
+            return candidate
+    return review_file_for(unit_dir)
+
+
 def all_checklist_steps_done(path: Path) -> bool:
     if not path.exists():
         return False
@@ -386,16 +400,16 @@ def unit_needs_review(root: Path, unit_dir: Path) -> bool:
     unit_type = unit_dir.parts[1]
 
     if unit_type == "features":
-        return any(unit_root.glob("*-ff-note.md")) or any(
-            all_checklist_steps_done(path) for path in unit_root.glob("*-checklist.yaml")
+        return bool(unit_files(unit_root, "ff-note.md")) or any(
+            all_checklist_steps_done(path) for path in unit_files(unit_root, "checklist.yaml")
         )
 
     if unit_type == "issues":
-        return any(unit_root.glob("*-fix-note.md"))
+        return bool(unit_files(unit_root, "fix-note.md"))
 
     if unit_type == "refactors":
-        return any(unit_root.glob("*-apply-notes.md")) or any(
-            all_checklist_steps_done(path) for path in unit_root.glob("*-checklist.yaml")
+        return bool(unit_files(unit_root, "apply-notes.md")) or any(
+            all_checklist_steps_done(path) for path in unit_files(unit_root, "checklist.yaml")
         )
 
     return False
@@ -460,7 +474,7 @@ def missing_review_findings(root: Path, units: list[Path]) -> list[Finding]:
     for unit_dir in units:
         if not unit_needs_review(root, unit_dir):
             continue
-        review_path = review_file_for(unit_dir)
+        review_path = existing_review_file(root, unit_dir)
         full_review_path = root / review_path
         if not full_review_path.exists():
             findings.append(
@@ -1063,12 +1077,11 @@ def is_resolved_backlog_match(kind: str, text: str) -> bool:
 def unit_lifecycle_status_files(root: Path, unit_dir: Path) -> list[Path]:
     unit_root = root / unit_dir
     slug = unit_slug(unit_dir)
-    names = (
-        f"{slug}-acceptance.md",
-        f"{slug}-ff-note.md",
-        f"{slug}-fix-note.md",
-        f"{slug}-apply-notes.md",
-    )
+    names = [
+        name
+        for suffix in ("acceptance.md", "ff-note.md", "fix-note.md", "apply-notes.md")
+        for name in (f"{slug}-{suffix}", suffix)  # slug-prefixed, then the bare name older units used
+    ]
     return [unit_root / name for name in names if (unit_root / name).exists()]
 
 

@@ -4,6 +4,23 @@
 `cs-onboard/tools/codestable-freshness-check.py` 按 git ref 判断——版本号回答的是"我落后了什么"，
 freshness check 回答的是"我落后了没有"。
 
+## 3.0.1
+
+Patch to `codestable-status.py` and the unit-file predicates it shares with the doctor, found on the first
+real project / 补丁：`codestable-status.py` 及其与 doctor 共用的单元文件判断，来自第一个真实项目的反馈。
+
+- `codestable-status.py` compares against the remote-tracking default (`origin/HEAD`, else `origin/main` /
+  `origin/master`) when the local branch of that name is missing, has no fork point with HEAD, or is behind it;
+  otherwise the local branch. The header names the ref used and `recent` reads the same ref. Still no fetch.
+  `codestable_common.default_branch` is unchanged: its other callers need a branch name.
+- Older units whose files have no slug prefix (`design.md`, `checklist.yaml`, `acceptance.md`,
+  `implementation-review.md`, ...) are recognized for stage labels, completion markers and review evidence.
+  `unit_needs_review`, the lifecycle status lookup and the doctor's review check now accept both spellings, so the
+  doctor can now report a missing review for such units; deletion gates that read HEAD are unchanged.
+- `codestable-status.py` 在本地默认分支缺失、与 HEAD 无分叉点或落后于远端跟踪分支时，改与远端跟踪默认分支比较，
+  表头写明所用 ref，`recent` 读同一个 ref，仍不 fetch。没有 slug 前缀的旧单元文件名现在可识别；
+  `default_branch` 本身不变。
+
 ## 3.0.0
 
 **breaking：技能入口从 28 个合并为 15 个；共享参考和工具不再复制进项目；工作目录收尾时删除。** 升级步骤见
