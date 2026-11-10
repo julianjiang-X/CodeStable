@@ -29,6 +29,8 @@ python3 {SKILL_DIR}/tools/codestable-worktree-gate.py --root . --json start --un
 python3 {SKILL_DIR}/tools/codestable-worktree-gate.py --root . --json commit --unit .codestable/features/YYYY-MM-DD-{slug}
 ```
 
+当前到哪一步从工作目录自己的文件看（checklist、review），不另做登记。工作目录在 `cs-feat accept` 收尾时毕业后删除，实现阶段不删。
+
 正式 review packet 需要时使用：
 
 ```bash

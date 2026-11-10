@@ -34,12 +34,14 @@ interaction modes in `shared/interaction-modes.md`, usually via
 
 ## Report Language
 
-All goal report prose follows `.codestable/attention.md`. If attention has no
-report language policy, use the owner's current conversation language. Do not
-hard-code required two-language report pairs in this shared convention.
+Goal files are read by agents: write each in one language, the one
+`.codestable/attention.md` names, or the language of the project's existing
+records when it names none. Content for the owner (final report,
+`approval-report.md`, conversation) uses the owner's language. Do not write
+bilingual copies; add a second language only to a document whose human reader
+attention names.
 
-Use the canonical unsuffixed files below by default. Add language-suffixed
-copies only when attention explicitly requires multiple language copies.
+Use the canonical unsuffixed files below.
 
 ## Directory
 
@@ -61,6 +63,12 @@ filesystem name.
 `state.yaml` is the machine source of truth. Markdown is human-readable context.
 Recovery priority is `state.yaml` > latest iteration frontmatter > Markdown
 body.
+
+A goal directory is working state, not an archive. At a terminal state it follows
+the shared closure rule in `shared/shared-conventions.md` section 3: graduate,
+closing commit (outcome in its message), finish gate if it applies, then delete
+the directory in its own commit. At
+`blocked`, prune and delete nothing: the directory is the recovery record.
 
 `functional-acceptance.md` is created only during the terminal acceptance gate,
 not as an empty file at goal start.
@@ -104,9 +112,9 @@ max(state.yaml.current_iteration, highest existing iterations/{nnn}*.md) + 1
 ```
 
 Write `iterations/{nnn}.md`, then leave `state.yaml.current_iteration` equal to
-that completed number. Never overwrite an existing iteration file. If attention
-requires language variants, write the corresponding `iterations/{nnn}.{lang}.md`
-copies as well.
+that completed number. Never overwrite an existing iteration file. A
+`iterations/{nnn}.{lang}.md` copy exists only when attention names the human
+reader who needs that language.
 
 ## Reporting
 
@@ -115,8 +123,7 @@ Each completed iteration writes the canonical report:
 - `iterations/{nnn}.md`
 
 Reports are not command logs. One iteration equals a coherent implementation and
-verification attempt. Include the same semantic content even when attention
-requires extra language variants: understanding, implementation approach,
+verification attempt. Include: understanding, implementation approach,
 changes, verification evidence, problems, next attempt, and state update.
 
 Before `status: complete`, write:

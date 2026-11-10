@@ -44,7 +44,7 @@ language. Keep the heading names stable so agents can parse the report reliably.
 
 ## Unit Path
 
-Use the closest durable workflow directory:
+Use the closest workflow directory. An approval report lives while the decision is open: a work directory with an open approval report is not deleted at closure, and once the decision is answered the report is deleted with the directory.
 
 - goal: `.codestable/goals/YYYY-MM-DD-{slug}/approval-report.md`
 - feature: `.codestable/features/YYYY-MM-DD-{slug}/approval-report.md`
@@ -116,7 +116,7 @@ After the owner answers:
 1. update `status` to `approved`, `rejected`, or `superseded`;
 2. record the selected option and answer date;
 3. continue from `After You Answer`;
-4. keep the report as history instead of deleting it.
+4. leave the report in place until the work directory is closed: it is deleted with the directory (`shared-conventions.md` section 3). What must outlast it is carried by graduation (a decision record) and the closing commit message.
 
 If the same unit later needs another approval, reuse `approval-report.md` as the
 single approval surface: add a dated decision-history entry for the old answer,

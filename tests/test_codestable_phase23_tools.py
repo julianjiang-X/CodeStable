@@ -621,8 +621,8 @@ def test_backlog_blocks_bilingual_policy_summary_only_report(tmp_path: Path) -> 
         "should be written bilingually with English first, then Chinese.\n",
         encoding="utf-8",
     )
-    (unit / "demo-acceptance.md").write_text(
-        "# Demo Acceptance Report\n\n"
+    (unit / "approval-report.md").write_text(
+        "# Demo Approval Report\n\n"
         "## Evidence\n\n"
         "Verified.\n\n"
         "## 中文摘要\n\n"
@@ -818,42 +818,39 @@ def test_backlog_blocks_chinese_before_english(tmp_path: Path) -> None:
     assert "English first" in items[0].text
 
 
-def test_backlog_bilingual_policy_covers_issue_reports(tmp_path: Path) -> None:
+def test_backlog_bilingual_policy_skips_files_only_agents_read(tmp_path: Path) -> None:
+    """Work-directory files are agent-only: one language, even under a bilingual attention."""
     repo = init_repo(tmp_path)
-    unit = repo / ".codestable/issues/2026-06-03-demo"
-    unit.mkdir(parents=True)
+    (repo / ".codestable").mkdir()
     (repo / ".codestable/attention.md").write_text(
         "Report language policy: CodeStable human-review and review-facing artifacts "
         "should be written bilingually with English first, then Chinese.\n",
         encoding="utf-8",
     )
-    (unit / "demo-report.md").write_text("# Issue Report\n\nEnglish only.\n", encoding="utf-8")
-
-    items = scan_backlog(repo)
-
-    assert [(item.kind, item.path) for item in items] == [
-        ("bilingual-report-policy", ".codestable/issues/2026-06-03-demo/demo-report.md")
-    ]
-
-
-def test_backlog_bilingual_policy_covers_goal_functional_acceptance(tmp_path: Path) -> None:
-    repo = init_repo(tmp_path)
+    issue = repo / ".codestable/issues/2026-06-03-demo"
     goal = repo / ".codestable/goals/2026-06-03-demo"
-    goal.mkdir(parents=True)
-    (repo / ".codestable/attention.md").write_text(
-        "Report language policy: CodeStable human-review and review-facing artifacts "
-        "should be written bilingually with English first, then Chinese.\n",
-        encoding="utf-8",
-    )
-    (goal / "functional-acceptance.md").write_text(
-        "# Functional Acceptance\n\nEnglish only.\n",
-        encoding="utf-8",
-    )
+    (goal / "iterations").mkdir(parents=True)
+    issue.mkdir(parents=True)
+    english_only = "# Title\n\nEnglish only.\n"
+    for path in (
+        issue / "demo-report.md",
+        issue / "demo-fix-note.md",
+        goal / "goal.md",
+        goal / "functional-acceptance.md",
+        goal / "iterations" / "001.md",
+        repo / ".codestable/features/2026-06-03-demo/demo-design.md",
+        repo / ".codestable/features/2026-06-03-demo/demo-acceptance.md",
+    ):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(english_only, encoding="utf-8")
 
+    assert scan_backlog(repo) == []
+
+    # The owner-facing report is still held to the policy.
+    (issue / "approval-report.md").write_text(english_only, encoding="utf-8")
     items = scan_backlog(repo)
-
     assert [(item.kind, item.path) for item in items] == [
-        ("bilingual-report-policy", ".codestable/goals/2026-06-03-demo/functional-acceptance.md")
+        ("bilingual-report-policy", ".codestable/issues/2026-06-03-demo/approval-report.md")
     ]
 
 

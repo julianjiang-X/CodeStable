@@ -11,7 +11,7 @@ description: "选择并继续新功能的设计、快速实现、实现或验收
 
 遵循项目入口和 `.codestable/attention.md` 中的约束；已加载且未变化的上下文直接复用。按当前任务读取相关记录和引用，缺少可选骨架不阻塞工作。
 
-功能流程保留需求、设计和验收的可追溯关系；按任务风险选择必要阶段。明确的小需求可用 fastforward，已有充分设计不重新展开。
+功能流程在任务进行中保留需求、设计和验收的对应关系；按任务风险选择必要阶段，收尾时把长期内容毕业到该去的地方。明确的小需求可用 fastforward，已有充分设计不重新展开。
 
 ```
 (想法模糊先去 cs-brainstorm 分诊) → 方案设计（名词层 + 编排层 + 验收契约 + 推进策略切片）→ 分步实现 → 验收闭环
@@ -23,7 +23,11 @@ brainstorm 是讨论层独立入口，会分诊：case 1（清楚 → 直接 des
 
 ---
 
-## 文件放哪儿
+## 工作目录与文件
+
+工作目录（`.codestable/features/YYYY-MM-DD-{slug}/`）是任务进行中的工作状态，不是档案。只在下列任一条件成立时创建：(1) 任务会跨会话，或要交接给别的 agent 或人；(2) 有需要 owner 决定或批准的契约；(3) 按 `shared/assurance.md` 的风险判断需要正式的独立审查；(4) owner 要求留痕。其余任务不建目录：证据是 diff、测试输出和交付说明。被别的 agent 派工时同样适用：结果以报告和提交交回派工方，不因为派工说明里写了「照 CodeStable 流程」就产出设计、清单、验收文件。
+
+不另做进度登记，进度由 `shared/shared-conventions.md` 第 8 节现看。收尾时先毕业再删除目录，见 `cs-feat accept` 的收尾和 `shared/shared-conventions.md` 第 3 节。
 
 ```
 .codestable/features/{feature}/
@@ -37,7 +41,7 @@ brainstorm 是讨论层独立入口，会分诊：case 1（清楚 → 直接 des
 
 目录命名 `YYYY-MM-DD-{英文 slug}`，日期取首次创建当天定了不动；slug 小写字母 / 数字 / 连字符。
 
-为什么聚一起：以后查"那个导出 CSV 功能当时怎么决定的"，brainstorm / design / acceptance 都在一处。feature 和 issue 分别放在 `.codestable/features/` 和 `.codestable/issues/` 因为归档逻辑不一样。
+开工检索默认不读 `features/` 下已结束的旧目录（3.0.0 之前留下的），见 `shared/shared-conventions.md` 第 5 节。
 
 如果目录里有 `grill/*.md`，只把 `doc_type: grill-context` 且 `status: accepted`
 的文件当 human review context 读；它必须 `source_of_truth: false`，不能覆盖
@@ -62,7 +66,7 @@ design / checklist / acceptance 或 requirement。
 
 ### Fastforward 模式
 
-需求明确且风险有限时，使用 `cs-feat ff` 保留精简 design 与验收记录后继续实现。用户说“快速模式”“fastforward”“直接开干”“别那么多步骤”也是此入口；已授权且无未决选择时不再要求阶段确认。
+需求明确且风险有限时，使用 `cs-feat ff` 直接实现并验证，默认不建工作目录，交付说明写进最终汇报和提交信息；上面四个条件之一成立时才写精简的 ff-note。用户说“快速模式”“fastforward”“直接开干”“别那么多步骤”也是此入口；已授权且无未决选择时不再要求阶段确认。
 
 公共契约未定、实质术语冲突或跨子系统风险需要展开时，采用标准 design；步骤数量本身不决定流程重量。
 
@@ -119,7 +123,7 @@ design / checklist / acceptance 或 requirement。
 ## 相关文档
 
 - `shared/system-overview.md` — CodeStable 体系总览
-- `shared/shared-conventions.md` — 跨阶段共享口径、目录结构、checklist 生命周期
+- `shared/shared-conventions.md` — 跨阶段共享口径、目录结构、checklist 生命周期、阶段收尾与回答进度
 - `shared/assurance.md` — 这次要做多重：风险驱动的保障强度选择
 - `.codestable/attention.md` — CodeStable 启动注意事项和项目硬约束
 - 项目架构总入口 — 方案设计阶段需要查

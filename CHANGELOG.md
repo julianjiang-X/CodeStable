@@ -6,7 +6,7 @@ freshness check 回答的是"我落后了没有"。
 
 ## 3.0.0
 
-**breaking：技能入口从 28 个合并为 15 个；共享参考和工具不再复制进项目。** 升级步骤见
+**breaking：技能入口从 28 个合并为 15 个；共享参考和工具不再复制进项目；工作目录收尾时删除。** 升级步骤见
 [UPGRADE.md](./UPGRADE.md)，依据与局限见 `docs/claude-models-iteration.md`。
 
 Structure / 结构：
@@ -50,6 +50,62 @@ Behavior for Claude models / 针对 Claude 模型的行为调整（Fable 5.2、O
 - 汇报写明跑过和没跑的内容，末尾给出下一步，已有授权时直接做。
 - 写明审查轮次到上限后的处理；收敛中的额外一轮预先授权。
 - `cs-brainstorm` 与 `cs-feat` 的 design 阶段先给主张再讨论。依据与局限见上述文档。
+
+Work directories and progress / 工作目录与进度（同一版本，3.0.0 尚未发布）：
+
+- Work directories (`features|issues|refactors|goals/YYYY-MM-DD-{slug}/`) are working
+  state, not archives, and are not created by default; they are created only when the
+  task spans sessions or is handed off, has a contract awaiting owner approval, needs
+  a formal independent review, or the owner asks for a record. Delegation text such as
+  "follow the CodeStable process" does not change this.
+- At closure, graduate what is still needed, write the closing commit message as the
+  long-term record, run the finish gate if it applies, then delete the work directory in its own commit (not when blocked, with an open
+  approval report, on owner request, or with unresolved audit findings). `cs-goal`
+  and `cs-audit` follow the same rule; `brainstorms/` records are deleted once consumed.
+- Progress is derived on request, not stored: `shared-conventions.md` section 8 says
+  to look at work directories (main checkout and every linked worktree; units with a
+  completion marker that the branch changed since forking from the default branch are
+  listed as closing, and unchanged finished records from before 3.0.0 are only counted),
+  worktrees ahead of the default branch or dirty, undecided approval reports, unmerged finished worktrees and open PRs,
+  and the last ~10 default-branch commits, with the roadmap or in-progress units
+  giving the next step. Add the read-only `codestable-status.py` (`--json`, opt-in
+  `--prs` through `gh`, no network by default) that gathers it. A stored status page
+  was rejected (ADR 006).
+- Files only agents read use one language named by `attention.md`; the
+  `bilingual-report-policy` check now covers only `approval-report.md`.
+- Opening searches skip ended units left from before 3.0.0 unless the owner points
+  at one or the task continues it. Existing projects are not migrated.
+- Closure order is fixed: closing commit, finish gate, then the deletion in its own
+  commit. Tools handle that deletion: the commit gate reports `unit_removed` and
+  judges the unit from HEAD (no review evidence in HEAD means no deletion; code in
+  the same change or an unfinished goal is rejected), the doctor ignores the baseline
+  of a closed unit, and the worktree inbox keeps a finish report valid across the
+  deletion and non-implementation `.codestable/**` edits. New tests in
+  `tests/test_codestable_closed_units.py`. Decision: `docs/adr/006-*.md`.
+- `docs/claude-models-iteration.md` gains a model column and an escalation order
+  (verification, then effort, then a larger model) from the 2026-11-10 model guide.
+
+- 工作目录（`features|issues|refactors|goals/YYYY-MM-DD-{slug}/`）是任务进行中的工作状态，
+  不是档案，默认不建；只在任务会跨会话或要交接、有待 owner 批准的契约、需要正式独立审查、
+  owner 要求留痕时创建。派工说明里的"照 CodeStable 流程"不改变这一点。
+- 收尾时先毕业，再用结案提交信息作长期记录，适用时跑 finish gate，最后在单独的提交里删除工作目录（阻塞未完成、有未决
+  approval report、owner 要求保留、审计有未解决 finding 时不删）。`cs-goal`、`cs-audit`
+  同规则；`brainstorms/` 记录被消费后删除。
+- 进度不存页面，被问时现看：`shared-conventions.md` 第 8 节规定看工作目录（本检出和各 linked worktree；有完成标记且自分叉以来被该分支改动过的是收尾中，照样列出；
+  没改动过的早期已完成记录只计数）、领先默认分支或有改动的 worktree、未决 approval report、已完成未合并的 worktree 和打开的 PR、默认分支
+  最近约 10 个提交，下一步取 roadmap 或进行中单元。新增只读的 `codestable-status.py`
+  （`--json`，`--prs` 才通过 `gh` 查 PR，默认不联网）一次取齐。存进度页的方案已被拒绝（ADR 006）。
+- 只给 agent 读的文件用一种语言，由 `attention.md` 指定；`bilingual-report-policy` 检查
+  收窄到 `approval-report.md`。
+- 开工检索默认不读 3.0.0 之前留下的已结束单元，除非 owner 指到或当前任务接续它。
+  既有项目不迁移。
+- 收尾顺序固定：结案提交、finish gate、再单独一个提交删除目录。工具能处理这个删除：commit gate 输出
+  `unit_removed` 并按 HEAD 判断（HEAD 里没有 review 证据就不让删，同一变更里带代码或删未结束的 goal 目录
+  会被拒），doctor 忽略已收尾单元的 baseline，worktree inbox 在删除和非实现的 `.codestable/**` 改动后仍认
+  finish 报告。新增
+  `tests/test_codestable_closed_units.py`。决策见 `docs/adr/006-*.md`。
+- `docs/claude-models-iteration.md` 增加模型列和升级顺序（先验证、再努力级别、最后换大模型），
+  依据 2026-11-10 的模型选择文章。
 
 ## 2.1.0
 

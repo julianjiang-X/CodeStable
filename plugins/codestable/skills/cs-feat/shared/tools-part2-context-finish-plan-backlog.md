@@ -75,6 +75,7 @@ python3 {SKILL_DIR}/tools/codestable-worktree-inbox.py --root . --json
 - `ready-to-merge`：finish gate 已过，branch 尚未进入 base。
 - `stale-report`：branch HEAD 已不同于 learner report 的 `covered_head`，必须重跑 finish gate。
 - `merged`：base 已包含 `covered_head`，可以清理 worktree 或归档记录。
+- 收尾提交删除了单元工作目录（只有删除，没有别的改动）不会让报告变成 `stale-report`。
 - `blocked`：branch / covered_head 等关键状态缺失。
 - `abandoned`：owner 显式取消。
 
@@ -135,7 +136,7 @@ python3 {SKILL_DIR}/tools/codestable-backlog.py --root . --json
 - 显式 `Follow-up:` 行，以及 `## Follow-Ups` 章节下的 bullet
 - accepted / deferred P2
 - `attention.md` candidates
-- `bilingual-report-policy`：attention 要求 English first / Chinese second 双语时，human-review / review-facing lifecycle report 只有单语或只有 `中文摘要`
+- `bilingual-report-policy`：attention 要求 English first / Chinese second 双语时，写给 owner 的 `approval-report.md` 只有单语或只有 `中文摘要`（只给 agent 读的工作目录文件不受此检查）
 
 扫描会跳过 `.codestable/reference/` 和 `*-review-packet.md`，避免把工具说明或 reviewer 输入包里的示例文字当成当前 backlog。已解决的 follow-up 记录（例如 follow-up fixes / review closure / no remaining P0-P2）不会重复上报；canonical lifecycle 文件（`*-acceptance.md` / `*-ff-note.md` / `*-fix-note.md` / `*-apply-notes.md`）里 `status: canceled/cancelled/abandoned` 的 feature / issue / refactor 单元会被当作历史记录跳过；但当前单元的 `## Follow-Ups` 章节下的 bullet 会被视为当前 backlog。
 
@@ -193,3 +194,17 @@ python3 {SKILL_DIR}/tools/codestable-freshness-check.py \
 - `current`：installed skill copy 与远端 `main` 对齐
 - `stale`：发现 installed copy 落后或有多余旧文件，应该提示更新
 - `unknown`：找不到 source checkout / installed root / remote ref；不阻断当前流程
+
+---
+
+## 15. codestable-status.py
+
+只读的进度快照，回答「进度如何、还差什么、下一步、卡在哪」（规则见 `shared-conventions.md` 第 8 节）。不存任何文件，默认不联网、不 fetch。
+
+```bash
+python3 {SKILL_DIR}/tools/codestable-status.py --root . [--json] [--prs]
+```
+
+输出键：`in_progress`（每个 (类型, 单元) 一条，列出所在 `branches`，阶段取最靠前的那份，同阶段取 checklist 完成步数多的，再相同取 `git worktree list` 中靠前的；带下一个未做的 checklist 步骤。完成标记取自 `codestable_common.unit_completion_marker`（与 doctor 的 review 门禁同一套判断）：有标记且该 worktree 自与默认分支的分叉点以来没改过它的是早期记录（无论它在默认分支顶端是否还在），只在 `notes` 计数并提示缺 review 看 doctor；有标记且分叉后改过的是收尾中，列出并标明 subagent review 证据有无；找不到分叉点时不比较，一律当作在做，并在 `not_checked` 说明；没有目录但领先默认分支或有未提交改动的 worktree 列为 `branch` 条目，没有 worktree 的领先分支只在 `notes` 计数）、`waiting`（所有 worktree 里都未决的 approval report——任一份已决即视为已决，已完成未合并的 worktree，`--prs` 时加打开的 PR）、`recent`（默认分支最近 10 个提交）、`next`（roadmap 的 in-progress / planned 条目，没有就取进行中单元的下一步）、`not_checked`、`notes`。每条都带 `pointer`（路径、提交、分支或 PR 链接）。
+
+`--prs` 才调用 `gh`；`gh` 未安装或失败只记入 `not_checked`，退出码仍是 0。默认分支按 `origin/HEAD`、`main`、`master`、主检出所在分支、当前分支的顺序判断。没有 `.codestable/` 的仓库各节为空，`notes` 提示直接从 git 回答。

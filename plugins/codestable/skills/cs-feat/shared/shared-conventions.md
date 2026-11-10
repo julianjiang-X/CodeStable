@@ -24,6 +24,8 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 │       ├── grill/              可选，accepted grill-context，供 human review
 │       └── drafts/             可选
 ├── goals/                 限定起点/终点的自主迭代目标（起点报告 / iteration / 功能验收）
+│                          （goals / features / issues / refactors 下的带日期目录是工作目录：
+│                           只在满足第 3 节条件时创建，收尾时毕业后删除，不是档案）
 │   └── YYYY-MM-DD-{slug}/
 │       ├── state.yaml
 │       ├── goal.md
@@ -31,7 +33,7 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 │       ├── approval-report.md  （需要 owner 审批但最近迭代报告未承载上下文时）
 │       ├── grill/              可选，accepted grill-context，供 human review
 │       └── iterations/
-├── features/              feature spec 聚合根
+├── features/              feature 工作目录的父目录
 │   └── YYYY-MM-DD-{slug}/  每个 feature 一个目录
 │       ├── {slug}-brainstorm.md  （可选，case 2 时产出）
 │       ├── {slug}-design.md      （标准流程）
@@ -39,15 +41,15 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 │       ├── grill/               可选，accepted grill-context，供 human review
 │       ├── {slug}-implementation-review.md （实现完成门禁）
 │       ├── {slug}-acceptance.md  （标准流程）
-│       └── {slug}-ff-note.md     （fastforward 通道唯一产物，与上面四份互斥）
-├── issues/                issue spec 聚合根
+│       └── {slug}-ff-note.md     （fastforward 通道在建了工作目录时的唯一产物，与上面四份互斥）
+├── issues/                issue 工作目录的父目录
 │   └── YYYY-MM-DD-{slug}/
 │       ├── {slug}-report.md
 │       ├── {slug}-analysis.md   （根因不显然才有）
 │       ├── grill/               可选，accepted grill-context，供 human review
 │       ├── {slug}-implementation-review.md
 │       └── {slug}-fix-note.md
-├── refactors/             refactor spec 聚合根
+├── refactors/             refactor 工作目录的父目录
 │   └── YYYY-MM-DD-{slug}/
 │       ├── {slug}-scan.md
 │       ├── {slug}-refactor-design.md
@@ -57,7 +59,7 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 ├── compound/              沉淀类文档统一目录
 │   └── YYYY-MM-DD-{doc_type}-{slug}.md
 │                          doc_type ∈ {learning, trick, decision, explore}
-├── brainstorms/           brainstorm / pre-route grill / spike 临时产出
+├── brainstorms/           brainstorm / pre-route grill / spike 临时产出（被 design 或 roadmap 消费后删除，未消费的保留）
 │   └── {slug}/
 │       ├── brainstorm.md        可选，open brainstorm 记录
 │       ├── grill/               route 未定前的 grill-context round docs
@@ -84,10 +86,10 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 
 ### 报告语言策略
 
-- CodeStable 技能不在技能说明里硬编码报告语言；所有人读报告的正文语言以 `.codestable/attention.md` 的项目规则为准
-- attention 未写报告语言策略时，使用 owner 当前对话语言
-- 默认只写 canonical 报告文件；只有 attention 明确要求多语言副本时，才额外写 `{name}.{lang}.md`
-- attention 要求 English first, then Chinese / 先英文后中文双语时，canonical human-review / review-facing markdown 必须先写完整英文正文，再写完整中文正文；只追加 `中文摘要` 不满足策略，会被 backlog / doctor 标为 blocking `bilingual-report-policy`
+- 只给 agent 读的文件（工作目录里的文件、`compound/` 等记录）用一种语言写，不写双语副本。用哪种由 `attention.md` 指定；未指定时沿用该项目现有记录的语言
+- 写给 owner 看的内容（审批报告、最终汇报、对话）用 owner 的语言
+- 只有 `attention.md` 点名了具体的人类读者时，才为那份文档提供第二种语言（额外写 `{name}.{lang}.md`，或在同一文件里先后写完整两份）
+- `approval-report.md` 是写给 owner 的，`attention.md` 要求"先英文后中文"时，它必须是完整英文正文加完整中文正文；只追加 `中文摘要` 不满足，会被 backlog / doctor 标为 blocking `bilingual-report-policy`。其余文件不被这条检查
 - 机器状态以 YAML / JSON / `state.yaml` 为准，不从不同语言的叙述反推状态
 
 ### 架构 doc 分组规则（同类聚合）
@@ -130,7 +132,7 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 
 - 是 feature 工作流的唯一执行清单
 - 由 `cs-feat design` 在 design 确认通过后一次生成 `steps` + `checks`
-- `cs-feat ff` **不生成** checklist（也不写 design / acceptance），是跳过 spec 流程直接写代码的超轻量通道；唯一留下的痕迹是动手后回写的 `{slug}-ff-note.md`（轻量回顾，参与 scoped-commit、可被 cs-keep arch / cs-keep req backfill 检索到）
+- `cs-feat ff` **不生成** checklist（也不写 design / acceptance），是跳过 spec 流程直接写代码的超轻量通道；默认不留文件（交付说明写进汇报和提交信息）；只有满足第 3 节工作目录条件时才回写 `{slug}-ff-note.md`（轻量回顾，参与 scoped-commit，收尾时随目录删除）
 
 `steps` 的粒度是 **编排-计算分离维度的切片策略**——按"先编排骨架、后计算节点、最后持久化与测试"写（最简 Workflow 先行 → 逐个节点填充），**不下沉到 file:line / 函数级**。具体改哪个文件由 implement 阶段决定。
 
@@ -157,18 +159,22 @@ onboard 完成后骨架（`cs-onboard` 负责搭建）：
 
 ```
 planned  → in-progress  （cs-feat design 启动 feature 时改）
-in-progress → done      （cs-feat accept 验收完成时改）
+in-progress → done      （cs-feat accept 验收完成时改；同时写 commit）
 planned  → dropped      （cs-roadmap update 模式，用户决定不做时改）
 ```
 
 `done` / `dropped` 是终态。需要回退重做的新加一条 slug 略改的条目，不改终态。
+
+**`feature` 是不透明标识，不是路径**：启动时写 `YYYY-MM-DD-{slug}`，用来在提交和 PR 里反查，对应的工作目录收尾后会被删，不必存在。条目到 `done` 时同时写 `commit:`——合并提交或 PR（编号或链接）；写 done 时还不知道，先写 `commit: pending`，在删除工作目录的那个提交里补上（它允许带非实现的 `.codestable/**` 改动）。
+
+**没有工作目录、没有 design 的路径（ff 通道）谁写 items.yaml**：执行任务的会话自己写——开工时把条目改 `in-progress` 并填 `feature`，完成时改 `done` 并填 `commit`，同步主文档子 feature 清单，并校验 yaml。没有 design frontmatter 可读，条目 slug 以用户指定的为准。
 
 **cs-roadmap 的职责**：生成和维护 roadmap 主文档 + items.yaml；把 `planned` 改 `dropped`（用户放弃时）；不改 `in-progress` / `done`（feature 技能负责）。
 
 **cs-feat design 的职责**（从 roadmap 起头时）：
 
 1. design.md frontmatter 加 `roadmap: {roadmap-slug}` + `roadmap_item: {子 feature slug}`
-2. items.yaml 对应条目 `status: in-progress` + `feature: YYYY-MM-DD-{slug}`
+2. items.yaml 对应条目 `status: in-progress` + `feature: YYYY-MM-DD-{slug}`（标识，目录不必一直存在）
 3. 校验 yaml
 
 直接起 feature（非 roadmap 来）两字段留空，不触发 roadmap 写。
@@ -177,7 +183,7 @@ planned  → dropped      （cs-roadmap update 模式，用户决定不做时改
 
 1. 读 design frontmatter `roadmap` / `roadmap_item`
 2. 空 → 跳过
-3. 有值 → items.yaml 对应条目 `status: done`；同步主文档子 feature 清单显示状态；校验 yaml
+3. 有值 → items.yaml 对应条目 `status: done` + `commit:`（合并提交或 PR，见上）；同步主文档子 feature 清单显示状态；校验 yaml
 
 回写是**实际写文件的动作**，验收报告要明确记录回写结果。
 
@@ -191,18 +197,33 @@ packet 和 subagent 执行选择已拆到
 和生命周期共享口径；涉及实际改代码、review、commit、finish 或 merge 前，
 按需读取 execution conventions 对应章节；同一任务内未变化不重读。
 
-## 3. 阶段收尾
+## 3. 阶段收尾与工作目录
 
-只更新本次行为或契约变化实际影响的文档。出现可复用的经验、长期决定或用户指南变化时，使用对应沉淀技能；没有新增知识就不生成文档或逐项询问。已授权提交时直接完成 scoped-commit。
+**工作目录是工作状态，不是档案。** 工作目录（`.codestable/features|issues|refactors/YYYY-MM-DD-{slug}/`，goal 同理）是任务进行中的工作状态。只在下列任一条件成立时创建：(1) 任务会跨会话，或要交接给别的 agent 或人；(2) 有需要 owner 决定或批准的契约；(3) 按 `assurance.md` 的风险判断需要正式的独立审查；(4) owner 要求留痕。其余任务不建目录：证据是 diff、测试输出和交付说明。被别的 agent 派工时同样适用：结果以报告和提交交回派工方，不因为派工说明里写了「照 CodeStable 流程」就产出设计、清单、验收文件。
+
+**任务收尾**（验收通过、修复验证完成、重构完成，或被 owner 取消）时：
+
+1. **毕业**：把以后还要用的内容写到它该在的地方。能力或边界变化 → `requirements/`；结构变化 → `architecture/`；难回退的决定 → `cs-keep decide`；踩过的坑 → `cs-keep learn`；常驻约束 → `attention.md`。能写成测试或检查器的约束优先机械化。先列出毕业清单，清单里每一项都要有去处，或写明「不需保留」。
+2. **结案提交**：代码 + 毕业写入的文档 + 工作目录里还剩的所有内容（实现 review 证据在内）。提交信息写清做了什么、关键取舍和理由、验收证据（跑了什么、结果如何）、没有验证的部分。这是这次任务的长期记录。
+3. **worktree finish gate**：适用时（见 `execution-conventions.md`）此时工作树是干净的，跑它并提交它的产物。
+4. **删除工作目录**，单独一个提交，不与结案提交合并。这个提交只能包含该单元的删除，加非实现的 `.codestable/**` 改动，不能带代码。git 历史里仍可找回。工具会拦：删除一个在 HEAD 里需要 review 的单元，HEAD 里必须已有 `reviewer: subagent` 的证据；删除未结束的 goal 目录（`state.yaml` 不是终态）也会被拒。
+
+顺序固定：先毕业并做结案提交，再 finish gate，最后单独删除。
+
+**不删的情况**：任务阻塞或未完成（目录就是恢复记录）；有未决的 approval report；owner 要求保留；审计里还有未解决的 finding。
+
+范围：`audits/` 下的审计目录在 finding 全部解决或被 owner 接受后按同一规则删除，未解决时保留。`compound/` 下的 learning / trick / decision / explore 是知识，不受本节影响。`brainstorms/` 见第 0 节目录说明。`goals/` 的终态处理见 `shared/goal-conventions.md`。
+
+只更新本次行为或契约变化实际影响的文档；没有新增知识就不生成文档或逐项询问。已授权提交时直接完成 scoped-commit。
 
 ## 4. 收尾提交（scoped-commit）
 
-acceptance / issue-fix 走完后，在已有提交授权内按独立逻辑变更提交：
+acceptance / issue-fix 走完后，在已有提交授权内按独立逻辑变更提交（第 3 节的结案提交）：
 
-- **范围**：本次工作改到的代码 + 相关 spec 文档 + 本次实际更新过的架构 doc + 本次实际更新过的 roadmap items.yaml / 主文档
+- **范围**：本次工作改到的代码 + 毕业写入的文档（架构 doc、requirements、roadmap items.yaml / 主文档、compound 记录）+ 工作目录里还剩的内容。工作目录的删除不在这个提交里，是第 3 节的单独一个提交（不建工作目录的任务没有这一项）
 - **不该进**：和本次工作无关的顺手修改；属于"下次另起 feature / issue"的扩大范围
 - **提交授权**：当前任务已授权 commit / push 时不重复询问；没有提交授权时交付可审阅改动，不能从完成实现推断 merge / deploy 授权
-- **commit message**：一句话说清"做了什么"，不贴 spec 目录路径
+- **commit message**：按第 3 节写清做了什么、关键取舍和理由、验收证据、没验证的部分；不贴已删除的工作目录路径
 
 dirty tree 混有多类产物或提交边界不明确时，用只读 commit planner 辅助划分：
 
@@ -214,11 +235,11 @@ planner 只读，不替你 stage。它会把 code/docs/tests、migrations/databa
 
 子技能只描述本阶段特有提交范围，通用规则看这里。
 
-## 5. 归档检索规则
+## 5. 检索范围
 
-需要历史约束、架构背景或复用经验时，定向检索相关归档：
+开工检索默认只读：`attention.md`、`requirements/`、`architecture/`、`compound/`，以及与本任务相关的进行中工作目录。3.0.0 之前留下的已结束单元（`features/`、`issues/`、`refactors/`、`goals/` 下的旧目录）不在默认检索范围内，只在 owner 指到、或当前任务明确接续它时才读；读到的内容先对照当前代码核实再用。
 
-- 按任务关键词定位 `architecture/` 或 `compound/` 相关条目；自包含的小改无需遍历归档
+- 按任务关键词定位 `architecture/` 或 `compound/` 相关条目；自包含的小改无需遍历
 - 在 `compound/` 用 `doc_type` 过滤（learning / trick / decision / explore）
 - 搜到的结果只作参考输入，不盲目套用——可能已 `outdated` 或不适合当前上下文
 - 搜到和当前方向冲突的 decision → **必须**正面回应"为什么仍然这么做"或调整方向
@@ -235,11 +256,11 @@ planner 只读，不替你 stage。它会把 code/docs/tests、migrations/databa
 
 子技能只补本阶段查询命令。完整搜索语法看 `shared/tools.md`。
 
-## 6. 归档类子技能共享守护规则
+## 6. 沉淀类（compound）子技能共享守护规则
 
 `cs-keep learn` / `cs-keep trick` / `cs-keep decide` / `cs-explore` 共享下面这组规则。子技能正文只写特有反模式，通用看这里：
 
-1. **只增不删**——已归档除非被明确取代（`status=superseded`）否则不删；理由丢失成本极高
+1. **只增不删**（仅 `compound/`，工作目录不适用）——已沉淀除非被明确取代（`status=superseded`）否则不删；理由丢失成本极高
 2. **宁缺毋滥**——用户说不出理由的节直接省略，不要 AI 编造
 3. **不替用户写实质内容**——AI 负责起草结构和串联语言，实质结论必须来自用户或可追溯的代码证据
 4. **attention.md 检查**——写完后若沉淀暴露出"每次启动都该知道"的一两行硬约束，提示用户用 `cs-keep note` 追加到 `.codestable/attention.md`；不要直接改外部 AI 入口
@@ -260,3 +281,20 @@ planner 只读，不替你 stage。它会把 code/docs/tests、migrations/databa
 ## 7. 局部实现判断
 
 在既有职责内完成最小完整改动。文件长度、参数数目或出现分支本身不是重构理由；职责混杂、重复逻辑或错误抽象确实妨碍当前任务时，可在授权范围内局部调整并验证。扩大公共契约、架构方向或产品范围的变化另行说明并取得必要决定，不为每次拆函数或重命名中断执行。
+
+## 8. 回答进度
+
+进度不存页面，被问时现看。owner 问进度、还差什么、下一步、卡在哪，或会话接续工作时，看四处：
+
+- **进行中**：本检出和各 linked worktree 里在做的工作目录，阶段读该单元自己的文件（goal 的 blocked 读 `state.yaml`）；没有目录但分支领先默认分支或工作树有改动的 worktree 也算，没有 worktree 的领先分支只计数。3.0.0 起收尾（毕业、结案提交、删除）先于合并：已有完成标记且自该分支从默认分支分叉以来被改动过的，是收尾中，照样列出；没被改动过的已完成或已取消单元是早期记录，不算（缺 review 由 doctor 报）；比较不了时当作在做。
+- **等待**：未决的 approval report、已完成但未合并的 worktree、打开的 PR。
+- **最近完成**：默认分支最近约 10 个提交，结案提交信息就是记录。
+- **下一步**：有 `roadmap/` 取其进行中 / 计划中条目；否则取进行中单元下一个未做的步骤；都没有就说没有记录，不编造。
+
+没有该命令的 skill（目录里没有 `tools/codestable-status.py`）按上面四处手动看。一条只读命令取齐（同一单元和同一 approval report 在多个 worktree 里只报一条；不联网；`--prs` 才通过 `gh` 查打开的 PR，`gh` 不可用或失败记入 `not_checked`，不算错误）：
+
+```bash
+python3 {SKILL_DIR}/tools/codestable-status.py --root . [--json] [--prs]
+```
+
+回答直接在对话里给 owner，用 owner 的语言，按这四节各写几行；每行带能核对的指针（路径、分支、提交或 PR），并写明没查的部分（如远端没 fetch）。别人的工作或远端状态，在已有授权内实际去查（fetch、看 PR），授权不够就写「未核对」。答案不写进文件。没接入 CodeStable 的仓库同样直接从 git 回答（`git worktree list`、分支、`git log`）。

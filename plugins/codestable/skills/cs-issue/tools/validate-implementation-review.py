@@ -16,6 +16,9 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from codestable_common import unit_deletion_findings  # noqa: E402
+
 
 IMPLEMENTATION_PREFIXES = (
     "app/",
@@ -253,6 +256,10 @@ def validate(root: Path) -> tuple[bool, list[Finding], dict[str, object]]:
                     path=path,
                 )
             )
+
+    # A deleted work directory cannot show what it was: judge it from HEAD.
+    for deletion in unit_deletion_findings(root, [item.path for item in changed], allow_self_review):
+        findings.append(Finding(severity=deletion.severity, message=deletion.message, path=deletion.path))
 
     meta = {
         "changed_files": [item.path for item in changed],

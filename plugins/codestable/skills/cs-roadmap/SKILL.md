@@ -87,8 +87,9 @@ roadmap 主文档、items.yaml、requirements 或 architecture。
 
 **按情况读**：
 - 本 roadmap 或相关 brainstorm 里 accepted `grill-context`：只作 human review context，不当 source of truth
+- 相关 `brainstorms/{slug}/` 记录：拆解已吸收其结论后删除，未消费的保留；items.yaml 的 `status` 是「下一步」的来源（`codestable-status.py` 直接读它），保持最新
 - 相关 compound 沉淀：`python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --query "{大需求关键词}"`
-- 已有相关 feature 方案
+- 进行中的相关 feature 方案（已结束的旧 feature 目录不默认检索）
 
 **update 额外**：当前主文档全文 + items.yaml 当前状态 + 已启动 / 完成的子 feature 的 design / acceptance。
 
@@ -128,7 +129,7 @@ review 前自跑一遍汇报处理：
 
 ### Phase 6：落盘
 
-**new**：建 `.codestable/roadmap/{slug}/`；写主文档（`status: active` / `created` / `last_reviewed` 当天）；写 items.yaml（每条 `status: planned`、`feature: null`）；`validate-yaml.py` 校验。
+**new**：建 `.codestable/roadmap/{slug}/`；写主文档（`status: active` / `created` / `last_reviewed` 当天）；写 items.yaml（每条 `status: planned`、`feature: null`、`commit: null`）；`validate-yaml.py` 校验。
 
 **update**：改主文档（`last_reviewed` 当天，结构性改动文末加变更日志）；改 items.yaml 对应条目（drop 不删，`status: dropped` 留存理由）；重新校验 yaml。
 
@@ -144,9 +145,11 @@ review 前自跑一遍汇报处理：
 
 1. `cs-feat design`（或 ff / brainstorm）起 feature 目录
 2. design frontmatter 带 `roadmap: {slug}` + `roadmap_item: {子 slug}`
-3. items.yaml 对应条目 `status: in-progress`、`feature: YYYY-MM-DD-{slug}`
+3. items.yaml 对应条目 `status: in-progress`、`feature: YYYY-MM-DD-{slug}`（不透明标识，目录收尾后会被删，不必存在）
 
 职责在 `cs-feat design` 不在本技能。
+
+走 `cs-feat ff` 时没有 design，也没有 accept：执行任务的会话自己把条目改 `in-progress`，完成时改 `done` 并写 `commit:`（合并提交或 PR）。
 
 ### feature-design 必须把 roadmap 接口契约当硬约束
 
@@ -156,18 +159,18 @@ feature-design 发现接口契约不合理 / 漏了 / 描述不准 → **回 `cs
 
 ### acceptance 自动回写
 
-`cs-feat accept` 收尾时如果 design frontmatter 有 `roadmap` 字段就改对应 `roadmap_item` 的 `status: done`，同时同步主文档子 feature 清单勾选状态。职责在 `cs-feat accept` 不在本技能。
+`cs-feat accept` 收尾时如果 design frontmatter 有 `roadmap` 字段就改对应 `roadmap_item` 的 `status: done` 并写 `commit:`（合并提交或 PR），同时同步主文档子 feature 清单勾选状态。职责在 `cs-feat accept` 不在本技能。
 
 ### roadmap 自身生命周期
 
-- 所有 items `done` / `dropped` 后主文档 `status: completed`，目录留作历史档案
+- 所有 items `done` / `dropped` 后主文档 `status: completed`，目录作为规划记录保留（它是规划层，不是已结束的工作目录）
 - 长期无进展：`status: paused`，主文档加理由
 
-**永久档案 vs 执行游标**，两者职责互斥：
+**规划记录 vs 执行游标**，两者职责互斥：
 
 | 角色 | 文件 | 生命周期 |
 |---|---|---|
-| 永久档案 | `{slug}-roadmap.md`（背景 / 范围 / 非目标 / 模块拆分 / 接口契约 / owner 已批准的子 feature 拆解） | 长期保留 |
+| 规划记录 | `{slug}-roadmap.md`（背景 / 范围 / 非目标 / 模块拆分 / 接口契约 / owner 已批准的子 feature 拆解） | 长期保留 |
 | 执行游标 | `{slug}-items.yaml`（各子 feature 的推进状态）、`drafts/` | 推进期有效 |
 
 主文档在 roadmap `active` 期间**保持冻结**：子 feature 的日常进展只更新 items.yaml，不回写主文档。要改目标、范围、非目标、接口契约或子 feature 拆解，是**边界变更**——按"模式分流"回到 `update` 模式跟 owner 重新确认，不在 feature 推进过程中顺手改。

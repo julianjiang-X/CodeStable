@@ -72,7 +72,25 @@ npx skills add https://github.com/julianjiang-X/CodeStable/tree/main/plugins/cod
 
 项目自己的 `attention.md`、`requirements/`、`features/` 等内容不受影响，既有产物格式不变。
 
-### 4. 行为变化
+### 4. 工作目录收尾时删除
+
+这是一条行为变化，不是格式变化。
+
+- `features/`、`issues/`、`refactors/`、`goals/` 下的带日期目录现在是**工作目录**：任务进行中的工作状态，
+  不是档案，默认不建。只在任务会跨会话或要交接、有待 owner 批准的契约、需要正式独立审查、
+  owner 要求留痕时创建。其余任务不建目录，证据是 diff、测试输出和交付说明；被别的 agent 派工时也一样。
+- 任务收尾时先毕业（把以后还要用的内容写进 `requirements/`、`architecture/`、`cs-keep decide` /
+  `learn`、`attention.md`），做结案提交（代码 + 毕业写入的文档 + 目录里还剩的内容，提交信息写清做了什么、
+  取舍、证据、没验证的部分），适用时跑 finish gate，最后在**单独一个提交**里删除工作目录（只含目录删除和非实现的
+  `.codestable/**` 改动）。门禁按 HEAD 里的内容判断：需要 review 的单元，HEAD 里没有 subagent review 证据就删不掉；
+  未结束的 goal 目录也删不掉。阻塞未完成、有未决 approval report、owner 要求保留、审计有未解决 finding 时不删。
+- **旧项目里已有的旧单元不会被动**：不迁移、不批量删除，工具也不会删它们。它们默认不再被开工检索读取，
+  只在 owner 指到或当前任务接续它时才读，读到的内容先对照当前代码核实。想清理由 owner 自己决定，
+  git 历史里仍可找回。
+- 只给 agent 读的文件用一种语言写，由 `attention.md` 指定；项目里原来要求"先英文后中文"的，
+  双语检查现在只对写给 owner 的 `approval-report.md` 生效，其他文件不再被拦。
+
+### 5. 其他行为变化
 
 范围门槛、owner 规矩当场记录、汇报格式、审查轮次上限和讨论方式的变化见
 [docs/claude-models-iteration.md](./docs/claude-models-iteration.md)。

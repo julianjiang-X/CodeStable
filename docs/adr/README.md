@@ -42,9 +42,10 @@ lint: "能验证这条决策仍成立的命令"   # enforcement=test 时必填
 | [003](003-keep-staged-skill-topology.md) | 保留分阶段技能拓扑，用风险模型控制流程重量 | Superseded by 004 |
 | [004](004-merge-stage-entries-keep-stage-text.md) | 合并阶段入口，保留阶段正文 | Accepted |
 | [005](005-ship-shared-runtime-inside-skills.md) | 共享参考和工具随技能分发，不再复制进项目 | Accepted |
+| [006](006-work-directories-graduate-and-delete.md) | 工作目录是工作状态，收尾时毕业并删除；进度现看，不存页面 | Accepted |
 
 001–003 是 1.1.0 从上游 `codestable/CodeStable` v2 吸纳时，对**不吸纳**部分的评估结论。
 完整差异分析见 `asset/2026-08-14-upstream-v2-comparison.md`。
 
-004、005 是 3.0.0 依据 owner 的实际会话使用情况对 003、001 的修订，见
-`docs/claude-models-iteration.md`。
+004、005 是 3.0.0 依据 owner 的实际会话使用情况对 003、001 的修订，006 是同一轮扫描得出的
+工作目录生命周期决定，见 `docs/claude-models-iteration.md`。

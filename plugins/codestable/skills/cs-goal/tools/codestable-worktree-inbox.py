@@ -11,11 +11,12 @@ from pathlib import Path
 
 from codestable_common import (
     branch_head,
-    changed_paths_between,
+    changed_status_between,
     default_branch,
     inbox_dir,
     inbox_record_id,
     is_ancestor,
+    is_implementation_path,
     iter_inbox_records,
     utc_now_iso,
     worktree_map,
@@ -51,10 +52,21 @@ def finish_artifact_paths(record: dict[str, object]) -> set[str]:
 
 
 def only_finish_artifacts_changed(root: Path, record: dict[str, object], covered_head: str, current_head: str) -> bool:
+    """True when the branch moved past the finish report only by finish artifacts or
+    non-implementation `.codestable/**` changes: the closing commits delete the
+    unit's work directory and write the graduated docs (requirements/,
+    architecture/, compound/, attention.md, roadmap/). Any source change still
+    makes the report stale."""
     if not is_ancestor(root, covered_head, current_head):
         return False
-    changed = set(changed_paths_between(root, covered_head, current_head))
-    return bool(changed) and changed <= finish_artifact_paths(record)
+    changes = changed_status_between(root, covered_head, current_head)
+    if not changes:
+        return False
+    artifacts = finish_artifact_paths(record)
+    return all(
+        path in artifacts or (path.startswith(".codestable/") and not is_implementation_path(path))
+        for _status, path in changes
+    )
 
 
 def reminder_severity(status: str, created_at: object) -> str | None:
@@ -103,7 +115,7 @@ def classify_record(root: Path, record: dict[str, object], worktrees: dict[str, 
         status = "merged"
     elif current_head != covered_head:
         status = "ready-to-merge"
-        reasons.append("branch HEAD differs from covered_head only by finish artifacts")
+        reasons.append("branch HEAD differs from covered_head only by finish artifacts or non-implementation .codestable changes")
     elif original_status in {"ready-to-merge", "blocked", "active", "stale-report"}:
         status = original_status if original_status != "stale-report" else "ready-to-merge"
     else:

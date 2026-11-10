@@ -13,8 +13,8 @@
 1. 用复现或现有证据定位根因，简述方向。修 bug 请求包含范围内修复授权，不等待固定确认语句。
 2. 检查实际风险：
    - **风险核对（静默）**——快速通道省掉的是 analysis 文档，**不是风险判断**。一行修复照样可能落在权限判断、迁移路径或并发语义上；这条通道跳过了 analysis，所以根因仍不确定本身就是命中项之一。对要碰的路径做一次静默核对，八类风险与 `shared/assurance.md` 风险映射表逐行对应：目标 / 根因不确定或存在真实取舍 · 破坏兼容或多消费者公开契约 · 权限 / 安全 / 隐私 / 凭证 / token / 信任边界 · 持久化数据 / schema / 迁移 · 并发 / 顺序 / 一致性 · 不可恢复的代码外副作用 · 性能敏感路径 · 影响面广或失败可跨模块传播（公共 helper、共享配置、feature flag）。
-     命中后先读 `assurance.md`，**照搬命中那一行列出的全部保障**——格子是复合的，`+` 连接的每项都要做，标着确认的还要 owner 拍板；所谓只加对应保障，限定的是不启用别的行，不是把一行砍成一条。其中加审指在本通道已有的独立 review 之外**再加一轮**对应目的的审查，不是拿地板 review 顶替。在 fix 里，增加的保障通常体现为红到绿之外还要补的那份证据。
-     命中后在 fix-note 写明「风险事实 → 增加的保障」，不命中就带一句 `风险核对：无命中`。只命中风险不因此升级回标准路径；但若核对发现根因判断本身站不住，回 `cs-issue analyze` 重新定位。
+     命中后先读 `assurance.md`，**照搬命中那一行列出的全部保障**——格子是复合的，`+` 连接的每项都要做，标着确认的还要 owner 拍板；所谓只加对应保障，限定的是不启用别的行，不是把一行砍成一条。**review 随命中的行走：**命中任何一行要求「加审」或「确认」的，工作目录的条件 (3)（要 owner 确认时同时是条件 (2)）成立：创建工作目录、按正式 unit 走，实现 review 必须是 subagent，「加审」要在它之外再多一轮对应目的的审查，不能拿实现 review 顶替；没命中这类行，inline review 就够。在 fix 里，增加的保障通常体现为红到绿之外还要补的那份证据。
+     命中后在交付说明（有 fix-note 时写在 fix-note）写明「风险事实 → 增加的保障」，不命中就带一句 `风险核对：无命中`。只命中风险不因此升级回标准路径；但若核对发现根因判断本身站不住，回 `cs-issue analyze` 重新定位。
 3. 根因证据不足则回 `cs-issue analyze` 补定位；先自主取得可取得的证据，不把普通调试交还用户。
 
 ## 执行与验证
@@ -25,13 +25,17 @@
 
 修复无效时更新根因假设，选择能区分假设的日志、断点、trace 或最小复现，不反复猜改。需要日志脚手架或 fix-note 模板时读 `references/fix-reference.md`；清理临时敏感日志后交付。
 
-## 审查与归档
+## 审查与收尾
+
+没有工作目录的修复：没命中要求「加审」或「确认」的行，inline review 就够（命中则已按上面转为正式 unit）；交付说明（根因、改动、验证证据、没验证的部分、`风险核对` 一句）写进最终汇报和提交信息，提交信息是这次修复的长期记录。以下 gate 与 fix-note 只适用于有工作目录的 unit。
 
 正式 unit 使用独立 subagent review；仅环境确无 subagent 能力时按共享规则使用 fresh self-review fallback 并记录环境原因。保留 `{slug}-implementation-review.md` 的目标、审查方式、验证证据和 findings，P0/P1 先修复并复核。不将 self-review 冒称独立审查。
 
 验证后写 `{slug}-fix-note.md`：标准路径引用 analysis，快速通道补根因和风险证据。保留 `doc_type: issue-fix`、issue、`path: standard | fast-track`、fix_date、tags 等字段。
 
-按 shared-conventions 第 2.6 节使用执行 worktree，保留无关改动、共享计划面及既有 override 契约。改动前执行 start gate；完成证据写入后执行 commit gate：
+**收尾（修复验证完成，或 owner 取消）**：按 `shared/shared-conventions.md` 第 3 节按顺序做。(1) 毕业：踩过的坑走 `cs-keep learn`，难回退的决定走 `cs-keep decide`，行为或边界变化写进 `requirements/` / `architecture/`，常驻约束走 `attention.md`；能写成回归测试的优先写成测试；先列毕业清单，每项有去处或「不需保留」。(2) 结案提交：代码 + 毕业写入的文档 + 目录里还剩的内容（review 证据在内），提交信息写清根因、做了什么、关键取舍和理由、验证证据、没验证的部分。(3) finish gate：适用时此时工作树是干净的，跑它并提交产物。(4) 删除工作目录，单独一个提交，只含该单元的删除和非实现的 `.codestable/**` 改动，不带代码；HEAD 里必须已有 subagent review 证据，否则 commit gate 拒绝。阻塞或未完成、有未决 approval report、owner 要求保留时不删。
+
+按 shared-conventions 第 2.6 节使用执行 worktree，保留无关改动、共享计划面及既有 override 契约。改动前执行 start gate；完成证据写入后、删除目录前执行 commit gate：
 
 ```bash
 python3 {SKILL_DIR}/tools/codestable-worktree-gate.py --root . --json start --unit .codestable/issues/YYYY-MM-DD-{slug}

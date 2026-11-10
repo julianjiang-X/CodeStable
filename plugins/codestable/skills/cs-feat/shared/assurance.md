@@ -16,6 +16,8 @@
 
 自包含且不需要正式 unit 的工作按实际风险选择验证和 inline review，不自动创建委派或报告。正式 execution unit 仍须提供独立实现 review，现有 worktree / finish 工具校验该产物；不要把缺少 required review 的 unit 标为完成。见 `execution-conventions.md`。
 
+是否创建工作目录（正式 unit）只按 `shared-conventions.md` 第 3 节的四个条件判断：跨会话或交接、有待 owner 批准的契约、本文件的风险判断要求正式独立审查、owner 要求留痕。工作目录是任务进行中的工作状态，不是档案，收尾时毕业后删除；其余任务的证据是 diff、测试输出和交付说明。
+
 用户授权持续有效。只有未决的产品契约、实质范围或尚未授权的外部 / 危险操作需要 owner 决定，按 `approval-conventions.md` 准备上下文。
 
 ## 风险核对（静默、有界）
@@ -43,6 +45,8 @@
 
 "加审"指实际命中表中相应风险条件后，在实现 review 之外，再增加一轮对应目的的独立审查（spec review / 安全 review / 验证 review），按 `execution-conventions.md` 的 reviewer lineage 规则执行。
 
+**命中带「加审」或「确认」的行，就满足了 `shared-conventions.md` 第 3 节建工作目录的条件 (3)（要 owner 确认时同时是条件 (2)）**：该任务成为正式 unit（工作目录），实现 review 必须是 subagent，「加审」再多一轮对应目的的独立审查。没命中这类行时，inline review 就够，不建目录。
+
 ## 不是风险的代理指标
 
 **行数、文件数、改的是文案还是代码、task kind（feat / issue / refactor）都不是风险的替代指标。**
@@ -63,7 +67,7 @@
 
 ## 连续性不是风险门槛
 
-跨会话、多人交接或用户要求留痕，只增加**记录载体**（spec 文件、context packet），不提升保障强度。
+跨会话、多人交接或用户要求留痕，只增加**记录载体**（工作目录里的 spec 文件、context packet），不提升保障强度；反过来，风险要求正式独立审查时才因此建工作目录（见上），不是每个任务都建。
 
 普通改动选择成本最低且足够权威的验证；已有定向测试足够且无新增风险要求时，不叠加全量套件、浏览器 smoke 与额外 review。检查通过且没有新改动、失败或未决风险时停止追加验证。
 

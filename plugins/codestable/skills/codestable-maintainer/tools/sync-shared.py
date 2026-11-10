@@ -7,8 +7,9 @@ carries the shared documents it cites under ``<skill>/shared/`` and the tools
 its stages call under ``<skill>/tools/``. The sources stay in one place:
 ``cs-onboard/reference/`` and ``cs-onboard/tools/``.
 
-``--check`` (default) reports missing, stale and unused copies and exits 1 on
-any of them. ``--write`` rewrites the copies from the sources.
+Without flags it only checks: it reports missing, stale and unused copies and
+exits 1 on any of them (there is no ``--check`` flag). ``--write`` rewrites the
+copies from the sources, then checks again.
 """
 
 from __future__ import annotations
@@ -30,7 +31,10 @@ EXECUTION_SKILLS = {"cs-feat", "cs-issue", "cs-refactor", "cs-goal"}
 SHARED_CITE = re.compile(r"(?<![\w/-])shared/([A-Za-z0-9_.-]+\.md)")
 TOOL_CITE = re.compile(r"\{SKILL_DIR\}/tools/([A-Za-z0-9_.-]+)")
 # A tool that loads a sibling at runtime needs that sibling shipped with it.
-TOOL_SIBLINGS = {"codestable-doctor.py": ("codestable-worktree-inbox.py",)}
+TOOL_SIBLINGS = {
+    "codestable-doctor.py": ("codestable-worktree-inbox.py",),
+    "codestable-status.py": ("codestable-worktree-inbox.py",),
+}
 
 
 def default_skills_root() -> Path:

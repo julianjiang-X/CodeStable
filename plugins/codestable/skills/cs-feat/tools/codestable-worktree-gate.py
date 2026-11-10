@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from dataclasses import asdict
@@ -28,8 +29,10 @@ from codestable_common import (
     resolve_unit,
     review_file_for,
     staged_files,
+    unit_deletion_findings,
     unit_needs_review,
     unit_slug,
+    unit_was_removed,
     write_baseline,
 )
 
@@ -82,7 +85,10 @@ def start_gate(root: Path, unit_value: str) -> dict[str, object]:
 
 def commit_gate(root: Path, unit_value: str) -> dict[str, object]:
     root = root.resolve()
-    unit_dir = resolve_unit(root, unit_value)
+    # A closed unit has its work directory deleted; the closing commit still has
+    # to pass the branch and baseline checks, but nothing is left to review.
+    unit_dir = resolve_unit(root, unit_value, allow_removed=True)
+    unit_removed = unit_was_removed(root, unit_dir)
     findings: list[Finding] = []
     warnings: list[Finding] = []
     branch = current_branch(root)
@@ -122,6 +128,11 @@ def commit_gate(root: Path, unit_value: str) -> dict[str, object]:
 
     if unit_needs_review(root, unit_dir):
         findings.extend(missing_review_findings(root, [unit_dir]))
+    # Closing deletes the work directory, which would otherwise hide a missing
+    # review: decide from HEAD, and keep the deletion apart from code changes.
+    findings.extend(
+        unit_deletion_findings(root, staged_paths, os.environ.get("CODESTABLE_ALLOW_SELF_REVIEW_FALLBACK") == "1")
+    )
 
     buckets = bucket_paths(staged_paths)
     if len([bucket for bucket, paths in buckets.items() if paths]) > 1:
@@ -138,6 +149,7 @@ def commit_gate(root: Path, unit_value: str) -> dict[str, object]:
         findings,
         warnings=[asdict(warning) for warning in warnings],
         unit=unit_dir.as_posix(),
+        unit_removed=unit_removed,
         current_branch=branch,
         default_branch=default,
         staged_files=staged_paths,

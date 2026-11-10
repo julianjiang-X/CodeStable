@@ -10,6 +10,11 @@ description: Choose a CodeStable workflow or explain the system when routing or 
 触发简称是 `cs`。用户已指明技能或阶段时直接使用它。
 读取并复用 `.codestable/attention.md`；其他上下文按任务查找。
 用户明确指令优先于技能指南。小改和定向问答可直接完成，不自动创建单元。
+工作目录（`features|issues|refactors|goals` 下的带日期目录）是任务进行中的工作状态，
+不是档案，默认不建；条件和收尾见 `shared/shared-conventions.md` 第 3 节。
+进度不存页面：用户问进度、还差什么、下一步、卡在哪，或接续工作时，按
+`shared/shared-conventions.md` 第 8 节现看——在做和收尾中的工作目录、有改动的 worktree、未决审批、未合并 worktree、
+默认分支最近提交；`python3 {SKILL_DIR}/tools/codestable-status.py --root .` 一次取齐。
 仓库没有 `.codestable/attention.md` 时不启用 CodeStable：照常工作，不加载 `cs-*`
 流程、不创建 `.codestable/` 档案；仅在用户点名技能或要求接入时使用（接入用
 `cs-onboard`）。个人工具、课程作业、设备配置和一次性运维不因任务像修 bug 或

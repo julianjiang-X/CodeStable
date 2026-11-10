@@ -8,18 +8,12 @@
       {"action": "read_attention"},
       {"action": "spec_router"},
       {"action": "skip_requirement_delta"},
-      {
-        "write": {
-          "path": ".codestable/features/2026-06-10-small-ui/small-ui-ff-note.md",
-          "content": "---\ndoc_type: feature-ff-note\nfeature: small-ui\nstatus: done\n---\n\n# Fast-Forward Note\n\nContext: L1\nSkip: frontend-only display tweak; no capability boundary or requirement delta.\n"
-        }
-      },
-      {"say": "Small UI tweak stays L1 and records an ff-note instead of touching requirements."}
+      {"say": "Small UI tweak stays L1 and records the skip in the delivery note instead of touching requirements: no capability boundary or requirement delta, no work directory needed."}
     ]
   },
   "expect": {
     "transcript": {
-      "contains": ["Small UI tweak", "stays L1", "instead of touching requirements"]
+      "contains": ["Small UI tweak", "stays L1", "instead of touching requirements", "no work directory needed"]
     },
     "trajectory": {
       "required_actions": ["read_attention", "spec_router", "skip_requirement_delta"],
@@ -36,11 +30,7 @@
       }
     ],
     "artifacts": {
-      "must_create": [".codestable/features/2026-06-10-small-ui/small-ui-ff-note.md"],
-      "must_not_create": [".codestable/features/2026-06-10-small-ui/*-req-delta.md"],
-      "contains": [
-        {"path": ".codestable/features/2026-06-10-small-ui/small-ui-ff-note.md", "text": "no capability boundary"}
-      ]
+      "must_not_create": [".codestable/features/2026-06-10-small-ui/*-req-delta.md", ".codestable/features/**/*-ff-note.md"]
     },
     "git": {
       "must_not_modify": [".codestable/requirements/*.md"]

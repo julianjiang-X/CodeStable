@@ -25,6 +25,8 @@ from codestable_common import (
     post_baseline_implementation_changes,
     reference_drift,
     scan_backlog,
+    unit_deletion_findings,
+    unit_was_removed,
 )
 
 
@@ -54,6 +56,10 @@ def diagnose(root: Path) -> dict[str, object]:
     inbox_report = inbox_tool.inbox(root) if inbox_tool is not None else {"items": [], "ready_to_merge": [], "stale_reports": [], "merged": []}
     post_baseline_blocks: list[dict[str, object]] = []
     for baseline in iter_baselines(root):
+        baseline_unit = baseline.get("unit")
+        # A closed unit (work directory deleted) has nothing left to guard.
+        if baseline_unit and unit_was_removed(root, Path(str(baseline_unit))):
+            continue
         implementation_paths = post_baseline_implementation_changes(root, baseline)
         if implementation_paths:
             post_baseline_blocks.append(
@@ -86,6 +92,7 @@ def diagnose(root: Path) -> dict[str, object]:
             )
         )
     findings.extend(review_findings)
+    findings.extend(unit_deletion_findings(root, changed_paths))
     blocking_backlog = [item for item in backlog if is_blocking_backlog_item(item.kind, item.text)]
     optional_backlog = [item for item in backlog if item not in blocking_backlog]
     if blocking_backlog:

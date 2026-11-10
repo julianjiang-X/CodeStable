@@ -4,17 +4,17 @@
 
 读取本会话尚未读过的 `.codestable/attention.md`。只加载任务相关上下文，已读且未改变的资料不重复读取。共享路径、worktree、审查及提交约定见 `shared/shared-conventions.md` 第 0、2.6、4 节。
 
-用户让你做小功能时本来 AI 就会直接动手——这个技能**不改变这件事**。它只做一件事：动手前把项目里已沉淀的 CodeStable 知识指给你，按需搜一下，写出来的代码就比裸写多一层保护；动手后回写一份**最简的 `{slug}-ff-note.md`** 让这次工作可追溯、可被 cs-keep arch / cs-keep req backfill 看到、能纳入 scoped-commit 提交。
+用户让你做小功能时本来 AI 就会直接动手——这个技能**不改变这件事**。它只做一件事：动手前把项目里已沉淀的 CodeStable 知识指给你，按需搜一下，写出来的代码就比裸写多一层保护；动手后**默认不落文件**：证据是 diff、测试输出和交付说明（最终汇报加提交信息）。只有 `cs-feat` 路由文件里工作目录的四个条件之一成立，才回写一份最简的 `{slug}-ff-note.md`。
 
 > main 协调 / worktree 执行 / 批次后 code review 规则看 `shared/shared-conventions.md` 第 2.6 节。
 
-很轻：没有 design doc / checklist / 验收清单 / 动手前的用户确认。看完指引，该读代码读、该写代码写、写完回写一段话。
+很轻：没有 design doc / checklist / 验收清单 / 动手前的用户确认。看完指引，该读代码读、该写代码写、写完交付说明。
 
 ---
 
 ## 动手前先扫一眼 .codestable/
 
-只按当前疑问读取相关资料，已掌握的上下文不重复搜索：
+只按当前疑问读取相关资料，已掌握的上下文不重复搜索。默认只读 `attention.md`、`requirements/`、`architecture/`、`compound/` 和相关的进行中工作目录，不读 `features/` 下已结束的旧目录（`shared/shared-conventions.md` 第 5 节）：
 
 - **`architecture/`** — ARCHITECTURE.md 总入口 + 子系统 doc。改跨模块的东西前看一眼避免违反边界
 - **`compound/`** — learning / trick / decision / explore 四类沉淀：
@@ -24,8 +24,7 @@
   python3 {SKILL_DIR}/tools/search-yaml.py --dir .codestable/compound --filter doc_type=trick --query "关键词"
   ```
 - **`requirements/`** — 有相关 req 时读边界
-- **`features/`** — 有同类 feature 时参考其 design
-- **`reference/`** — shared-conventions.md / tools.md
+- **进行中的工作目录** — 有没有别的在途工作和这次重叠
 
 ---
 
@@ -46,7 +45,7 @@ python3 {SKILL_DIR}/tools/codestable-doctor.py --root . --json
 
 复用当前会话已有授权；审查按 shared-conventions 第 2.6 节执行，不为低风险工作新增委派审批。
 
-fastforward 通常动手后才生成 `{slug}-ff-note.md`，所以不提前造空 unit。写完 ff-note 和 review 证据后，对最终 unit 跑 commit gate：
+fastforward 不提前造空 unit。默认没有 unit，也就没有 unit 门禁。写了 ff-note 的正式 unit，在 review 证据写完后对它跑 commit gate：
 
 ```bash
 python3 {SKILL_DIR}/tools/codestable-worktree-gate.py --root . --json commit --unit .codestable/features/YYYY-MM-DD-{slug}
@@ -103,9 +102,15 @@ design / implement 的硬约束在 fastforward 的精简版。没 design doc 不
 
 ---
 
-## 写完回写 `{slug}-ff-note.md`
+## 写完交付
 
-实现和相称验证后写简短记录，不等待重复效果确认。正式 unit 使用独立 subagent review，环境确无能力时按共享规则 fallback 并记录原因。本技能生成 ff-note，即进入正式 unit；普通无 unit 微改可直接处理，不进入本技能。风险要求的加审仍保留。需要 packet 时使用：
+实现和相称验证后直接交付，不等待重复效果确认。默认（没有工作目录）：最终汇报和提交信息写清做了什么、关键取舍和理由、验收证据（跑了什么、结果如何）、没验证的部分，加 `风险核对` 一句；提交信息是这次任务的长期记录。没命中要求「加审」或「确认」的行时用 inline review；命中则按下面「风险升级」一节转为正式 unit（工作目录 + subagent review）。若这次改变了能力边界、结构或常驻约束，按 `shared/shared-conventions.md` 第 3 节毕业到 `requirements/` / `architecture/` / `attention.md`。
+
+从 roadmap 条目起头走 ff 时没有 design，也没有 accept：由本会话自己维护 items.yaml——开工改 `in-progress` 并填 `feature`（标识，不是路径），完成时改 `done` 并写 `commit:`（合并提交或 PR），同步主文档子 feature 清单并用 `validate-yaml.py` 校验。协议见 `shared/shared-conventions.md` 第 2.5 节。
+
+## 需要工作目录时回写 `{slug}-ff-note.md`
+
+只在工作目录的四个条件之一成立时写简短记录。写了 ff-note 即进入正式 unit：使用独立 subagent review，环境确无能力时按共享规则 fallback 并记录原因，收尾时同 `cs-feat accept`：毕业、结案提交，之后在单独的提交里删除目录。需要 packet 时使用：
 
 ```bash
 python3 {SKILL_DIR}/tools/build-review-packet.py --root . --unit .codestable/features/YYYY-MM-DD-{slug} --stage quality --output /tmp/codestable-review.md --validation "{验证命令} -> {结果}"
@@ -119,7 +124,7 @@ python3 {SKILL_DIR}/tools/build-review-packet.py --root . --unit .codestable/fea
 - 不抽业务名词缩写、不音译中文、保持小写连字符
 - 拿不准就保守一点："tweak-{对象}" / "small-{动作}" 也比强求精准好
 
-最终路径：`.codestable/features/YYYY-MM-DD-{slug}/{slug}-ff-note.md`，日期用今天。
+最终路径：`.codestable/features/YYYY-MM-DD-{slug}/{slug}-ff-note.md`，日期用今天。不另做进度登记。
 
 ### 模板
 
@@ -148,15 +153,16 @@ tags: [...]
 
 **写得真的轻**：每节就那么几行，不要把它写成迷你 design / 迷你 acceptance。这份文档的目标是"半年后有人看 git log 能跳进来 30 秒搞清楚做了啥"，不是替代标准流程。
 
-落盘后告诉用户："已写 `{slug}-ff-note.md`，本次 fastforward 闭环。"
+落盘后告诉用户："已写 `{slug}-ff-note.md`；验证通过后毕业并删除该目录，本次 fastforward 闭环。"
 
 ---
 
 ## 不做什么
 
 - **不写 design doc / checklist / acceptance**——这就是 fastforward 的意义。要写就去 `cs-feat design`
+- **默认不建工作目录，也不写 ff-note**——被别的 agent 派工、说明里写了「照 CodeStable 流程」也一样；结果以报告和提交交回
 - **不跟用户确认方案**——用户让你做小功能就是不想等你开会
-- 只保留简短 ff-note 和正式 unit 门禁需要的 review 证据，不生成无关文档。
+- 需要工作目录时只保留简短 ff-note 和正式 unit 门禁需要的 review 证据，不生成无关文档。
 
 ---
 
@@ -192,9 +198,9 @@ tags: [...]
 
 命中后**仍留在 fastforward**（不因此切回 design），但先读 `assurance.md`，按风险映射表**照搬命中那一行列出的全部保障**——那些格子是复合的，`+` 连接的每一项都要做，写着"确认"的还要 owner 拍板。**"只加对应保障"限定的是不启用别的行，不是把一行砍成一条。**
 
-注意 `assurance.md` 里的"加审"指**在本通道已有的独立 review 之外再加一轮**对应目的的审查，不是拿地板 review 顶替。
+**review 随命中的行走：**命中任何一行要求「加审」或「确认」的，工作目录的条件 (3)（要 owner 确认时同时是条件 (2)）成立：创建工作目录、按正式 unit 走，实现 review 必须是 subagent，「加审」要在它之外再多一轮对应目的的审查，不能拿实现 review 顶替；没命中这类行，inline review 就够。
 
-做完在 ff-note 的"怎么验证的"里写明「风险事实 → 增加的保障」。
+做完在交付说明（有 ff-note 时在它的"怎么验证的"）里写明「风险事实 → 增加的保障」。
 
 **不命中就什么都不做**：不写产物、不额外提问、不改变 ff 的轻体感。但在收尾那句汇报里带一句 `风险核对：无命中`——六个字，让这次核对可被观察到，避免它变成一个可以静默跳过的步骤。
 
@@ -205,10 +211,11 @@ tags: [...]
 ## 退出条件
 
 - [ ] 代码写完，期望行为有相称证据
-- [ ] 批次完成后已用 subagent 做独立 code review（仅平台无 subagent 能力时可 fallback）；P0 / P1 已处理或明确无
-- [ ] 风险核对已做：命中则 ff-note 里有「风险事实 → 增加的保障」且该行保障全部落实，无命中则汇报里有 `风险核对：无命中`
-- [ ] `{slug}-ff-note.md` 已落盘且四节填齐（顺手发现可省）
-- [ ] 没有未对齐的"顺手发现"（都进 ff-note 末节，留给后续）
+- [ ] 按风险做了 review（正式 unit 必须是 subagent 独立 review，仅平台无 subagent 能力时可 fallback）；P0 / P1 已处理或明确无
+- [ ] 风险核对已做：命中则交付说明（有 ff-note 时写在 ff-note）里有「风险事实 → 增加的保障」且该行保障全部落实，无命中则汇报里有 `风险核对：无命中`
+- [ ] 交付说明已写进最终汇报和提交信息；只有建了工作目录时 `{slug}-ff-note.md` 才落盘且四节填齐（顺手发现可省）
+- [ ] 没有未对齐的"顺手发现"（写进汇报，有 ff-note 时进末节，留给后续）
+- [ ] 建了工作目录的：已按 `shared/shared-conventions.md` 第 3 节毕业、结案提交，并在单独的提交里删除目录
 
 ---
 
@@ -216,7 +223,7 @@ tags: [...]
 
 按 `shared/shared-conventions.md` 第 4 节"scoped-commit"规则执行。本通道：
 
-- **提交范围**：本次代码改动 + `{slug}-ff-note.md`
+- **提交范围**：本次代码改动 + 毕业写入的文档 + 工作目录的删除（有的话）
 - 沿用本会话提交/推送授权；没有相关授权时，结果就绪后再请求。
 
 仅提出有具体复用价值的沉淀建议，不固定逐项询问收尾清单。
@@ -229,6 +236,6 @@ tags: [...]
 - 把搜到的 learning / decision 当"参考"而不是"约束"——decision 拍过板，违反要么重新 decision 要么别做
 - 开始写 design doc——fastforward 就是不写 design
 - 发现任务变复杂还硬在 fastforward 推——切回成本远低于带着错误方案改到底
-- **动手前就建 ff-note 空壳**——破坏 fastforward 的轻体感，必须代码 + 验证完才回写
+- **动手前就建 ff-note 空壳**——破坏 fastforward 的轻体感；真需要工作目录也必须代码 + 验证完才回写
 - **把 ff-note 写成迷你 design / 迷你 acceptance**——四节加一起十几行就够，多了说明这事不该走 fastforward
-- **跳过 ff-note 直接 commit**——和 issue-ff 强制 fix-note 同样的理由：没记录后人追溯不了
+- **提交信息只有一句话**——提交信息是没有工作目录时的唯一长期记录，缺了取舍、证据和未验证部分后人追溯不了

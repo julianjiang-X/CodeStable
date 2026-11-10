@@ -150,7 +150,8 @@ items:
     description: 基础 RBAC 模型和数据表，提供角色/权限两张表和最小查询 API
     depends_on: []
     status: planned             # planned | in-progress | done | dropped
-    feature: null               # 启动 feature 后填 YYYY-MM-DD-{slug}，未启动写 null
+    feature: null               # 启动后填 YYYY-MM-DD-{slug}（不透明标识，目录不必存在），未启动写 null
+    commit: null                # done 时填合并提交或 PR；还不知道写 pending，删工作目录的提交里补上
     minimal_loop: true          # 只有一条标 true
     notes: null                 # 可选：备注 / 特殊约束 / drop 理由
 
@@ -159,6 +160,7 @@ items:
     depends_on: [permission-rbac-core]
     status: planned
     feature: null
+    commit: null
     minimal_loop: false
     notes: null
 ```
@@ -169,15 +171,16 @@ items:
 - `description`：一句话能独立讲清楚做什么
 - `depends_on`：前置 slug 列表，空数组表示无依赖；必须指向同 roadmap 里的其他条目
 - `status`：四态机
-- `feature`：启动后填目录名，用于 acceptance 反查
+- `feature`：启动后填 `YYYY-MM-DD-{slug}`，是不透明标识，不是路径——对应工作目录收尾后会被删，不必存在
+- `commit`：条目 `done` 时写合并提交或 PR（编号或链接）；还不知道写 `pending`，在删除工作目录的提交里补上
 - `minimal_loop`：全表只有一条为 `true`
 - `notes`：drop 的条目必须写理由
 
 ### 状态机
 
 ```
-planned  → in-progress  （feature-design 启动时由 design 改）
-in-progress → done      （feature-acceptance 完成时由 acceptance 改）
+planned  → in-progress  （feature-design 启动时由 design 改；ff 通道由执行会话自己改）
+in-progress → done      （feature-acceptance 完成时由 acceptance 改，并写 commit；ff 通道由执行会话自己改）
 planned  → dropped      （用户决定不做，roadmap update 改）
 done / dropped 终态
 ```

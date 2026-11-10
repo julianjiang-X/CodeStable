@@ -14,7 +14,7 @@
 
 动手前对要碰的路径和调用方做一次**静默核对**。八类风险与 `shared/assurance.md` 风险映射表逐行对应：目标 / 根因不确定或存在真实取舍 · 破坏兼容或多消费者公开契约 · 权限 / 安全 / 隐私 / 凭证 / token / 信任边界 · 持久化数据 / schema / 迁移 · 并发 / 顺序 / 一致性 · 不可恢复的代码外副作用 · 性能敏感路径 · 影响面广或失败可跨模块传播（公共 helper、共享配置、feature flag）。
 
-命中后先读 `assurance.md`，**照搬命中那一行列出的全部保障**——格子是复合的，`+` 连接的每项都要做，标着确认的还要 owner 拍板；所谓只加对应保障，限定的是不启用别的行，不是把一行砍成一条。其中加审指在本通道已有的独立 review 之外**再加一轮**对应目的的审查，不是拿地板 review 顶替。在 refactor 里，增加的保障通常体现为把自证从跑一遍测试提升到该风险要求的具体证据。
+命中后先读 `assurance.md`，**照搬命中那一行列出的全部保障**——格子是复合的，`+` 连接的每项都要做，标着确认的还要 owner 拍板；所谓只加对应保障，限定的是不启用别的行，不是把一行砍成一条。**review 随命中的行走：**命中任何一行要求「加审」或「确认」的，工作目录的条件 (3)（要 owner 确认时同时是条件 (2)）成立：创建工作目录、按正式 unit 走，实现 review 必须是 subagent，「加审」要在它之外再多一轮对应目的的审查，不能拿实现 review 顶替；没命中这类行，inline review 就够。在 refactor 里，增加的保障通常体现为把自证从跑一遍测试提升到该风险要求的具体证据。
 
 只命中风险、规模仍合格时**不切回**完整流程——加保障后继续在 ff 里做完。
 
@@ -35,7 +35,7 @@
 
 ## 文件与门禁
 
-默认不建 scan / design / checklist。用户要求留记录时写 `.codestable/refactors/YYYY-MM-DD-{slug}/{slug}-refactor-note.md`，正式 review 证据放同 unit 的 `{slug}-implementation-review.md`。存在正式 unit 时：
+默认不建工作目录，也不建 scan / design / checklist：证据是 diff、测试输出和交付说明（最终汇报加提交信息，写清做了什么、取舍、等价性证据、没验证的部分）；被别的 agent 派工时同样适用。只在 `cs-refactor` 路由文件里工作目录的四个条件之一成立时写 `.codestable/refactors/YYYY-MM-DD-{slug}/{slug}-refactor-note.md`，正式 review 证据放同 unit 的 `{slug}-implementation-review.md`；收尾同 `cs-refactor`：毕业、结案提交，之后在单独的提交里删除目录。存在正式 unit 时：
 
 按 shared-conventions 第 2.6 节使用执行 worktree，保留无关改动、共享计划面及既有 override 契约。改动前执行 start gate；完成证据写入后执行 commit gate：
 

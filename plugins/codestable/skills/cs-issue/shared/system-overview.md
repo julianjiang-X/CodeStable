@@ -21,7 +21,7 @@ CodeStable 把这几类场景各配一套子技能，产物放进统一的目录
 - `cs-refactor` — 代码优化(行为不变、结构/性能/可读性变),scan → design → apply
 - `cs-goal` — 限定起点和终点的目标达成,先做目标边界对齐并写起点报告，再自主迭代，完成前做功能验收
 
-上下文和产物随任务需要建立。自包含、低风险工作可直接完成并作适当验证；不为了套流程创建正式 unit。需恢复、跨阶段协调或复杂风险控制时使用正式 spec / state。只有未决产品契约、实质范围或授权边界才需要 owner checkpoint，已有授权不重复请求。
+上下文和产物随任务需要建立。工作目录是进行中的工作状态，不是档案：只在跨会话或交接、有待批准的契约、风险要求正式独立审查或 owner 要求留痕时创建，收尾时毕业后删除（`shared-conventions.md` 第 3 节）。其余工作直接完成并作适当验证，证据是 diff、测试输出和交付说明。项目进度不存页面，被问时按 `shared-conventions.md` 第 8 节现看。只有未决产品契约、实质范围或授权边界才需要 owner checkpoint，已有授权不重复请求。
 
 正式 feature / issue / refactor 的执行隔离、implementation review 和 finish gate 见 `execution-conventions.md`；这些仍是现有机器状态契约。轻量工作不自动启用完整 gate，也不声称未满足 gate 的正式 unit 已关闭。合并与发布遵守用户授权。
 
@@ -103,7 +103,7 @@ learning / trick / decision / explore 都是存档文档类型,区别在记录�
 
 ## 进一步参考
 
-- `shared/shared-conventions.md` — 目录结构、YAML frontmatter 口径、`{slug}-checklist.yaml` 生命周期、收尾 commit 约定、归档类共享规则
+- `shared/shared-conventions.md` — 目录结构、YAML frontmatter 口径、`{slug}-checklist.yaml` 生命周期、收尾与工作目录、收尾 commit 约定、检索范围、回答进度的规则、沉淀类共享规则
 - `shared/execution-conventions.md` — worktree、review、finish、commit 和 handoff 执行约定
 - `shared/approval-conventions.md` — owner 审批报告和 `approval-report.md` 约定
 - `shared/goal-conventions.md` — goal 状态模型、报告和 owner-stop 约定

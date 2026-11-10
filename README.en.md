@@ -64,14 +64,16 @@ CodeStable's bet is simple: in serious software work, chaos often comes not from
 
 ### 7 entities
 
+Besides the table below, progress is not stored in a page: when you ask, the agent looks (work directories in progress, dirty or ahead branches, undecided approval reports, unmerged worktrees, recent default-branch commits; `codestable-status.py` gathers it in one call). The goal, feature and issue directories are **work directories**: working state while a task runs, not archives. Create one only when the task spans sessions or is handed off, has a contract the owner must approve, needs a formal independent review, or the owner wants a record. At closure, graduate what is still needed to its proper home, write the what-and-evidence into the closing commit message, then delete the directory.
+
 | Entity | Directory | Responsibility |
 |---|---|---|
 | Requirement | `.codestable/requirements/` | Capability intent: what users need, what the system provides, where boundaries are |
 | Architecture | `.codestable/architecture/` | Current system map only; no future plans |
 | Roadmap | `.codestable/roadmap/` | High-level plan, interface contracts, and executable feature list for large needs |
-| Goal | `.codestable/goals/` | Bounded start/end work with start reports, autonomous iterations, and functional acceptance |
-| Feature | `.codestable/features/` | Design to implementation to acceptance loop |
-| Issue | `.codestable/issues/` | Report to root-cause analysis to fix-note loop |
+| Goal | `.codestable/goals/` (work directory) | Bounded start/end work with start reports, autonomous iterations, and functional acceptance; graduated and deleted when done |
+| Feature | `.codestable/features/` (work directory) | Design to implementation to acceptance loop; graduated and deleted after acceptance |
+| Issue | `.codestable/issues/` (work directory) | Report to root-cause analysis to fix-note loop; graduated and deleted after the fix |
 | Knowledge | `.codestable/compound/` | Unified sink for learning / trick / decision / explore records |
 
 ### 4 main flows
@@ -103,11 +105,11 @@ CodeStable's bet is simple: in serious software work, chaos often comes not from
 <tr><td><code>cs-feat design</code></td><td>Draft <code>{slug}-design.md</code> and <code>{slug}-checklist.yaml</code></td></tr>
 <tr><td><code>cs-feat impl</code></td><td>Implement by checklist; return to design when reality falls outside the plan</td></tr>
 <tr><td><code>cs-feat accept</code></td><td>Verify implementation and sync architecture / requirement deltas / roadmap status</td></tr>
-<tr><td><code>cs-feat ff</code></td><td>Fast lane for small needs: no full design, but still leaves a traceable note</td></tr>
+<tr><td><code>cs-feat ff</code></td><td>Fast lane for small needs: no design, no work directory by default; the delivery note goes in the final report and commit message</td></tr>
 <tr><td rowspan="4"><b>Issue flow</b></td><td><code>cs-issue</code></td><td>Bug-fixing sub-flow entry</td></tr>
 <tr><td><code>cs-issue report</code></td><td>Record symptoms, reproduction, and impact without guessing root cause</td></tr>
 <tr><td><code>cs-issue analyze</code></td><td>Read code, identify root cause, and offer 2-3 owner-reviewed fix options</td></tr>
-<tr><td><code>cs-issue fix</code></td><td>Apply the approved fix, verify it, and write the fix-note</td></tr>
+<tr><td><code>cs-issue fix</code></td><td>Apply the approved fix and verify it; the delivery note goes in the final report and commit message (fix-note only when a work directory exists)</td></tr>
 <tr><td rowspan="2"><b>Refactor flow</b></td><td><code>cs-refactor</code></td><td>Full structure / performance / readability optimization flow</td></tr>
 <tr><td><code>cs-refactor ff</code></td><td>Fast lane for small, behavior-preserving improvements</td></tr>
 <tr><td rowspan="2"><b>Audit & exploration</b></td><td><code>cs-audit</code></td><td>Scan for bug risks, security issues, performance problems, maintainability debt, and architecture drift</td></tr>
@@ -134,10 +136,10 @@ your-project/
 │   ├── requirements/                # Capability intent, including VISION.md
 │   ├── architecture/                # Current system map
 │   ├── roadmap/                     # Large-need plans and sub-feature lists
-│   ├── goals/                       # Bounded goal state, start reports, iteration reports, functional acceptance
-│   ├── features/                    # Feature design / checklist / review / acceptance
-│   ├── issues/                      # Report / analysis / review / fix-note
-│   ├── refactors/                   # Scan / design / checklist / review / apply-notes
+│   ├── goals/                       # In-progress goal work directories (deleted at closure)
+│   ├── features/                    # In-progress feature work directories: design / checklist / review / acceptance
+│   ├── issues/                      # In-progress issue work directories: report / analysis / review / fix-note
+│   ├── refactors/                   # In-progress refactor work directories: scan / design / checklist / review / apply-notes
 │   ├── compound/                    # Learning / trick / decision / explore
 │   └── brainstorms/                 # Temporary spike area for brainstorm
 └── docs/                            # Default output for cs-guide
@@ -148,9 +150,9 @@ Hard constraints:
 - Shared conventions and tool scripts ship inside each skill (`shared/` and `tools/` in the skill directory). Projects hold no copy that needs refreshing. See [UPGRADE.md](./UPGRADE.md) when upgrading from 2.x.
 
 - Sub-skills only use `.codestable/attention.md` as the project attention entry. `AGENTS.md` / `CLAUDE.md` are not CodeStable state sources.
-- Human-facing report prose follows the project policy in `.codestable/attention.md`; sub-skills do not hard-code a specific language or bilingual copies.
+- Files only agents read (work-directory files, `compound/`) are written in one language, never as bilingual copies; `.codestable/attention.md` picks the language. Content for the owner (approval reports, final summaries, conversation) uses the owner's language. A second language is provided only for a document whose human reader `attention.md` names.
 - Skills do not read each other's files. The source of shared conventions is `cs-onboard/reference/`; `codestable-maintainer/tools/sync-shared.py` copies them into the `shared/` directory of each skill that uses them, and a test keeps copies equal to the source.
-- `requirements/` and `architecture/` are long-lived archives; `roadmap/` is the planning layer; `goals/` stores autonomous goal state and terminal functional acceptance; `features/`, `issues/`, and `refactors/` are event records; `compound/` is the single knowledge sink.
+- `requirements/` and `architecture/` are long-lived archives; `roadmap/` is the planning layer; `goals/`, `features/`, `issues/` and `refactors/` hold in-progress work directories (working state, not archives) that are graduated and deleted at closure, with the long-term record in the git commit message; `compound/` is the single knowledge sink. Searches by default skip ended directories left from before 3.0.0.
 - Old `codestable/` / `easysdd/` directories are historical compatibility entry points. Current sub-skills read `.codestable/`.
 
 ---

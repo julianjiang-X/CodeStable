@@ -45,7 +45,7 @@ owner。case 2 用 feature 目录；case 4 和无既有 unit 的路由选择用
 
 首次需要分诊时检查，复用已有上下文：
 
-1. **扫一眼仓库**——先读 `.codestable/attention.md`；如果用户提到 `interview me` / `grill me` / "采访我" / "拷问我"，读 `shared/interaction-modes.md`（如果有）；Glob `.codestable/` 发现 architecture / features / roadmap / brainstorms / compound / requirements，读架构总入口、看已有 feature 和 roadmap 和 brainstorm、搜 compound 看有没有相关坑（`--filter doc_type=learning`）；Grep 用户描述里的关键词防术语冲突。缺 attention.md 视为骨架不完整，不回退读外部 AI 入口
+1. **扫一眼仓库**——先读 `.codestable/attention.md`；如果用户提到 `interview me` / `grill me` / "采访我" / "拷问我"，读 `shared/interaction-modes.md`（如果有）；Glob `.codestable/` 发现 architecture / features / roadmap / brainstorms / compound / requirements，读架构总入口、看进行中的 feature 和 roadmap 和未消费的 brainstorm（已结束的旧 feature 目录不默认检索）、搜 compound 看有没有相关坑（`--filter doc_type=learning`）；Grep 用户描述里的关键词防术语冲突。缺 attention.md 视为骨架不完整，不回退读外部 AI 入口
 2. **是不是接续之前的工作**：
    - `features/` 下有名字相近的 brainstorm？`roadmap/` 下有相近子目录？`brainstorms/` 下有相关创意记录？
    - 没有 → 当新讨论
@@ -244,6 +244,8 @@ case 1 / case 3 也能借这个动作（不强求落 brainstorm note），逻辑
 - 不需要"考虑过的方向"那种结构化对比——那是 design 前的事，这里只是创意记录
 
 **和 roadmap 的衔接**：`cs-roadmap` 启动时会搜 `.codestable/brainstorms/` 看有没有相关 brainstorm。如果有，roadmap 把 brainstorm 当输入材料读，不重复分诊直接拆。
+
+**生命周期**：brainstorms 下的记录是工作状态，被 design 或 roadmap 消费后（结论已进入 design / roadmap 主文档）删除，未消费的保留。消费它的阶段在自己的毕业清单里写明这一条。
 
 **退出**：落盘后，如果下一步要 owner 确认进入 roadmap，同目录写 `approval-report.md` 后再停；否则告诉用户"想法存到 `{路径}` 了，准备好了就触发 `cs-roadmap`，它会读到这份脑暴记录"。如果 grill 过程中愿景（用户故事 / 痛点 / 边界）已经比较清楚了，提示用户可以先 `cs-keep req draft` 把愿景落成 requirement，后续 roadmap 拆解和 design 都有稳定对齐基准
 

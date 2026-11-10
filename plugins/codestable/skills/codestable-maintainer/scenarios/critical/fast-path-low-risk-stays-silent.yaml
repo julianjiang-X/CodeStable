@@ -12,13 +12,7 @@
         "action": "risk_check"
       },
       {
-        "say": "Route: cs-feat ff\nRisk check: no category hit - copy-only label change, no trust boundary, no persisted data, no concurrency, no external side effect.\nProceeding with the normal fastforward loop; no extra assurance and no extra question."
-      },
-      {
-        "write": {
-          "path": ".codestable/features/2026-06-10-relabel-button/relabel-button-ff-note.md",
-          "content": "---\ndoc_type: feature-ff-note\nfeature: relabel-button\ndate: 2026-06-10\n---\n\n## 做了什么\n改一处按钮文案。\n\n## 改了哪些\n- ui/toolbar.tsx:88 — 文案调整\n\n## 怎么验证的\n本地跑通 UI，截图确认。\n"
-        }
+        "say": "Route: cs-feat ff\nRisk check: no category hit - copy-only label change, no trust boundary, no persisted data, no concurrency, no external side effect.\nProceeding with the normal fastforward loop; no extra assurance and no extra question.\nSingle session, no contract to approve, no formal review needed: no work directory is created. The delivery note (what changed, evidence, what was not verified) goes in the final report and the commit message."
       }
     ]
   },
@@ -26,7 +20,8 @@
     "transcript": {
       "contains": [
         "no category hit",
-        "no extra assurance"
+        "no extra assurance",
+        "no work directory is created"
       ],
       "forbidden": [
         "风险事实",
@@ -46,10 +41,8 @@
       ]
     },
     "artifacts": {
-      "must_create": [
-        ".codestable/features/2026-06-10-relabel-button/relabel-button-ff-note.md"
-      ],
       "must_not_create": [
+        ".codestable/features/**/*-ff-note.md",
         ".codestable/features/**/*-design.md",
         ".codestable/features/**/*-checklist.yaml"
       ]

@@ -11,7 +11,7 @@ description: "选择并继续缺陷报告、根因分析或修复阶段，复用
 
 遵循项目入口和 `.codestable/attention.md` 中的约束；已加载且未变化的上下文直接复用。按当前任务读取相关记录和引用，缺少可选骨架不阻塞工作。
 
-issue 工作流保留可复现问题、根因、修复和验证证据。按复杂度选择标准或快速路径，避免为已明确的小问题重复建立上下文：
+issue 工作流在任务进行中保留可复现问题、根因、修复和验证证据。按复杂度选择标准或快速路径，避免为已明确的小问题重复建立上下文：
 
 ```
 发现问题 → 清晰记录（report）→ 根因分析（analyze）→ 定点修复 + 验证（fix）
@@ -21,21 +21,23 @@ issue 工作流保留可复现问题、根因、修复和验证证据。按复�
 
 ---
 
-## 文件放哪儿
+## 工作目录与文件
+
+工作目录（`.codestable/issues/YYYY-MM-DD-{slug}/`）是任务进行中的工作状态，不是档案。只在下列任一条件成立时创建：(1) 任务会跨会话，或要交接给别的 agent 或人；(2) 有需要 owner 决定或批准的契约；(3) 按 `shared/assurance.md` 的风险判断需要正式的独立审查；(4) owner 要求留痕。其余任务不建目录：证据是 diff、测试输出和交付说明。被别的 agent 派工时同样适用：结果以报告和提交交回派工方，不因为派工说明里写了「照 CodeStable 流程」就产出设计、清单、验收文件。
+
+没有目录时，问题现象、根因和修复方案在对话里说清，修复后的交付说明（根因、改动、验证证据、没验证的部分）写进最终汇报和提交信息。不另做进度登记（`shared/shared-conventions.md` 第 8 节现看）；修复验证完成后先毕业再删除目录，见 `cs-issue fix` 的收尾和 `shared/shared-conventions.md` 第 3 节。
 
 ```
 .codestable/issues/{YYYY-MM-DD}-{slug}/
 ├── {slug}-report.md           ← 阶段 1 问题报告
 ├── {slug}-analysis.md         ← 阶段 2 根因分析
 ├── grill/                     ← 可选，accepted grill-context，供 human review
-└── {slug}-fix-note.md         ← 阶段 3 修复记录（必出产物）
+└── {slug}-fix-note.md         ← 阶段 3 修复记录（仅在有工作目录时写）
 ```
 
 日期取**发现 / 提报问题当天**定了不动。slug 能一眼看出是什么问题（`auth-token-leak`、`null-pointer-on-empty-list`）。
 
-`{slug}-fix-note.md` 是阶段 3 **必出产物**——无论修复简单还是复杂都要写。它不是仪式，是回溯凭证：没有它下次类似问题来你只能从 git log 反推。
-
-所有 issue 文档带 YAML frontmatter（`doc_type` 分别为 `issue-report` / `issue-analysis` / `issue-fix`）便于 `search-yaml.py` 按 severity / tags / status 检索。
+所有 issue 文档带 YAML frontmatter（`doc_type` 分别为 `issue-report` / `issue-analysis` / `issue-fix`）便于 `search-yaml.py` 按 severity / tags / status 检索。开工检索默认不读 `issues/` 下已结束的旧目录（3.0.0 之前留下的），见 `shared/shared-conventions.md` 第 5 节。
 
 如果目录里有 `grill/*.md`，只把 `doc_type: grill-context` 且 `status: accepted`
 的文件当 human review context 读；它必须 `source_of_truth: false`，不能覆盖
@@ -51,7 +53,7 @@ report / analysis / fix-note 或代码证据。
 |---|---|---|---|
 | 1 问题报告 | `cs-issue report` | 用户描述，AI 引导 | `{slug}-report.md` |
 | 2 根因分析 | `cs-issue analyze` | AI 依据证据判断根因 | `{slug}-analysis.md` |
-| 3 修复验证 | `cs-issue fix` | AI 定点修复并验证 | 代码 + `{slug}-fix-note.md`；按授权提交 |
+| 3 修复验证 | `cs-issue fix` | AI 定点修复并验证 | 代码 + 交付说明（有工作目录时含 `{slug}-fix-note.md`）；按授权提交 |
 
 已授权修复可连续推进各阶段，不重复询问开工或完成确认。根因由证据判断；真正未决的产品契约或范围变化需要 owner 决定，用户仅要求分析时不修改实现。
 
@@ -63,7 +65,7 @@ report / analysis / fix-note 或代码证据。
 2. 修复范围明确且风险有限
 3. 无跨模块影响风险
 
-流程压缩成：读取相关证据 → 说明根因与修复方案 → 在授权范围内修复并验证 → 写 `{slug}-fix-note.md`。只有实质未决选择或用户指定的人工验收才停下询问。只产出一份 `fix-note.md`，省掉 report 和 analysis。
+流程压缩成：读取相关证据 → 说明根因与修复方案 → 在授权范围内修复并验证 → 交付说明（最终汇报加提交信息；有工作目录时再写 `{slug}-fix-note.md`）。只有实质未决选择或用户指定的人工验收才停下询问。省掉 report 和 analysis。
 
 **判定口径**：由 `cs-issue report` 的启动检查选择路径，已有明确判断则复用。新证据改变风险时可调整路径并同步正式 unit 状态，不为每个阶段重新分诊。
 
@@ -77,7 +79,7 @@ report / analysis / fix-note 或代码证据。
 
 | 当前状态 | 进入 |
 |---|---|
-| 刚发现问题，没有任何文件 | `cs-issue report`（那里判断走标准还是快速） |
+| 刚发现问题，没有任何文件 | `cs-issue report`（那里判断走标准还是快速，以及要不要建工作目录） |
 | `report.md` 已存在，没 `analysis.md` | `cs-issue analyze` |
 | `analysis.md` 已存在，代码还没改 | `cs-issue fix` |
 | 代码已改，还没修复验证记录 | `cs-issue fix`（走验证） |
@@ -99,7 +101,7 @@ report / analysis / fix-note 或代码证据。
 ## 相关文档
 
 - `shared/system-overview.md` — CodeStable 体系总览
-- `shared/shared-conventions.md` — 跨阶段共享口径
+- `shared/shared-conventions.md` — 跨阶段共享口径、阶段收尾与回答进度
 - `shared/assurance.md` — 这次要做多重：风险驱动的保障强度选择
 - `.codestable/attention.md` — CodeStable 启动注意事项和项目硬约束
 - `.codestable/architecture/ARCHITECTURE.md` — 根因分析时可能要查

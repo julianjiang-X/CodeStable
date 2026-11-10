@@ -8,7 +8,7 @@
 
 仅请求分析时保持只读；已有修复授权且没有未决契约选择时，记录依据并继续修复。有实际替代方案才比较，不为凑数制造方案。
 
-> 共享路径与命名约定看 `shared/shared-conventions.md` 第 0 节和 `cs-issue` 的"文件放哪儿"。
+> 共享路径与命名约定看 `shared/shared-conventions.md` 第 0 节和 `cs-issue` 的"工作目录与文件"。
 
 ---
 

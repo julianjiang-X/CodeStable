@@ -6,7 +6,7 @@
 
 这一阶段的产出是一份方案文件 `{slug}-design.md`，加上从中抽出的行动清单 `{slug}-checklist.yaml`。这两份东西后面会被两个阶段消费——implement 照着推进、acceptance 照着核对，所以这里写错或写漏，下游就跟着错。
 
-> 共享路径和命名约定看 `shared/shared-conventions.md`。本阶段一般 feature 目录已经由 brainstorm 创建好了；没有的话在这一步建。
+> 共享路径和命名约定看 `shared/shared-conventions.md`。本阶段一般 feature 目录已经由 brainstorm 创建好了；没有的话在这一步建。写 design 文件意味着工作目录的条件已成立（有待 owner 批准的契约、会跨会话、风险要求正式独立审查或 owner 要求留痕，见 `cs-feat` 路由文件）；条件都不成立的小功能走 `cs-feat ff`，不写 design。
 
 本阶段有三个入口：
 
@@ -97,7 +97,7 @@ design 只管"编排-计算分离"里的编排那一侧：**这次 feature 在�
 读者打开 `{slug}-design.md` 是想 5 分钟内抓到要点，不是逐字精读。具体做法：
 
 1. **每节超过 1 屏就砍或拆**——一屏装不下读者会失去定位
-2. **术语先锁死**——动笔前 grep 代码 / 架构 / 历史 feature 防冲突，事后理顺成本远高于预防
+2. **术语先锁死**——动笔前 grep 代码 / 架构 / 进行中的 feature 防冲突，事后理顺成本远高于预防
 3. **示例优先于定义**——接口行为先给"输入→输出"示例，复杂时再补正式类型
 4. **同一条信息只在最自然的位置出现一次**——重复表述比缺一条还烦
 5. **新逻辑默认放新文件**（写在改动计划里）——文件越大越难分清职责
@@ -145,13 +145,13 @@ design 只管"编排-计算分离"里的编排那一侧：**这次 feature 在�
    - `architecture/` → 读 ARCHITECTURE.md + 索引 + 相关子系统 doc，关注名词复用和流程级约束
    - `requirements/` → 有对应 req：frontmatter `requirement` 填 slug，读"用户故事 / 边界"两节；新能力首次出现 → 触发 `cs-keep req draft` 起草愿景 req，frontmatter `requirement` 填新 slug；纯重构 / 技术债留空
    - `compound/` → 用 `search-yaml.py --dir .codestable/compound` 搜相关 decision / explore / trick / learning；命中冲突 decision 必须正面回应
-   - `features/` → 搜历史 design 有无同类 feature 可参考
+   - 进行中的 `features/` 目录（含 linked worktree 里的） → 有没有重叠的在途工作；已结束的旧 feature 目录不默认检索
    - 其余目录按内容类型自行判断
 3. **读需求相关的现有代码**——读哪些文件由需求线索决定
 
 **按信号触发 3 条**（没信号跳过）：
 
-- **术语 grep 防冲突**——新概念名没在代码 / 架构 / 历史 feature 里见过时，grep 一遍；冲突就换名或在第 0 节明确区分
+- **术语 grep 防冲突**——新概念名没在代码 / 架构 / 进行中的 feature 里见过时，grep 一遍；冲突就换名或在第 0 节明确区分
 - **复杂度档位对齐**——需求里出现"对外 SDK / 高并发 / 一次性工具"等偏离信号时，打开 `shared/code-dimensions.md` 列偏离点；无信号写"走默认档位"
 - **grep 找"叫法不同的类似模块"**——直觉"可能已有人做过但命名不同"时，grep 同义词
 

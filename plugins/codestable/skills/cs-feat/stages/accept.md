@@ -4,16 +4,17 @@
 
 读取本会话尚未读过的 `.codestable/attention.md`。只加载任务相关上下文，已读且未改变的资料不重复读取。共享路径、worktree、审查及提交约定见 `shared/shared-conventions.md` 第 0、2.6、4 节。
 
-代码已经写完，但流程没结束。本阶段做四件事，缺一不可：
+代码已经写完，但流程没结束。本阶段做五件事，缺一不可：
 
 1. **核对实现有没有偏离方案**——逐层对照 `{slug}-design.md`，发现偏差当场修，**不是在报告里"记一下"**就过去
 2. **把 feature 归并到整体架构**——对照方案第 4 节，实际去更新架构中心目录下的相关 doc；若代码、design、架构现状或 owner intent 冲突，先生成 analyze finding 并停等 owner 判断
 3. **能力落档到 requirement**——只允许应用已批准的 requirement delta、追加 clarification、或记录明确 skip / no-change；发现缺 delta 或长期 spec 冲突时停下，不直接重写 requirement
 4. **完成状态回写到 roadmap**——方案 frontmatter 有 `roadmap` / `roadmap_item` 字段时**必须**改 items.yaml 对应条目为 `done` 并同步主文档
+5. **毕业并删除工作目录**——以后还要用的内容写到它该在的地方，结案提交写清做了什么、取舍、证据，再删除这个目录（见下方"退出后"）
 
 漏掉任何一件的代价：架构 doc 过期下个 feature 读到错信息；req 和实际能力脱节；roadmap 规划层和实际进度脱节，下次推进会重复跑流程。反过来，没经过 delta / clarification / analyze 的长期 spec 直写也会制造漂移。
 
-**没产出报告 = 工作流未完成**。后人查"上次这个功能验收时确认了哪些行为"，没报告就只能翻 git diff 重新推断。
+**没产出报告 = 验收未完成**。报告是验收期间的核对记录；收尾时它的长期内容毕业到 requirements / architecture / 提交信息，目录随后删除，后人查"当时验收确认了哪些行为"看结案提交。
 
 > 共享路径与命名约定看 `shared/shared-conventions.md` 第 0 节。
 
@@ -73,12 +74,7 @@ governance：
 
 ## 验收报告模板
 
-报告正文必须遵守 `.codestable/attention.md` 的报告语言策略。若 attention
-要求 English first, then Chinese / 先英文后中文双语输出，`{slug}-acceptance.md`
-必须在同一个 canonical 文件中先写完整英文验收报告，再写完整中文验收报告。
-只在英文报告末尾补 `中文摘要` 不合格；生成完成后
-`codestable-doctor.py` / `codestable-backlog.py` 会把这种 summary-only 文档标为
-blocking `bilingual-report-policy` backlog。
+验收报告只给 agent 读，用 `attention.md` 指定的一种语言写，不写双语副本（`shared/shared-conventions.md` 报告语言策略）；写给 owner 的最终汇报用 owner 的语言。
 
 保留可追溯验收维度，无关项写不适用，重复证据可合并呈现。报告路径在 feature 目录下（位置看 `shared-conventions.md` 第 0 节）。
 
@@ -194,8 +190,8 @@ requirements 的机会。
 - [ ] 两字段都空（feature 未从 roadmap 起头）→ 跳过，写"非 roadmap 起头"
 - [ ] 两字段都有值：
   - 打开 `.codestable/roadmap/{roadmap}/{roadmap}-items.yaml`
-  - 找到 `slug: {roadmap_item}`，核对当前 `status: in-progress` + `feature: {目录名}`——不对停下来找原因
-  - 改 `status: done`，用 `validate-yaml.py` 校验
+  - 找到 `slug: {roadmap_item}`，核对当前 `status: in-progress` + `feature: {标识}`（标识等于目录名，但目录收尾后会被删，不要求仍存在）——不对停下来找原因
+  - 改 `status: done` 并写 `commit:`（合并提交或 PR；还不知道就写 `commit: pending`，在删除工作目录的那个提交里补上），用 `validate-yaml.py` 校验
   - 同步 `{roadmap}-roadmap.md` 主文档第 3 节子 feature 清单的对应条目状态
 - [ ] 两字段不一致（只填了一个）→ 停下来补齐或澄清
 
@@ -208,7 +204,7 @@ requirements 的机会。
 **判据**：下一个 feature 的 AI 还会再踩一次的事才记。一次性踩坑、和具体业务耦合的细节归 learning / decide。
 
 - [ ] 无候选：写"本 feature 未暴露需要补入 attention.md 的内容"
-- [ ] 有候选：列出来，**不擅自写入**——本节只登记，落不落由用户在"退出后"环节定
+- [ ] 有候选：列出来，**不擅自写入**——落不落由用户定；毕业清单里写明处理结果（已写入 / 用户未采纳），删除目录前必须有结论
   - 候选 1：{描述 + 建议放 attention.md}
 
 ## 9. 遗留
@@ -216,6 +212,10 @@ requirements 的机会。
 - 后续优化点（已开 issue 或加入 issue 列表）：{列表}
 - 已知限制：{列表}
 - 实现阶段"顺手发现"列表：{列表}
+
+## 10. 毕业清单
+
+逐项列出以后还要用的内容及去处：requirements / architecture / `cs-keep decide` / `cs-keep learn` / `attention.md` / 测试或检查器；没有去处的写「不需保留」。
 ```
 
 ---
@@ -230,7 +230,7 @@ requirements 的机会。
 
 ## 退出条件
 
-- [ ] 验收报告 9 节都填完
+- [ ] 验收报告 10 节都填完（含第 10 节毕业清单：每项有去处或「不需保留」）
 - [ ] 第 1/2 节核对全部勾选，无未处理偏差（含挂载点 grep + 拔除沙盘推演）
 - [ ] 第 3 节场景核对全部勾选，前端已浏览器验证
 - [ ] 第 4 节术语一致性无遗漏
@@ -238,18 +238,22 @@ requirements 的机会。
 - [ ] 第 6 节 requirement delta / clarification 回写有结论：跳过 / 未变 / 已机械应用 approved delta / 因缺 delta 或冲突而 owner-stop
 - [ ] 第 7 节 roadmap 回写有结论：跳过（非 roadmap 起头）/ 已更新（items.yaml + 主文档同步，yaml 通过校验）
 - [ ] checklist 所有 checks 都 `passed`
-- [ ] 如果 attention 要求 English first / Chinese second，则 `{slug}-acceptance.md` 是完整英文报告后接完整中文报告，不是中文摘要
 - [ ] 用户明确设置终审 checkpoint 或仍有待 owner 决定时请求终审
 
 ---
 
 ## 退出后
 
-告诉用户："验收报告已就绪，架构文档已归并，cs-feat 工作流走完。后续 BUG 走 issue 流程。"
+验收通过后按 `shared-conventions.md` 第 3 节收尾，顺序固定、不能省：
 
-仅在确有长期价值时建议 learning / decision / attention 沉淀，不固定逐项提问。已授权的必要文档更新继续完成，提交/推送沿用已有授权，验收不自动授权合并或发布。
+1. **毕业**：执行第 10 节清单，把能力或边界变化写进 `requirements/`、结构变化写进 `architecture/`、难回退的决定走 `cs-keep decide`、踩过的坑走 `cs-keep learn`、常驻约束走 `attention.md`。已授权的必要文档更新直接完成，其余只在确有长期价值时建议沉淀，不固定逐项提问。
+2. **结案提交**：功能代码 + 毕业写入的文档 + 工作目录里还剩的所有内容（review 证据在内）。提交信息写清做了什么、关键取舍和理由、验收证据（跑了什么、结果如何）、没有验证的部分。提交范围见第 4 节。
+3. **finish gate**：适用时此时工作树是干净的，跑它并提交它的产物。
+4. **删除工作目录**：单独一个提交，只含该单元的删除和非实现的 `.codestable/**` 改动，不带代码，不并入结案提交。工具会检查：HEAD 里必须已有 `reviewer: subagent` 的实现 review 证据。
 
-收尾提交规则看 `shared-conventions.md` 第 4 节。提交范围：功能代码 + 方案 doc + 验收报告 + 本次实际更新的架构 doc / req doc / roadmap items.yaml + 主文档。
+不删的情况：验收未通过或任务阻塞（目录是恢复记录）、有未决的 approval report、owner 要求保留、审计里还有未解决的 finding。被 owner 取消的功能同样先毕业（通常只有「取消及原因」写进结案提交信息）再删除。
+
+告诉用户："验收通过，已毕业并删除工作目录，cs-feat 工作流走完。后续 BUG 走 issue 流程。"提交/推送沿用已有授权，验收不自动授权合并或发布。
 
 ---
 
@@ -266,3 +270,4 @@ requirements 的机会。
 - frontmatter 有 `roadmap` 却在第 7 节写"跳过"——有值就必须回写
 - 仍有未验证契约或待 owner 决定却宣告完成
 - 用户没明确同意就 `git commit`
+- 验收通过后留着工作目录不删，或删除前没列毕业清单

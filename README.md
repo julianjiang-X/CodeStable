@@ -64,14 +64,16 @@ CodeStable 的判断是：严肃软件工程的混乱，很多时候不是 agent
 
 ### 7 个实体
 
+除下表外，进度不存页面：问进度时由 agent 现看（在做的工作目录、有改动的分支、未决审批、未合并 worktree、默认分支最近提交，`codestable-status.py` 一次取齐）。目标、特性、问题的目录是**工作目录**：任务进行中的工作状态，不是档案。只在跨会话或交接、有待 owner 批准的契约、风险要求正式独立审查、owner 要求留痕时创建；收尾时把以后还要用的内容毕业到该去的地方，结案提交写清做了什么和证据，然后删除目录。
+
 | 实体 | 目录 | 职责 |
 |---|---|---|
 | 需求 | `.codestable/requirements/` | 记录能力愿景：用户需要什么、系统提供什么、边界在哪 |
 | 架构 | `.codestable/architecture/` | 只记系统现状，不写未来计划 |
 | 路线图 | `.codestable/roadmap/` | 把大需求拆成概设、接口契约和可执行 feature 清单 |
-| 目标 | `.codestable/goals/` | 限定起点和终点，写起点报告，自主迭代，并做终点功能验收 |
-| 特性 | `.codestable/features/` | 从 design 到 implementation 到 acceptance 的闭环 |
-| 问题 | `.codestable/issues/` | 从 report 到 root-cause analysis 到 fix-note 的闭环 |
+| 目标 | `.codestable/goals/`（工作目录） | 限定起点和终点，写起点报告，自主迭代，并做终点功能验收；完成后毕业并删除 |
+| 特性 | `.codestable/features/`（工作目录） | 从 design 到 implementation 到 acceptance 的闭环；验收后毕业并删除 |
+| 问题 | `.codestable/issues/`（工作目录） | 从 report 到 root-cause analysis 到 fix-note 的闭环；修复后毕业并删除 |
 | 知识 | `.codestable/compound/` | learning / trick / decision / explore 的统一沉淀库 |
 
 ### 4 个主流程
@@ -103,11 +105,11 @@ CodeStable 的判断是：严肃软件工程的混乱，很多时候不是 agent
 <tr><td><code>cs-feat design</code></td><td>起草 <code>{slug}-design.md</code> 和 <code>{slug}-checklist.yaml</code></td></tr>
 <tr><td><code>cs-feat impl</code></td><td>按 checklist 推进实现，遇到方案外情况回方案谈</td></tr>
 <tr><td><code>cs-feat accept</code></td><td>验收实现，并同步 architecture / requirement delta / roadmap 状态</td></tr>
-<tr><td><code>cs-feat ff</code></td><td>小需求快速通道：不写完整 design，但保留可追溯 note</td></tr>
+<tr><td><code>cs-feat ff</code></td><td>小需求快速通道：不写 design，默认不建工作目录，交付说明写进汇报和提交信息</td></tr>
 <tr><td rowspan="4"><b>问题流程</b></td><td><code>cs-issue</code></td><td>bug 修复子流程入口</td></tr>
 <tr><td><code>cs-issue report</code></td><td>只记录现象、复现和影响，不猜根因</td></tr>
 <tr><td><code>cs-issue analyze</code></td><td>读代码定位根因，给 2-3 个修复方案让 owner 拍板</td></tr>
-<tr><td><code>cs-issue fix</code></td><td>按已确认方案定点修复、验证、写 fix-note</td></tr>
+<tr><td><code>cs-issue fix</code></td><td>按已确认方案定点修复、验证，交付说明写进汇报和提交信息（有工作目录时写 fix-note）</td></tr>
 <tr><td rowspan="2"><b>重构流程</b></td><td><code>cs-refactor</code></td><td>结构 / 性能 / 可读性优化的完整流程</td></tr>
 <tr><td><code>cs-refactor ff</code></td><td>小范围行为等价优化的快速通道</td></tr>
 <tr><td rowspan="2"><b>审计 & 探索</b></td><td><code>cs-audit</code></td><td>主动扫描 bug 隐患、安全风险、性能问题、维护债、架构偏离</td></tr>
@@ -134,10 +136,10 @@ your-project/
 │   ├── requirements/                # 能力愿景，含 VISION.md
 │   ├── architecture/                # 只记现状的系统地图
 │   ├── roadmap/                     # 大需求规划和子 feature 清单
-│   ├── goals/                       # bounded goal 状态、起点报告、iteration 报告、功能验收
-│   ├── features/                    # feature design / checklist / review / acceptance
-│   ├── issues/                      # report / analysis / review / fix-note
-│   ├── refactors/                   # scan / design / checklist / review / apply-notes
+│   ├── goals/                       # 进行中的 goal 工作目录（收尾后删除）
+│   ├── features/                    # 进行中的 feature 工作目录：design / checklist / review / acceptance
+│   ├── issues/                      # 进行中的 issue 工作目录：report / analysis / review / fix-note
+│   ├── refactors/                   # 进行中的 refactor 工作目录：scan / design / checklist / review / apply-notes
 │   ├── compound/                    # learning / trick / decision / explore
 │   └── brainstorms/                 # brainstorm spike 临时代码区
 └── docs/                            # cs-guide 默认写这里
@@ -147,9 +149,9 @@ your-project/
 
 - 共享口径和工具脚本随各技能分发（技能目录下的 `shared/` 与 `tools/`），项目里没有需要刷新的副本。从 2.x 升级见 [UPGRADE.md](./UPGRADE.md)。
 - 子技能只读 `.codestable/attention.md` 作为项目注意事项入口，不兼容 `AGENTS.md` / `CLAUDE.md` 作为 CodeStable 状态源。
-- 人读报告的正文语言由 `.codestable/attention.md` 的项目规则决定；子技能不硬编码特定语言或双语副本。
+- 只给 agent 读的文件（工作目录里的文件、`compound/`）用一种语言写，不写双语副本，用哪种由 `.codestable/attention.md` 指定；写给 owner 的内容（审批报告、最终汇报、对话）用 owner 的语言；只有 `attention.md` 点名了具体的人类读者，才为那份文档提供第二种语言。
 - 技能之间不互相读文件：共享口径的源在 `cs-onboard/reference/`，由 `codestable-maintainer/tools/sync-shared.py` 同步到用到它的技能的 `shared/` 下，测试保证副本与源一致。
-- `requirements/` 和 `architecture/` 是长效档案；`roadmap/` 是规划层；`goals/` 是自主迭代目标和终点功能验收记录；`features/`、`issues/`、`refactors/` 是事件执行记录；`compound/` 是唯一知识沉淀目录。
+- `requirements/` 和 `architecture/` 是长效档案；`roadmap/` 是规划层；`goals/`、`features/`、`issues/`、`refactors/` 下是进行中的工作目录，收尾时毕业后删除，长期记录在 git 提交信息里；`compound/` 是唯一知识沉淀目录。开工检索默认不读 3.0.0 之前留下的已结束旧目录。
 - 旧版 `codestable/` / `easysdd/` 目录属于历史兼容入口，当前子技能只认 `.codestable/`。
 
 ---

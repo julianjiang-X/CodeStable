@@ -36,5 +36,5 @@ description: "维护项目的长期知识：常驻提示、踩坑经验与复盘
 
 ## 相关文档
 
-- `shared/shared-conventions.md` — 目录结构、frontmatter 口径、归档检索规则
+- `shared/shared-conventions.md` — 目录结构、frontmatter 口径、检索范围
 - `shared/evidence-lifecycle.md` — 归档文档 `evidence` 三态与晋级规则

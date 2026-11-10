@@ -12,7 +12,30 @@ Follow project constraints and report language.
 Select a known stage directly. Use `cs` for an overview or unclear routing;
 do not start another routing conversation before already-authorized work.
 Small edits and focused questions need no lifecycle unit unless requested by the
-user or project. Explicitly requested skills still apply.
+user or project. Explicitly requested skills still apply. Work directories
+(`.codestable/features|issues|refactors|goals/YYYY-MM-DD-{slug}/`) are working
+state, not archives: create one only when the task spans sessions or is handed
+off, has a contract the owner must approve, needs a formal independent review,
+or the owner asks for a record. Otherwise the evidence is the diff, test output
+and the delivery note, including when another agent delegates the task with
+"follow the CodeStable process". When a task ends, graduate what is still needed
+to its proper home, record the outcome in the closing commit message, then
+delete the work directory.
+
+Progress is not stored in a page; derive it when asked. For questions about
+progress, what remains, the next step or what is blocked, and when resuming work,
+look at: work directories in this checkout and every linked worktree (a unit with
+a completion marker that this branch changed since forking from the default
+branch is closing and still counts; unchanged finished records from before 3.0.0
+do not), worktrees ahead of the
+default branch or dirty, undecided approval reports, finished-but-unmerged
+worktrees and open PRs, and the last ~10 commits on the default branch; the next
+step comes from the roadmap, else from the in-progress units, else say none is
+recorded. Answer in the conversation, in the owner's language, with a checkable
+pointer (path, branch, commit, PR) on every line and a note of what was not
+checked; check other people's work and remote state when authorization allows.
+Do not write the answer to a file. Ended directories left from before 3.0.0 are
+not searched by default.
 
 Load only relevant records and references. Missing optional tools do not require
 installing the framework. Explain missing stage inputs and continue independent

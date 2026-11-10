@@ -33,6 +33,8 @@ do not treat it as approved or integrated. Shared intent travels through:
 
 - `.codestable/goals/**`
 - `.codestable/features/**`, `.codestable/issues/**`, `.codestable/refactors/**`
+  (in-progress work directories only; they are deleted at closure, see
+  `shared-conventions.md` section 3)
 - `.codestable/roadmap/**`
 - `.codestable/compound/**`
 - owner-designated temporary coordination docs
@@ -210,7 +212,12 @@ python3 {SKILL_DIR}/tools/codestable-finish-worktree.py --root . --unit .codesta
 
 Finish gate writes learning, context-check, merge-readiness, and inbox records.
 If a branch changes after the finish report, state becomes `stale-report` and
-finish must rerun.
+finish must rerun. Closure order is fixed (`shared-conventions.md` section 3):
+the closing commit first, then this gate on the clean tree (commit its
+artifacts), and only then the work directory is deleted in its own commit. The
+inbox keeps the report valid across that deletion and any non-implementation
+`.codestable/**` edits; a source change makes it stale. A unit already deleted
+cannot be finished.
 
 Within existing commit authorization, commit finish artifacts when the gate passes:
 
@@ -244,8 +251,8 @@ python3 {SKILL_DIR}/tools/codestable-worktree-inbox.py --root . --snooze codex_s
 ## Owner Rules And Reports
 
 When the owner states a scope or authorization rule, record it in the same turn
-and say so in one line: in the unit's record when it covers that unit, in
-`.codestable/attention.md` when it holds across tasks. Write the actions it
+and say so in one line: in the work directory's record when one exists and the rule covers that task,
+in `.codestable/attention.md` when it holds across tasks. Write the actions it
 covers and the reason, or "owner instruction, reason not stated".
 
 Write reports for a reader who has not seen the work. Say "verified" only for

@@ -15,6 +15,8 @@ AI 对话随时可能中断（token 超限、网络断开、用户换设备）�
 - **issue-analyze**：如 `{slug}-analysis.md` 已存在，检查 5 节是否都有内容，缺失的补做，已有的不重写
 - **issue-fix**：如代码已改但 `{slug}-fix-note.md` 不存在，直接进入验证 + 写 fix-note 环节
 
+断点恢复靠进行中的工作目录；用 `shared-conventions.md` 第 8 节的方法找到它（本检出和各 linked worktree 里未完成的工作目录）。已收尾的任务没有工作目录，要追溯就看结案提交信息和 git 历史。
+
 恢复时先向用户简短汇报："检测到上次工作到 X 阶段，我从 Y 继续"。
 
 ---
@@ -39,7 +41,7 @@ AI 对话随时可能中断（token 超限、网络断开、用户换设备）�
 
 ### 跨工作流状态一览
 
-目前查看"项目当前有几个 feature 在进行中、几个 issue 未关闭"仍需要手动查询。未来如要补 `status.py` 或 `.codestable/STATUS.md`，先在 `shared-conventions.md` 登记方向，再实现。
+"项目当前有几个 feature 在进行中、几个 issue 未关闭"这类进度问题，按 `shared-conventions.md` 第 8 节现看，`codestable-status.py` 一次取齐；不存进度页。
 
 ---
 

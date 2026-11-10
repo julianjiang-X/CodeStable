@@ -36,8 +36,10 @@ Before acting:
 7. Before code edits, review, commit, finish, or merge work, read
    `shared/execution-conventions.md` if present.
 8. Inspect `.codestable/goals/` for an active matching goal.
-9. Search `.codestable/compound/` and relevant feature / issue / refactor docs
-   when the goal names an existing area.
+9. Search `.codestable/compound/`, `architecture/` and
+   `requirements/` when the goal names an existing area. Do not read ended
+   feature / issue / refactor / goal directories left from before 3.0.0 unless
+   the owner points to one or the goal continues it.
 
 If `.codestable/` is missing, route to `cs-onboard`.
 
@@ -81,42 +83,54 @@ priority is:
 Never infer the current machine state from narrative prose when `state.yaml` has
 a clear value.
 
-### Permanent Archive vs Execution Cursor
+### Decision Record vs Execution Cursor, And Closure
 
-The goal unit holds two kinds of files with different lifetimes. Keep the
-responsibilities disjoint — do not let progress notes leak into the archive, and
-do not let durable decisions live only in the cursor.
+The goal directory is working state, not an archive. It holds two kinds of files
+with different roles. Keep the responsibilities disjoint — do not let progress
+notes leak into the decision record, and do not let durable decisions live only
+in the cursor.
 
-| Role | Files | Lifetime |
+| Role | Files | While the goal runs |
 |---|---|---|
-| **Permanent archive** | `goal.md` (objective, scope, non-goals, owner-approved acceptance), `functional-acceptance.md`, `approval-report.md` | Kept after the goal ends |
-| **Execution cursor** | `state.yaml`, `iterations/` | Working state only; pruned at terminal state |
+| **Decision record** | `goal.md` (objective, scope, non-goals, owner-approved acceptance), `functional-acceptance.md`, `approval-report.md` | Stable; changes only on a boundary change |
+| **Execution cursor** | `state.yaml`, `iterations/` | Working state, updated every iteration |
 
 `goal.md` stays **frozen while `active`**. Day-to-day progress updates the cursor,
-never the archive. Changing the objective, scope, non-goals, or acceptance is a
+never the decision record. Changing the objective, scope, non-goals, or acceptance is a
 boundary change: re-confirm with the owner, then record the new revision in
 `goal.md` and reset the cursor's approved revision pointer.
 
-At `complete`, fold the durable outcome into `functional-acceptance.md` and the
-delivery index in `goal.md`, then prune `iterations/` down to the reports that
-carry evidence still referenced by the archive. State a **graduation list** in the
-final report first — which conclusion went into which project document, which
-lesson was recorded, or explicitly that there is nothing to graduate — and only
-then prune. Keep everything if the owner asks for full history.
+At a terminal state (`complete`, or cancelled by the owner) follow the closure rule
+in `shared/shared-conventions.md` section 3:
 
-At `blocked`, prune nothing: the cursor is the recovery record.
+1. **Graduate.** State a **graduation list** in the final report first: where each
+   durable conclusion went (`requirements/`, `architecture/`, `cs-keep decide`,
+   `cs-keep learn`, `attention.md`), or that it needs no home. Prefer
+   turning a constraint into a test or checker.
+2. **Closing commit.** Code, the graduated docs, and everything still in the goal
+   directory. The message states what was done, the key trade-offs and why, the
+   acceptance evidence (what ran, with what result, including the functional
+   acceptance verdict), and what was not verified.
+3. **Finish gate**, when it applies (the tree is clean now); commit its artifacts.
+4. **Delete the goal directory** in its own commit, which may hold only that
+   deletion and non-implementation `.codestable/**` changes. The commit gate
+   rejects deleting a goal directory whose `state.yaml` in HEAD is not terminal
+   (`complete`, or cancelled by the owner).
+
+Do not delete when the goal is unfinished or `blocked` (the directory is the
+recovery record: prune nothing), an `approval-report.md` is still open, the owner
+asks to keep it, or an audit finding is unresolved.
 
 ---
 
 ## Report Language
 
-Use the report language policy in `.codestable/attention.md` for all
-human-facing prose. If attention has no report language policy, use the owner's
-current conversation language.
-
-Default to canonical unsuffixed files: `goal.md`, `iterations/{nnn}.md`, and
-`functional-acceptance.md`. Add language-suffixed copies only when attention
-explicitly requires multiple language copies.
+Goal files (`goal.md`, `state.yaml`, `iterations/{nnn}.md`,
+`functional-acceptance.md`) are read by agents: write each in one language, the
+one `.codestable/attention.md` names, or the language of the project's existing
+records when it names none. Do not write bilingual copies. Content for the owner
+(the final report, `approval-report.md`, conversation) uses the owner's language.
+Add a second language to a document only when attention names its human reader.
 
 ---
 
@@ -247,13 +261,15 @@ refactors are AI-owned unless they cross one of the stops above.
 
 A goal run exits with one of:
 
-- `complete`: acceptance evidence and functional acceptance recorded.
+- `complete`: acceptance evidence and functional acceptance recorded; closure
+  (graduate, closing commit, delete the directory) done or reported as pending.
 - `blocked`: blocker evidence and owner question recorded.
 - `active`: iteration report written and next action recorded, but the current
   turn or budget ends before more work can be done.
 
-Final replies should be short and point to `goal.md`, `functional-acceptance.md`
-when present, and the latest iteration report.
+Final replies should be short. While the goal directory exists, point to
+`goal.md`, `functional-acceptance.md` when present, and the latest iteration
+report; after closure, point to the closing commit.
 
 ---
 
@@ -268,6 +284,6 @@ when present, and the latest iteration report.
 - Do not keep iterating after a strict owner-stop fires.
 - Do not edit `goal.md` for routine progress while the goal is `active`; progress
   belongs in the cursor, and boundary changes need owner re-confirmation.
-- Do not prune the cursor before stating the graduation list, and never prune it
-  at `blocked`.
+- Do not delete the goal directory before stating the graduation list, and never
+  prune or delete it at `blocked`.
 - Keep every Markdown artifact under 300 lines; split long reports.

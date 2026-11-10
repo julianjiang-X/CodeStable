@@ -136,7 +136,7 @@ JSON 关键字段：
 - `checkout`：当前分支、默认分支、是否 linked worktree
 - `dirty_buckets`：按 `code` / `tests` / `docs` / `migrations` / `data` / `logs` / `codestable` / `unknown` 分组的 dirty paths
 - `implementation_changes`：会触发 worktree 约束的实现文件
-- `backlog`：`needs-human-review`、`Follow-up`、accepted/deferred P2、`attention.md` candidates、`bilingual-report-policy` 等待处理项；canonical lifecycle 文件里 `status: canceled/cancelled/abandoned` 的 feature / issue / refactor 单元会被当作历史记录跳过
+- `backlog`：`needs-human-review`、`Follow-up`、accepted/deferred P2、`attention.md` candidates、`bilingual-report-policy` 等待处理项；canonical lifecycle 文件里 `status: canceled/cancelled/abandoned` 的 feature / issue / refactor 单元会被当作历史记录跳过。已收尾删除工作目录的单元不在 `active_units` 里，也不再产生缺审查或 baseline 阻塞
 - `post_baseline_blocks`：工作树干净但默认分支在 gate baseline 之后出现实现变更的阻塞项
 - `findings`：按严重度列出的阻塞或待处理问题
 - `next_action`：下一步建议
@@ -177,6 +177,8 @@ python3 {SKILL_DIR}/tools/codestable-worktree-gate.py --root . --json commit --u
 ```
 
 如果 staged 文件横跨 code / docs / data / logs / migrations 等多个 bucket，命令会给出 P2 warning；它不会替你 stage、unstage 或 commit。
+
+删除工作目录的提交（收尾的第 4 步，单独一个提交）：`--unit` 仍可写那个目录路径，工具识别出该单元已收尾（目录不在工作树里但 git 知道它），输出 `unit_removed: true`。是否需要 review 按 **HEAD 里**的单元内容判断：需要 review 的单元，HEAD 里必须已有 `reviewer: subagent` 的实现 review 证据（取消的单元除外），否则 P1；同一变更里带实现代码改动也是 P1（删除要单独提交）；`state.yaml` 不是 `complete` 或取消的 goal 目录不能删。`validate-implementation-review.py` 和 doctor 对工作树里待提交的删除做同样检查。分支和 baseline 检查照常。`start` 与 finish 对已收尾的单元直接报错，提示它已被删除。
 
 ### quarantine
 

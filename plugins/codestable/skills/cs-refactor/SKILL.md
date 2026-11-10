@@ -11,9 +11,11 @@ description: "在保持行为的前提下优化代码结构，按风险验证并
 
 保持外部可观察行为并改善具体结构或性能问题。范围明确的小重构走 `cs-refactor ff`（读取 `{SKILL_DIR}/stages/ff.md` 并照做）；较大任务用 scan / design / apply 保持可追溯。文件数、行数和浏览器验证需求不单独决定流程。
 
-## 文件与授权
+## 工作目录与授权
 
-正式 unit 位于 `.codestable/refactors/YYYY-MM-DD-{slug}/`：
+工作目录（`.codestable/refactors/YYYY-MM-DD-{slug}/`）是任务进行中的工作状态，不是档案。只在下列任一条件成立时创建：(1) 任务会跨会话，或要交接给别的 agent 或人；(2) 有需要 owner 决定或批准的契约；(3) 按 `shared/assurance.md` 的风险判断需要正式的独立审查；(4) owner 要求留痕。其余任务不建目录：证据是 diff、测试输出和交付说明。被别的 agent 派工时同样适用：结果以报告和提交交回派工方，不因为派工说明里写了「照 CodeStable 流程」就产出设计、清单、验收文件。
+
+不另做进度登记（`shared/shared-conventions.md` 第 8 节现看）。开工检索默认不读 `refactors/` 下已结束的旧目录（3.0.0 之前留下的），见 `shared/shared-conventions.md` 第 5 节。目录内的文件：
 
 - `{slug}-scan.md`：问题与候选范围。
 - `{slug}-refactor-design.md`：批准范围与等价验证方案。
@@ -125,8 +127,10 @@ python3 {SKILL_DIR}/tools/build-review-packet.py --root . --unit .codestable/ref
 
 风险要求的 spec / verification 审查及 fresh command output 仍保留。不要等到 gate 才检查证据是否齐备。
 
-## 完成
+## 完成与收尾
 
 checklist 与证据一致，scan / design / apply-notes / review 反映实际结果且 P0/P1 无阻塞后报告完成。未取得必要人类验证时明确未完成，不伪造通过。继续已有提交/推送授权，完成重构不自动授权合并或发布。
+
+重构完成（或被 owner 取消）后按 `shared/shared-conventions.md` 第 3 节收尾：(1) 毕业：结构变化写进 `architecture/`，难回退的决定走 `cs-keep decide`，踩过的坑走 `cs-keep learn`，常驻约束走 `attention.md`；等价性证据能写成测试的优先写成测试；先列毕业清单，每项有去处或「不需保留」。(2) 结案提交：代码 + 毕业写入的文档 + 目录里还剩的内容（review 证据在内），提交信息写清做了什么、关键取舍和理由、等价性证据（跑了什么、结果如何）、没验证的部分。(3) finish gate：适用时此时工作树是干净的，跑它并提交产物。(4) 删除工作目录，单独一个提交，只含该单元的删除和非实现的 `.codestable/**` 改动，不带代码；HEAD 里必须已有 subagent review 证据，否则 commit gate 拒绝。阻塞或未完成、有未决 approval report、owner 要求保留时不删。
 
 新能力与 bug 修复不混入重构；跨模块边界重划若缺少批准，先说明提案和影响，不把提案写入现状 architecture。只提出有具体价值的后续 learning / decision 建议。

@@ -31,11 +31,11 @@ description: "接入或升级项目的 CodeStable 目录与项目记忆，保留
 ├── architecture/
 │   └── ARCHITECTURE.md         架构总入口（首次创建为占位模板）
 ├── roadmap/                    规划层聚合根
-├── goals/                      自主迭代目标聚合根
-├── features/                   feature 聚合根
-├── issues/                     issue 聚合根
-├── refactors/                  refactor 聚合根
-├── brainstorms/                brainstorming 聚合根
+├── goals/                      自主迭代目标的工作目录父目录（只放进行中的）
+├── features/                   feature 工作目录的父目录（只放进行中的）
+├── issues/                     issue 工作目录的父目录（只放进行中的）
+├── refactors/                  refactor 工作目录的父目录（只放进行中的）
+├── brainstorms/                brainstorming 记录（被 design 或 roadmap 消费后删除）
 └── compound/                   沉淀类统一目录（learning / trick / decision / explore）
 ```
 
@@ -101,10 +101,12 @@ attention.md 已创建但默认只有空骨架。汇报时提醒用户：有编�
 | 现有文件 | 推测内容类型 | 建议归入 CodeStable | 置信度 |
 |---|---|---|---|
 | `docs/DESIGN.md` | 项目架构 | `.codestable/architecture/ARCHITECTURE.md` | 高 |
-| `docs/feature-auth.md` | 功能设计稿 | `.codestable/features/YYYY-MM-DD-auth/auth-design.md` | 中 |
+| `docs/feature-auth.md` | 已落地功能的设计稿 | 能力描述归入 `.codestable/requirements/auth.md`，结构部分归入 `architecture/`；其余保留原位 | 中 |
 | `SPEC.md` | 功能需求？ | 需用户确认 | 低 |
 
 **置信度**：高 = 语义明确匹配；中 = 可推断有歧义；低 = 不明确或映射多个位置都合理。
+
+`features/`、`issues/`、`refactors/`、`goals/` 只放进行中的工作目录。已经结束的功能设计稿、问题记录不必迁进去（迁进去就成了默认检索范围之外的旧目录）：有长期价值的内容归入 `requirements/` / `architecture/` / `compound/`，其余保留原位。
 
 **步骤 2：逐条对齐**
 
@@ -172,7 +174,7 @@ attention.md 已创建但默认只有空骨架。汇报时提醒用户：有编�
 ## 相关文档
 
 - `reference/system-overview.md` — CodeStable 体系总览
-- `reference/shared-conventions.md` — 目录结构和共享口径的权威版本
+- `reference/shared-conventions.md` — 目录结构、共享口径、工作目录与收尾、回答进度（第 8 节）的权威版本
 - `reference/execution-conventions.md` — worktree / review / finish / commit 执行约定
 - `reference/approval-conventions.md` — owner 审批报告和 `approval-report.md` 约定
 - `reference/goal-conventions.md` — goal 状态模型、报告和 owner-stop 约定

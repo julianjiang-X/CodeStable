@@ -29,6 +29,8 @@ description: "只读审查指定范围的缺陷与维护风险，提供证据和
 
 日期取审计当天。slug 短到一眼看出审计目标（`auth-module`、`order-flow`、`payment-security`）。
 
+审计目录和其他工作目录一样是工作状态，不是档案：finding 全部解决或被 owner 接受后，按 `shared/shared-conventions.md` 第 3 节收尾——把以后还要用的结论毕业到 `requirements/` / `architecture/` / `cs-keep decide` / `cs-keep learn` / `attention.md`（先列毕业清单，每项有去处或「不需保留」），结案提交写清范围、结论和 owner 接受了哪些风险，之后在单独的提交里删除目录（只含目录删除和非实现的 `.codestable/**` 改动）。还有未解决的 finding 时保留目录；被 owner 接受的 finding 把接受理由写进提交信息。开工检索默认不读 `audits/` 下已结束的旧目录。
+
 所有 audit 文档带 YAML frontmatter（`doc_type` 分别为 `audit-index` 和 `audit-finding`）便于 `search-yaml.py` 检索。
 
 ---
@@ -116,7 +118,7 @@ index.md 末尾给优先级建议：
 - **置信度必标**——按各条证据定级，不人为分配比例
 - **审查不隐含修复授权**——未经授权，不因审查而修改实现
 - **架构偏离引用当前契约**——读取相关有效架构文档对照；没有明确权威依据时区分建议与已证实偏离
-- **旧审计标注过期**——同名模块新审计覆盖旧审计时，旧 index 标 `status: superseded` + `superseded-by: {新目录}`
+- **旧审计标注过期**——同名模块新审计覆盖旧审计时，旧 index 标 `status: superseded` + `superseded-by: {新目录}`；旧审计的 finding 已全部解决或被接受时，直接按上面的收尾规则删除
 
 ---
 
@@ -127,6 +129,7 @@ index.md 末尾给优先级建议：
 - [ ] index.md 含完整交叉分类表
 - [ ] 每条发现 file:line + evidence + confidence
 - [ ] 给用户按优先级排列的下一步建议
+- [ ] finding 全部解决或被接受的，已毕业并删除目录；否则保留目录
 
 ---
 

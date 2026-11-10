@@ -54,11 +54,13 @@ Recovery priority:
 
 ## Report Language
 
-Use the report language policy in `.codestable/attention.md` for prose. If
-attention has no policy, use the owner's current conversation language.
+Goal files are read by agents: write each in one language, the one
+`.codestable/attention.md` names, or the language of the project's existing
+records. No bilingual copies. Content for the owner (final report,
+`approval-report.md`) uses the owner's language.
 
-Use canonical unsuffixed files by default. Add language-suffixed copies only
-when attention explicitly requires multiple language copies.
+Use canonical unsuffixed files. Add a language-suffixed copy only when attention
+names the human reader who needs it.
 
 ## Next Iteration Number
 

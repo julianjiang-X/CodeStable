@@ -12,12 +12,18 @@
         "action": "risk_check"
       },
       {
-        "say": "Route: cs-feat ff\nScale: 1 file, 5 lines - no scale trigger fires.\nRisk fact: the change edits a permission check, which is a trust boundary.\nAdded assurance, copying the whole assurance.md row: targeted security evidence, plus a security-purpose review stacked on top of the lane floor review (加审), plus owner confirmation because tightening the role check moves the authorization boundary.\nStaying in fastforward, not switching to design.\nRisk fact -> added assurance recorded in the ff-note."
+        "say": "Route: cs-feat ff\nScale: 1 file, 5 lines - no scale trigger fires.\nRisk fact: the change edits a permission check, which is a trust boundary.\nAdded assurance, copying the whole assurance.md row: targeted security evidence, plus an added security-purpose review round (加审) on top of the subagent implementation review, plus owner confirmation because tightening the role check moves the authorization boundary.\nHitting a row that calls for added review or owner confirmation makes the work-directory condition hold: a work directory and a formal unit, with subagent review.\nStaying in fastforward, not switching to design.\nRisk fact -> added assurance recorded in the ff-note."
       },
       {
         "write": {
           "path": ".codestable/features/2026-06-10-tighten-role-check/tighten-role-check-ff-note.md",
-          "content": "---\ndoc_type: feature-ff-note\nfeature: tighten-role-check\ndate: 2026-06-10\n---\n\n## 做了什么\n收紧一处角色校验。\n\n## 改了哪些\n- auth/roles.py:41 — 补上缺失的角色判断\n\n## 怎么验证的\n风险事实：改动落在权限判断（信任边界），且改变了授权边界。\n增加的保障（照搬 assurance.md 该行全部三项）：定向安全证据；在本通道地板 review 之外再加一轮定向安全 review（加审）；owner 确认授权边界变更。规模判据未触发，仍留在 fastforward。\n"
+          "content": "---\ndoc_type: feature-ff-note\nfeature: tighten-role-check\ndate: 2026-06-10\n---\n\n## 做了什么\n收紧一处角色校验。\n\n## 改了哪些\n- auth/roles.py:41 — 补上缺失的角色判断\n\n## 怎么验证的\n风险事实：改动落在权限判断（信任边界），且改变了授权边界。\n增加的保障（照搬 assurance.md 该行全部三项）：定向安全证据；在 subagent 实现 review 之外再加一轮定向安全 review（加审）；owner 确认授权边界变更。规模判据未触发，仍留在 fastforward。\n"
+        }
+      },
+      {
+        "write": {
+          "path": ".codestable/features/2026-06-10-tighten-role-check/tighten-role-check-implementation-review.md",
+          "content": "---\ndoc_type: implementation-review\nfeature: tighten-role-check\nreviewer: subagent\n---\n\n## Findings\nNo P0/P1. Added security-purpose review round also done.\n"
         }
       }
     ]
@@ -28,7 +34,7 @@
         "no scale trigger fires",
         "trust boundary",
         "whole assurance.md row",
-        "stacked on top of the lane floor review",
+        "formal unit, with subagent review",
         "owner confirmation",
         "not switching to design"
       ]
@@ -45,7 +51,8 @@
     },
     "artifacts": {
       "must_create": [
-        ".codestable/features/2026-06-10-tighten-role-check/tighten-role-check-ff-note.md"
+        ".codestable/features/2026-06-10-tighten-role-check/tighten-role-check-ff-note.md",
+        ".codestable/features/2026-06-10-tighten-role-check/tighten-role-check-implementation-review.md"
       ],
       "contains": [
         {
@@ -58,11 +65,15 @@
         },
         {
           "path": ".codestable/features/2026-06-10-tighten-role-check/tighten-role-check-ff-note.md",
-          "text": "地板 review 之外"
+          "text": "subagent 实现 review 之外"
         },
         {
           "path": ".codestable/features/2026-06-10-tighten-role-check/tighten-role-check-ff-note.md",
           "text": "owner 确认"
+        },
+        {
+          "path": ".codestable/features/2026-06-10-tighten-role-check/tighten-role-check-implementation-review.md",
+          "text": "reviewer: subagent"
         }
       ]
     },

@@ -132,9 +132,9 @@ def test_bilingual_policy_violation_blocks_doctor(tmp_path: Path) -> None:
         "should be written bilingually with English first, then Chinese.\n",
         encoding="utf-8",
     )
-    (unit / "demo-acceptance.md").write_text(
-        "# Demo Acceptance Report\n\n"
-        "All acceptance evidence is in English.\n\n"
+    (unit / "approval-report.md").write_text(
+        "# Demo Approval Report\n\n"
+        "All approval context is in English.\n\n"
         "## 中文摘要\n\n"
         "- 只有摘要。\n",
         encoding="utf-8",

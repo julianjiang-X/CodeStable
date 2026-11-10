@@ -257,6 +257,13 @@ def default_branch(root: Path) -> str | None:
     for candidate in ("main", "master"):
         if ref_exists(root, candidate) or ref_exists(root, f"refs/heads/{candidate}"):
             return candidate
+    # No remote and no main/master: the main checkout (first `git worktree list` entry)
+    # is the best guess, not whatever feature branch this linked worktree is on.
+    listing = run_git(root, "worktree", "list", "--porcelain")
+    if listing.returncode == 0:
+        for line in listing.stdout.split("\n\n", 1)[0].splitlines():
+            if line.startswith("branch "):
+                return line.removeprefix("branch ").removeprefix("refs/heads/")
     return current_branch(root)
 
 
@@ -414,6 +421,30 @@ def iter_units(root: Path) -> list[Path]:
     return sorted(units, key=lambda path: path.as_posix())
 
 
+def unit_completion_marker(root: Path, unit_dir: Path) -> str | None:
+    """Why a unit is past its working phase, by the repo's own predicates, or None.
+
+    "canceled": a lifecycle file says canceled/abandoned. "complete": a goal's
+    `state.yaml` is terminal. "implementation-done": `unit_needs_review` (ff-note,
+    fix-note, apply-notes or every checklist step done). In the 3.0.0 flow all of
+    these precede review, graduation and deletion, so a marker alone does not
+    mean the unit is closed.
+    """
+    if unit_has_canceled_lifecycle_status(root, unit_dir.as_posix()):
+        return "canceled"
+    if unit_dir.parts[1] == "goals":
+        try:
+            lines = (root / unit_dir / "state.yaml").read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            return None
+        for line in lines:
+            key, sep, value = line.partition(":")
+            if sep and key.strip() == "status":
+                return "complete" if value.strip().strip("\"'").lower() in GOAL_TERMINAL_STATUSES else None
+        return None
+    return "implementation-done" if unit_needs_review(root, unit_dir) else None
+
+
 def review_has_subagent_evidence(path: Path) -> bool:
     if not path.exists():
         return False
@@ -450,7 +481,193 @@ def missing_review_findings(root: Path, units: list[Path]) -> list[Finding]:
     return findings
 
 
-def resolve_unit(root: Path, value: str) -> Path:
+def unit_was_removed(root: Path, unit_dir: Path) -> bool:
+    """True when a unit directory is gone from the working tree because it was closed.
+
+    Closing a unit deletes its work directory (shared-conventions.md, section 3),
+    so a missing directory that git still knows about is a finished unit, not a
+    typo. The deletion may be uncommitted (HEAD still has the files) or committed.
+    """
+    if (root / unit_dir).exists():
+        return False
+    path = unit_dir.as_posix()
+    tracked = run_git(root, "ls-tree", "-r", "--name-only", "HEAD", "--", path)
+    if tracked.returncode == 0 and tracked.stdout.strip():
+        return True
+    deleted = run_git(root, "log", "-1", "--diff-filter=D", "--format=%H", "--", path)
+    return deleted.returncode == 0 and bool(deleted.stdout.strip())
+
+
+def looks_like_unit_path(candidate: Path) -> bool:
+    parts = candidate.parts
+    return len(parts) == 3 and parts[0] == ".codestable" and parts[1] in (*UNIT_ROOTS, "goals")
+
+
+GOAL_TERMINAL_STATUSES = {"complete", "canceled", "cancelled", "abandoned"}
+
+
+def head_files(root: Path, directory: Path) -> list[str]:
+    """Paths of tracked files under `directory` in HEAD (empty when HEAD has none)."""
+    listing = run_git(root, "ls-tree", "-r", "--name-only", "HEAD", "--", directory.as_posix())
+    if listing.returncode != 0:
+        return []
+    return [line for line in listing.stdout.splitlines() if line]
+
+
+def head_text(root: Path, path: str) -> str | None:
+    shown = run_git(root, "show", f"HEAD:{path}")
+    return shown.stdout if shown.returncode == 0 else None
+
+
+def checklist_steps_done_text(text: str) -> bool:
+    in_steps = False
+    saw_step = False
+    for raw_line in text.splitlines():
+        stripped = raw_line.strip()
+        if stripped == "steps:":
+            in_steps = True
+            continue
+        if in_steps and stripped and not raw_line.startswith((" ", "-")):
+            break
+        if not in_steps:
+            continue
+        if stripped.startswith("- "):
+            saw_step = True
+        if stripped.startswith("status:"):
+            _, _, value = stripped.partition(":")
+            if value.strip() != "done":
+                return False
+    return saw_step
+
+
+def head_unit_needs_review(root: Path, unit_dir: Path) -> bool:
+    """`unit_needs_review`, decided from the unit's content in HEAD."""
+    names = head_files(root, unit_dir)
+    base = {Path(n).name for n in names}
+    unit_type = unit_dir.parts[1]
+
+    def done_checklist() -> bool:
+        return any(
+            checklist_steps_done_text(head_text(root, n) or "")
+            for n in names
+            if Path(n).name.endswith("-checklist.yaml")
+        )
+
+    if unit_type == "features":
+        return any(n.endswith("-ff-note.md") for n in base) or done_checklist()
+    if unit_type == "issues":
+        return any(n.endswith("-fix-note.md") for n in base)
+    if unit_type == "refactors":
+        return any(n.endswith("-apply-notes.md") for n in base) or done_checklist()
+    return False
+
+
+def head_unit_canceled(root: Path, unit_dir: Path) -> bool:
+    slug = unit_slug(unit_dir)
+    for suffix in ("acceptance", "ff-note", "fix-note", "apply-notes"):
+        text = head_text(root, f"{unit_dir.as_posix()}/{slug}-{suffix}.md")
+        if text and any(
+            (m := STATUS_RE.match(line)) and m.group(1).lower() in CANCELED_UNIT_STATUSES
+            for line in text.splitlines()
+        ):
+            return True
+    return False
+
+
+def deleted_unit_dirs(root: Path, paths: list[str]) -> set[Path]:
+    """Work directories (feature / issue / refactor / goal) that this change removes
+    entirely: some path sits under them, the directory is gone, and HEAD has it."""
+    units: set[Path] = set()
+    for path in paths:
+        parts = Path(path).parts
+        if len(parts) < 3 or parts[0] != ".codestable" or parts[1] not in (*UNIT_ROOTS, "goals"):
+            continue
+        unit = Path(*parts[:3])
+        if unit in units or (root / unit).exists():
+            continue
+        if head_files(root, unit):
+            units.add(unit)
+    return units
+
+
+def unit_deletion_findings(root: Path, paths: list[str], allow_self_review: bool = False) -> list[Finding]:
+    """Guard the closing deletion of a work directory.
+
+    A deleted directory no longer shows what it was, so the decision uses HEAD:
+    a unit that needed implementation review there must already carry subagent
+    review evidence there; an unfinished goal must not be deleted; and the
+    deletion must not ride along with implementation changes (delete the
+    directory in its own commit).
+    """
+    units = deleted_unit_dirs(root, paths)
+    if not units:
+        return []
+    findings: list[Finding] = []
+    for unit in sorted(units):
+        if unit.parts[1] == "goals":
+            state = head_text(root, f"{unit.as_posix()}/state.yaml") or ""
+            status = ""
+            for line in state.splitlines():
+                key, sep, value = line.partition(":")
+                if sep and key.strip() == "status":
+                    status = value.strip().strip("\"'").lower()
+                    break
+            if status and status not in GOAL_TERMINAL_STATUSES:
+                findings.append(
+                    Finding(
+                        severity="P1",
+                        message=(
+                            f"Goal directory is being deleted while its state.yaml in HEAD says status: {status}. "
+                            "An active or blocked goal's directory is its recovery record."
+                        ),
+                        path=unit.as_posix(),
+                    )
+                )
+            continue
+        if not head_unit_needs_review(root, unit) or head_unit_canceled(root, unit):
+            continue
+        review_path = review_file_for(unit)
+        review = head_text(root, review_path.as_posix())
+        if review is None:
+            findings.append(
+                Finding(
+                    severity="P1",
+                    message=(
+                        "Work directory is being deleted but HEAD holds no implementation review evidence for it. "
+                        "Commit the review evidence first, then delete the directory in its own commit."
+                    ),
+                    path=review_path.as_posix(),
+                )
+            )
+        elif not allow_self_review and not any(
+            (parts := line.partition(":"))[1]
+            and parts[0].strip().lower() == "reviewer"
+            and parts[2].strip().lower() == "subagent"
+            for line in review.splitlines()
+        ):
+            findings.append(
+                Finding(
+                    severity="P1",
+                    message="Implementation review evidence in HEAD does not show reviewer: subagent.",
+                    path=review_path.as_posix(),
+                )
+            )
+    implementation = [path for path in paths if is_implementation_path(path)]
+    if implementation:
+        findings.append(
+            Finding(
+                severity="P1",
+                message=(
+                    "A change that deletes a work directory must not also carry implementation changes; "
+                    "commit the code and review evidence first, then delete the directory in its own commit."
+                ),
+                path=", ".join(implementation),
+            )
+        )
+    return findings
+
+
+def resolve_unit(root: Path, value: str, allow_removed: bool = False) -> Path:
     candidate = Path(value)
     if candidate.is_absolute():
         return candidate.resolve().relative_to(root.resolve())
@@ -460,6 +677,12 @@ def resolve_unit(root: Path, value: str) -> Path:
     if len(matches) == 1:
         return matches[0]
     if not matches:
+        if looks_like_unit_path(candidate) and unit_was_removed(root, candidate):
+            if allow_removed:
+                return candidate
+            raise ValueError(
+                f"unit was closed and its work directory deleted (see git history): {value}"
+            )
         raise ValueError(f"unit not found: {value}")
     raise ValueError(f"unit is ambiguous: {value}")
 
@@ -539,6 +762,18 @@ def changed_paths_between(root: Path, base_ref: str, head_ref: str) -> list[str]
     if diff.returncode != 0:
         return []
     return [line.strip() for line in diff.stdout.splitlines() if line.strip()]
+
+
+def changed_status_between(root: Path, base_ref: str, head_ref: str) -> list[tuple[str, str]]:
+    diff = run_git(root, "diff", "--name-status", f"{base_ref}..{head_ref}")
+    if diff.returncode != 0:
+        return []
+    changes: list[tuple[str, str]] = []
+    for line in diff.stdout.splitlines():
+        status, _, rest = line.partition("\t")
+        if status and rest:
+            changes.append((status, rest.split("\t")[-1]))
+    return changes
 
 
 def post_baseline_implementation_changes(root: Path, baseline: dict[str, object]) -> list[str]:
@@ -653,19 +888,10 @@ CHINESE_TEXT_RE = re.compile(r"[\u3400-\u9fff]")
 ASCII_WORD_RE = re.compile(r"[A-Za-z]")
 BACKLOG_SCAN_EXCLUDED_SUFFIXES = ("-review-packet.md",)
 BACKLOG_SCAN_EXCLUDED_PREFIXES = (".codestable/reference/",)
-BILINGUAL_REPORT_FILENAMES = {"approval-report.md", "functional-acceptance.md"}
-BILINGUAL_REPORT_SUFFIXES = (
-    "-analysis.md",
-    "-acceptance.md",
-    "-apply-notes.md",
-    "-design.md",
-    "-ff-note.md",
-    "-fix-note.md",
-    "-implementation-review.md",
-    "-report.md",
-    "-roadmap.md",
-    "-scan.md",
-)
+# Only files written for the owner are held to the bilingual policy. Work-directory
+# files (design, checklist, acceptance, iterations, ...) are read by agents and use
+# one language (shared-conventions.md, report language policy).
+BILINGUAL_REPORT_FILENAMES = {"approval-report.md"}
 FOLLOW_UP_BLOCKING_TEXT_MARKERS = (
     "before merge",
     "before publish",
@@ -716,13 +942,7 @@ def is_bilingual_report_target(rel_path: str) -> bool:
         return False
     if not should_scan_backlog_file(rel_path):
         return False
-    name = Path(rel_path).name
-    path = Path(rel_path)
-    if rel_path.startswith(".codestable/goals/"):
-        return name in {"goal.md", "functional-acceptance.md", "functional-acceptance-request.md"} or (
-            len(path.parts) >= 4 and path.parts[-2] == "iterations" and name.endswith(".md")
-        )
-    return name in BILINGUAL_REPORT_FILENAMES or any(name.endswith(suffix) for suffix in BILINGUAL_REPORT_SUFFIXES)
+    return Path(rel_path).name in BILINGUAL_REPORT_FILENAMES
 
 
 def content_start_line(lines: list[str]) -> int:
